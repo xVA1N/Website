@@ -1298,6 +1298,16 @@
     sdg('sb9', 'Generaloberstabsarzt', 'general', ['B9'], 'Marine: Admiraloberstabsarzt')
   ];
 
+  // NATO-Rangcode nach STANAG 2116 (OR = Mannschaften und Unteroffiziere, OF = Offiziere)
+  var NATO_RANG = {
+    soldat: 'OR-1', schuetze_ua: 'OR-1', gefr: 'OR-2', gefr_ua: 'OR-2', gefr_fa: 'OR-2',
+    ogefr: 'OR-3', ogefr_ua: 'OR-3', hgefr: 'OR-4', hgefr_ua: 'OR-4', stgefr: 'OR-4', ostgefr: 'OR-4',
+    korp: 'OR-4', stkorp: 'OR-4', uffz: 'OR-5', uffz_fa: 'OR-5', stuffz: 'OR-5', fj: 'OR-5',
+    fw: 'OR-6', ofw: 'OR-6', faehnrich: 'OR-6', hfw: 'OR-7', ofaehnrich: 'OR-7', stfw: 'OR-8', ostfw: 'OR-9',
+    lt: 'OF-1', olt: 'OF-1', hptm: 'OF-2', sthptm: 'OF-2', sa13: 'OF-2', maj: 'OF-3', sa14: 'OF-3',
+    oberstlt: 'OF-4', sa15: 'OF-4', oberst: 'OF-5', sa16: 'OF-5', bgen: 'OF-6', sb6: 'OF-6',
+    gmaj: 'OF-7', sb7: 'OF-7', glt: 'OF-8', sb9: 'OF-8', gen: 'OF-9'
+  };
   // Abkürzungen der Dienstgrade: [Heer, Marine, Luftwaffe, Sanitätsdienst]. Fehlt Luftwaffe oder
   // Sanitätsdienst, gilt die Abkürzung des Heeres. Anwärterzusätze (UA)/(FA) werden angehängt.
   var ABK = {
@@ -1895,6 +1905,7 @@
     if (info) {
       var zeilen = [];
       if (abkuerzung(d.id)) zeilen.push(['Abkürzung', abkuerzung(d.id)]);
+      if (NATO_RANG[d.id]) zeilen.push(['NATO-Rang', NATO_RANG[d.id]]);
       zeilen.push(['Dienstgradgruppe', g.name]);
       zeilen.push(['Besoldungsgruppe', bgsLabel(d.bgs)]);
       d.bgs.forEach(function (bg) {
