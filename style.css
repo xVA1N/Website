@@ -620,7 +620,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-zeichen { background: none; border: 0; }
 .lage-zeichen svg { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
 .lage-leer { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #4A544C; z-index: 500; pointer-events: none; }
-.lage-kachelfehler { position: absolute; left: 10px; right: 10px; bottom: 28px; z-index: 600; padding: 10px 12px; border-radius: 8px; background: #FFF0CC; color: #5E4200; border: 1px solid #E8C86A; font-size: .85rem; pointer-events: none; }
+.lage-kachelfehler { position: absolute; left: 56px; right: 10px; top: 10px; z-index: 600; padding: 10px 12px; border-radius: 8px; background: #FFF0CC; color: #5E4200; border: 1px solid #E8C86A; font-size: .85rem; pointer-events: none; }
 .lage-liste-zeichen { display: inline-grid; place-items: center; width: 44px; height: 36px; flex: none; }
 .lage-liste-zeichen svg { max-width: 44px; max-height: 36px; }
 #lage-meldung:empty { display: none; }
@@ -635,3 +635,36 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-popup-knoepfe .knopf { min-height: 36px; font-size: .9rem; gap: 6px; flex: none; }
 .lage-popup-knoepfe .knopf[disabled] { opacity: .45; cursor: not-allowed; }
 .lage-popup-knoepfe .knopf[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+/* Lagekarte: Zeichnen, Koordinaten, mehrere Karten */
+.lage-karten-knoepfe .knopf { flex: 1 1 100px; min-height: 40px; }
+.lage-ziel { margin-top: 12px; }
+.lage-ziel-reihe { display: flex; gap: 8px; }
+.lage-ziel-reihe input { flex: 1; min-width: 0; min-height: 44px; font: inherit; font-family: var(--font-mono); font-size: .9rem; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
+.lage-ziel-reihe .knopf { flex: none; }
+.lage-typen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.lage-typ { display: grid; justify-items: center; gap: 2px; min-height: 64px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); font: inherit; font-weight: 500; cursor: pointer; }
+.lage-typ svg { width: 40px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.lage-typ svg .f { fill: currentColor; stroke: none; }
+.lage-typ[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.lage-form-bearb { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line); }
+.lage-rahmen { position: relative; }
+.lage-leiste { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 1100; display: grid; gap: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .96); color: #1A221C; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); font-size: .88rem; }
+.lage-leiste-knoepfe { display: flex; flex-wrap: wrap; gap: 6px; }
+.lage-leiste-knoepfe .knopf { flex: 1 1 80px; min-height: 38px; font-size: .88rem; }
+.lage-leiste .knopf.sekundaer { background: #FFFFFF; color: #35553A; border-color: #35553A; }
+.lage-leiste .knopf.primaer { background: #35553A; color: #FFFFFF; border-color: #35553A; }
+.lage-leiste .knopf[disabled] { opacity: .45; }
+.lage-karte.zeichnet { cursor: crosshair; }
+.lage-karte.zeichnet .leaflet-marker-icon.lage-zeichen, .lage-karte.zeichnet path.leaflet-interactive { pointer-events: none; }
+.lage-kreuz { display: none; position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; z-index: 450; pointer-events: none; }
+.lage-karte.mit-koord .lage-kreuz { display: block; }
+.lage-kreuz::before, .lage-kreuz::after { content: ""; position: absolute; background: #1A221C; box-shadow: 0 0 0 1px rgba(255, 255, 255, .8); }
+.lage-kreuz::before { left: 10px; top: 0; width: 2px; height: 22px; }
+.lage-kreuz::after { top: 10px; left: 0; height: 2px; width: 22px; }
+.lage-koord { position: absolute; left: 8px; bottom: 22px; z-index: 800; padding: 3px 8px; border-radius: 6px; background: rgba(255, 255, 255, .9); color: #1A221C; font-family: var(--font-mono); font-size: .78rem; pointer-events: none; }
+.lage-koord:empty { display: none; }
+.lage-griff { width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 3px solid #35553A; box-shadow: 0 1px 4px rgba(0, 0, 0, .4); }
+.leaflet-tooltip.lage-formtext { background: rgba(255, 255, 255, .85); border: 0; box-shadow: none; padding: 1px 5px; font-weight: 600; color: #1A221C; font-size: 12px; }
+.leaflet-tooltip.lage-formtext::before { display: none; }
+.lage-popup-mgrs { font-family: var(--font-mono); font-size: .8rem; }

@@ -617,7 +617,13 @@
   <section class="view" id="view-lage" aria-label="Lagekarte" hidden>
     <p class="notice warn-lage" role="note"><strong>Nur für Ausbildung und Übung.</strong> Keine echten Lagen, Stellungen oder eingestuften Inhalte (VS-NfD) eintragen. Bei Online-Karten erfährt der Kartenanbieter, welchen Ausschnitt du ansiehst.</p>
     <section class="panel">
-      <fieldset><legend>Grundlage</legend><div class="seg" id="lage-modus">
+      <div class="u-felder einspaltig p-felder"><div><label class="label" for="lage-wahl" style="display:block">Lagekarte</label><select id="lage-wahl"></select></div></div>
+      <div class="dg-aktionen lage-karten-knoepfe">
+        <button type="button" class="knopf sekundaer" id="lage-karte-neu">Neue Lagekarte</button>
+        <button type="button" class="knopf sekundaer" id="lage-karte-name">Umbenennen</button>
+        <button type="button" class="knopf sekundaer" id="lage-karte-weg">Löschen</button>
+      </div>
+      <fieldset style="margin-top:12px"><legend>Grundlage</legend><div class="seg" id="lage-modus">
         <label><input type="radio" name="lage-modus" value="topo" checked><span>Topografische Karte</span></label>
         <label><input type="radio" name="lage-modus" value="osm"><span>Straßenkarte</span></label>
         <label><input type="radio" name="lage-modus" value="bild"><span>Eigenes Bild</span></label>
@@ -630,12 +636,46 @@
         <input type="file" id="lage-bild-datei" accept="image/*" hidden>
         <p class="hint">Zum Beispiel ein Foto einer Übungskarte oder eine Skizze. Das Bild bleibt im Gerät und wird nicht hochgeladen.</p>
       </div>
+      <form id="lage-ziel-form" class="lage-ziel" autocomplete="off">
+        <div id="lage-ziel-wrap">
+          <label class="label" for="lage-ziel" style="display:block">Gehe zu Koordinate</label>
+          <div class="lage-ziel-reihe"><input type="text" id="lage-ziel" placeholder="32U NB 12345 67890 oder 51,05, 10,30" inputmode="text" spellcheck="false"><button type="submit" class="knopf sekundaer">Los</button></div>
+        </div>
+      </form>
       <p class="u-meldung" id="lage-meldung" aria-live="polite"></p>
     </section>
-    <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
+    <section class="panel" id="lage-werkzeug">
+      <h2>Zeichnen</h2>
+      <div class="seg lage-typen">
+        <button type="button" class="lage-typ" data-lage-typ="linie" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M4 22C14 6 24 26 36 8"/></svg>Linie</button>
+        <button type="button" class="lage-typ" data-lage-typ="pfeil" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M5 24L30 8"/><path class="f" d="M36 4l-11 1 6 8z"/></svg>Pfeil</button>
+        <button type="button" class="lage-typ" data-lage-typ="raum" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M6 8l20-4 9 14-14 8-15-6z"/></svg>Raum</button>
+      </div>
+      <div class="u-felder p-felder" style="margin-top:10px">
+        <div><label class="label" for="lage-farbe" style="display:block">Farbe</label><select id="lage-farbe"><option value="blau">Blau (eigene)</option><option value="rot">Rot (Feind)</option><option value="schwarz">Schwarz (allgemein)</option><option value="gruen">Grün (Hindernis, Gelände)</option></select></div>
+        <div><label class="label" for="lage-text" style="display:block">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. PL ALPHA"></div>
+      </div>
+      <label class="check" for="lage-gestrichelt" style="margin-top:10px"><input type="checkbox" id="lage-gestrichelt"><span class="t">Gestrichelt (geplant oder vermutet)</span></label>
+      <div class="lage-form-bearb" id="lage-form-bearb" hidden>
+        <p class="hint" id="lage-form-bearb-text" style="margin-top:0"></p>
+        <div class="dg-aktionen"><button type="button" class="knopf primaer" id="lage-form-uebernehmen">Änderungen übernehmen</button><button type="button" class="knopf sekundaer" id="lage-form-abbrechen">Abbrechen</button></div>
+      </div>
+      <p class="hint">Typ wählen, dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Beim Pfeil kommt die Spitze an den letzten Punkt.</p>
+    </section>
+    <div class="lage-rahmen">
+      <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
+      <div class="lage-leiste" id="lage-leiste" hidden>
+        <span id="lage-leiste-text"></span>
+        <span class="lage-leiste-knoepfe">
+          <button type="button" class="knopf sekundaer" id="lage-leiste-zurueck">Punkt zurück</button>
+          <button type="button" class="knopf sekundaer" id="lage-leiste-abbrechen">Abbrechen</button>
+          <button type="button" class="knopf primaer" id="lage-leiste-fertig">Fertig</button>
+        </span>
+      </div>
+    </div>
     <section class="panel">
       <div class="u-kopfzeile">
-        <h2>Zeichen auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
+        <h2>Auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
         <a class="u-plus" href="#symbole" aria-label="Zeichen hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
       </div>
       <p class="hint">Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
@@ -782,7 +822,8 @@
 <script src="js/10-profil.js"></script>
 <script src="js/11-zeitstrahl.js"></script>
 <script src="js/12-symbole.js"></script>
-<script src="js/13-lage.js"></script>
-<script src="js/14-start.js"></script>
+<script src="js/13-koordinaten.js"></script>
+<script src="js/14-lage.js"></script>
+<script src="js/15-start.js"></script>
 </body>
 </html>

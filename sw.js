@@ -2,12 +2,12 @@
    Strategie: immer zuerst aus dem Netz laden (damit neue Werte aus daten.js sofort ankommen),
    bei fehlender Verbindung die zuletzt gespeicherte Fassung nehmen.
    Bei neuen Dateien die Liste DATEIEN ergänzen und VERSION hochzählen. */
-var VERSION = 'meinkamerad-v3';
+var VERSION = 'meinkamerad-v4';
 var DATEIEN = [
   './', 'index.html', 'style.css', 'daten.js', 'manifest.webmanifest',
   'js/01-grundlagen.js', 'js/02-dienstgrade.js', 'js/03-favoriten.js', 'js/04-vergleich.js', 'js/05-duz.js',
   'js/06-netto.js', 'js/07-rechner.js', 'js/08-ereignisse.js', 'js/09-urlaubskartei.js', 'js/10-profil.js',
-  'js/11-zeitstrahl.js', 'js/12-symbole.js', 'js/13-lage.js', 'js/14-start.js',
+  'js/11-zeitstrahl.js', 'js/12-symbole.js', 'js/13-koordinaten.js', 'js/14-lage.js', 'js/15-start.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'
 ];
 

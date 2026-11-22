@@ -9,7 +9,7 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-lage`, `14-start`. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`. |
 | `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte. Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
@@ -75,7 +75,7 @@ Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (
 
 ## Lagekarte
 
-Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Zeichen lassen sich verschieben, sperren (Schloss, dann nicht mehr verschiebbar oder änderbar), nachträglich im Baukasten bearbeiten und löschen. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
+Es gibt beliebig viele Lagekarten (anlegen, umbenennen, löschen), jede mit eigener Grundlage. Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Dazu kommen Linien, Pfeile und Räume in Blau, Rot, Schwarz oder Grün, auch gestrichelt und beschriftet. Zeichen und Formen lassen sich verschieben, sperren (Schloss, dann nicht mehr änderbar), nachträglich bearbeiten und löschen. Auf Online-Karten zeigt ein Fadenkreuz die Kartenmitte in MGRS (UTMREF), „Gehe zu Koordinate“ springt zu einer MGRS-Angabe oder zu Breite und Länge. Die Umrechnung steht in `js/13-koordinaten.js`. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
 
 ## Urlaubskartei
 
