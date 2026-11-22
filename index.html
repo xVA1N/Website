@@ -276,6 +276,33 @@
   .knopf.sekundaer { background: var(--surface); color: var(--accent); }
   .knopf .ic { width: 20px; height: 20px; }
   .dg-info { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 10px; }
+  .knopf[aria-pressed="true"] { background: var(--soft); }
+  .vgl-leiste {
+    position: fixed; left: 0; right: 0; z-index: 19;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));
+    background: var(--accent); color: var(--accent-ink);
+  }
+  .vgl-leiste a { color: var(--accent-ink); font-weight: 600; text-decoration: none; border: 1px solid currentColor; border-radius: 8px; padding: 8px 14px; white-space: nowrap; }
+  .vgl-leiste button { background: none; border: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 8px 4px; }
+  body.mit-leiste { padding-bottom: 160px; }
+  .vgl-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .vgl { border-collapse: collapse; width: 100%; min-width: 100%; font-size: .9rem; }
+  .vgl th, .vgl td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; min-width: 132px; }
+  .vgl tr:first-child th, .vgl tr:first-child td { border-top: 0; }
+  .vgl th[scope="row"] { position: sticky; left: 0; background: var(--soft); color: var(--muted); font-weight: 600; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; min-width: 104px; max-width: 120px; z-index: 1; }
+  .vgl td { background: var(--surface); }
+  .vgl .zahl { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .vgl .summe td { font-weight: 600; }
+  .vgl .kopf { display: grid; gap: 6px; }
+  .vgl .kopf .name { font-weight: 600; }
+  .vgl .kopf .abk { font-family: var(--font-mono); color: var(--muted); font-size: .85rem; }
+  .vgl .entfernen { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--accent); font: inherit; font-size: .85rem; text-decoration: underline; cursor: pointer; min-height: 32px; }
+  .vgl select { min-height: 36px; padding: 0 8px; }
+  .vgl .plus { color: var(--accent); }
+  .vgl .klein { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; font-family: var(--font-text); }
+  .vgl .knopf { min-height: 36px; padding: 0 10px; font-size: .85rem; flex: none; }
   .dg-info .eigen { border-top: 1px solid var(--line); padding-top: 10px; white-space: pre-line; }
   .zeile .n { font-weight: 500; min-width: 0; }
   .zeile .abk { font-family: var(--font-mono); font-weight: 400; font-size: .85rem; color: var(--muted); margin-left: 6px; white-space: nowrap; }
@@ -376,6 +403,7 @@
   <symbol id="i-rank" viewBox="0 0 24 24"><path d="M5 8l7-5 7 5M5 14l7-5 7 5M5 20l7-5 7 5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
   <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
 </svg>
 
@@ -411,6 +439,10 @@
       <a class="tile" href="#zulagen">
         <span class="box"><svg class="ic"><use href="#i-plus"/></svg></span>
         <span><span class="tt">Zulagen</span><span class="td">Stellenzulagen und Auslandsverwendungszuschlag nachschlagen</span></span>
+      </a>
+      <a class="tile" href="#vergleich">
+        <span class="box"><svg class="ic"><use href="#i-vgl"/></svg></span>
+        <span><span class="tt">Vergleich</span><span class="td">Zwei oder mehr Dienstgrade nebeneinander vergleichen</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -551,6 +583,30 @@
     <div id="dg-liste" class="view"></div>
   </section>
 
+  <!-- VERGLEICH -->
+  <section class="view" id="view-vergleich" aria-label="Vergleich" hidden>
+    <section class="panel">
+      <div>
+        <h2>Dienstgrade vergleichen</h2>
+        <p class="hint">Wähle bis zu 4 Dienstgrade. Du kannst sie hier hinzufügen oder auf der Seite Dienstgrade über „Zum Vergleich“. Verglichen wird das Grundgehalt in derselben Erfahrungsstufe, dazu Erhöhungsbeträge und Amtszulagen. Familienzuschlag und Zulagen für Verwendungen sind nicht enthalten.</p>
+      </div>
+      <div>
+        <label class="label" for="vgl-neu" style="display:block">Dienstgrad hinzufügen</label>
+        <select id="vgl-neu"></select>
+      </div>
+      <fieldset>
+        <legend>Erfahrungsstufe für alle</legend>
+        <div class="seg" id="vgl-stufe"></div>
+      </fieldset>
+      <label class="check" for="vgl-amt">
+        <input type="checkbox" id="vgl-amt">
+        <span class="t">Amtszulage bei herausgehobener Funktion einrechnen<span class="sub">Betrifft Oberstabsfeldwebel und Stabshauptmann</span></span>
+      </label>
+    </section>
+    <p class="hint" id="vgl-leer">Noch kein Dienstgrad ausgewählt.</p>
+    <div class="vgl-scroll" id="vgl-tabelle-wrap" hidden><table class="vgl" id="vgl-tabelle"></table></div>
+  </section>
+
   <!-- GRUPPEN-INFO -->
   <section class="view" id="view-gruppe" aria-label="Erklärung zur Dienstgradgruppe" hidden>
     <div id="gruppe-inhalt" class="view"></div>
@@ -617,6 +673,11 @@
     </section>
   </section>
 </main>
+
+<div class="vgl-leiste" id="vgl-leiste" hidden>
+  <span id="vgl-leiste-text"></span>
+  <span><button type="button" id="vgl-leeren">Leeren</button> <a href="#vergleich">Vergleichen</a></span>
+</div>
 
 <nav class="tabbar" aria-label="Hauptnavigation">
   <a href="#start" data-tab="start" aria-current="page"><svg class="ic"><use href="#i-home"/></svg><span>Start</span></a>
@@ -837,6 +898,9 @@
     stelle: 'keine',
     amtHerausgehoben: false,
     offenDg: '',
+    vergleich: [],
+    vglStufe: 3,
+    vglAmt: false,
     infoDg: '',
     dauer: 0,
     gebiet: 'keine',
@@ -935,7 +999,7 @@
   }
 
   /* ===== Reiter ===== */
-  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr' };
+  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich' };
 
   function show(v) {
     var titel = null, tab = v;
@@ -945,8 +1009,11 @@
       v = 'gruppe'; tab = 'dienstgrade';
     }
     if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
-    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
+    if (v === 'vergleich') tab = 'dienstgrade';
+    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelector('.wrap').setAttribute('data-view', v);
+    aktuelleAnsicht = v;
+    renderLeiste();
     $('titel').textContent = titel || VIEWS[v];
     var tabs = document.querySelectorAll('.tabbar a');
     for (var i = 0; i < tabs.length; i++) {
@@ -1146,11 +1213,101 @@
   /* ===== Darstellung der Listen ===== */
   var gruppeOffen = {};
   var INFO_ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.8v.1"/></svg>';
+  /* ===== Vergleich ===== */
+  var VGL_MAX = 4;
+  var aktuelleAnsicht = 'start';
+  function imVergleich(id) { return state.vergleich.some(function (x) { return x.id === id; }); }
+  function dgById(id) { return DIENSTGRADE.filter(function (x) { return x.id === id; })[0]; }
+  function dgName(d) { return d.n[state.tsk] || d.n.san || d.n.heer; }
+  function vergleichUmschalten(id) {
+    if (imVergleich(id)) state.vergleich = state.vergleich.filter(function (x) { return x.id !== id; });
+    else if (state.vergleich.length < VGL_MAX) state.vergleich.push({ id: id, bg: dgById(id).bgs[0] });
+  }
+  // Monatsbetrag ohne Familie und Verwendungszulagen
+  function vglWerte(x) {
+    var d = dgById(x.id), bg = x.bg;
+    var dd = { id: d.id, gruppe: d.gruppe, bg: bg };
+    var grund = istA(bg) ? TAB_A[bg][state.vglStufe - STUFE_MIN] : TAB_B[bg];
+    var plus = erhoehung(dd);
+    var az = D.amtszulagen[d.id];
+    var amt = az && (az.art === 'immer' || state.vglAmt) ? az.betrag : 0;
+    return { d: d, bg: bg, grund: grund, plus: plus, az: az, amt: amt, summe: Math.round((grund + plus + amt) * 100) / 100 };
+  }
+  function renderLeiste() {
+    var n = state.vergleich.length;
+    var zeigen = n > 0 && aktuelleAnsicht === 'dienstgrade';
+    $('vgl-leiste').hidden = !zeigen;
+    document.body.classList.toggle('mit-leiste', zeigen);
+    $('vgl-leiste-text').textContent = n === 1 ? '1 Dienstgrad ausgewählt' : n + ' Dienstgrade ausgewählt' + (n >= VGL_MAX ? ' (Maximum)' : '');
+  }
+  function renderVergleich() {
+    var n = state.vergleich.length;
+    $('vgl-neu').innerHTML = '<option value="">' + (n >= VGL_MAX ? 'Maximal ' + VGL_MAX + ' Dienstgrade' : 'Bitte wählen …') + '</option>' +
+      GRUPPEN.map(function (g) {
+        var opts = DIENSTGRADE.filter(function (d) { return d.gruppe === g.id && sichtbar(d) && !imVergleich(d.id); })
+          .map(function (d) { return '<option value="' + d.id + '">' + dgName(d) + (abkuerzung(d.id) ? ' (' + abkuerzung(d.id) + ')' : '') + '</option>'; }).join('');
+        return opts ? '<optgroup label="' + g.name + '">' + opts + '</optgroup>' : '';
+      }).join('');
+    $('vgl-neu').disabled = n >= VGL_MAX;
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="vgl-stufe"]'), function (r) { r.checked = Number(r.value) === state.vglStufe; });
+    $('vgl-amt').checked = state.vglAmt;
+    $('vgl-leer').hidden = n > 0;
+    $('vgl-tabelle-wrap').hidden = n === 0;
+    if (!n) { $('vgl-tabelle').innerHTML = ''; renderLeiste(); return; }
+
+    var w = state.vergleich.map(vglWerte);
+    var basis = w[0].summe;
+    function zeile(titel, zellen, cls) {
+      return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><th scope="row">' + titel + '</th>' + zellen.join('') + '</tr>';
+    }
+    var html = '';
+    html += zeile('Dienstgrad', w.map(function (v) {
+      return '<td><div class="kopf"><span class="rk' + (state.tsk !== 'marine' ? ' bild' : '') + '">' + rangBild(v.d.id) + '</span>' +
+        '<span class="name">' + dgName(v.d) + '</span>' + (abkuerzung(v.d.id) ? '<span class="abk">' + abkuerzung(v.d.id) + '</span>' : '') +
+        '<button type="button" class="entfernen" data-vgl-weg="' + v.d.id + '">Entfernen</button></div></td>';
+    }));
+    html += zeile('Gruppe', w.map(function (v) {
+      return '<td>' + GRUPPEN.filter(function (g) { return g.id === v.d.gruppe; })[0].name + '</td>';
+    }));
+    html += zeile('Besoldungs&shy;gruppe', w.map(function (v) {
+      if (v.d.bgs.length < 2) return '<td>' + bgLabel(v.bg) + '</td>';
+      return '<td><select data-vgl-bg="' + v.d.id + '" aria-label="Besoldungsgruppe ' + dgName(v.d) + '">' +
+        v.d.bgs.map(function (b) { return '<option value="' + b + '"' + (b === v.bg ? ' selected' : '') + '>' + bgLabel(b) + '</option>'; }).join('') + '</select></td>';
+    }));
+    html += zeile('Grundgehalt', w.map(function (v) {
+      return '<td class="zahl">' + eur.format(v.grund + v.plus) + '<span class="klein">' + (istA(v.bg) ? 'Stufe ' + state.vglStufe : 'fester Betrag') +
+        (v.plus ? ', inkl. ' + eur.format(v.plus) + ' Erhöhungsbetrag' : '') + '</span></td>';
+    }));
+    html += zeile('Amtszulage', w.map(function (v) {
+      if (!v.az) return '<td class="zahl">–</td>';
+      if (v.amt) return '<td class="zahl">' + eur.format(v.amt) + '</td>';
+      return '<td class="zahl">–<span class="klein">möglich: ' + eur.format(v.az.betrag) + '</span></td>';
+    }));
+    html += zeile('Summe pro Monat', w.map(function (v) { return '<td class="zahl">' + eur.format(v.summe) + '</td>'; }), 'summe');
+    html += zeile('Unterschied', w.map(function (v, i) {
+      if (i === 0) return '<td class="zahl">Basis</td>';
+      var diff = Math.round((v.summe - basis) * 100) / 100;
+      return '<td class="zahl' + (diff > 0 ? ' plus' : '') + '">' + (diff > 0 ? '+' : diff < 0 ? '−' : '±') + eur.format(Math.abs(diff)) +
+        '<span class="klein">' + (diff >= 0 ? '+' : '−') + eur.format(Math.abs(diff * 12)) + ' im Jahr</span></td>';
+    }));
+    html += zeile('Spanne Grundgehalt', w.map(function (v) {
+      if (!istA(v.bg)) return '<td class="zahl">' + eur.format(TAB_B[v.bg]) + '</td>';
+      var t = TAB_A[v.bg];
+      return '<td class="zahl">' + eur.format(t[0] + v.plus) + ' bis ' + eur.format(t[t.length - 1] + v.plus) + '<span class="klein">Stufe ' + STUFE_MIN + ' bis ' + STUFE_MAX + '</span></td>';
+    }));
+    html += zeile('', w.map(function (v) {
+      return '<td><button type="button" class="knopf primaer" data-rechner="' + v.d.id + '" data-bg="' + v.bg + '">Im Rechner</button></td>';
+    }));
+    $('vgl-tabelle').innerHTML = html;
+    renderLeiste();
+  }
+
   // Aufgeklappter Bereich unter einem Dienstgrad
   function dgDetail(d, g) {
     var info = state.infoDg === d.id;
     var html = '<div class="dg-detail" id="dg-detail-' + d.id + '"><div class="dg-aktionen">' +
       '<button type="button" class="knopf primaer" data-rechner="' + d.id + '"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Im Rechner berechnen</button>' +
+      '<button type="button" class="knopf sekundaer" data-vgl="' + d.id + '" aria-pressed="' + imVergleich(d.id) + '"><svg class="ic" aria-hidden="true"><use href="#i-vgl"/></svg>' + (imVergleich(d.id) ? 'Im Vergleich ✓' : 'Zum Vergleich') + '</button>' +
       '<button type="button" class="knopf sekundaer" data-info="' + d.id + '" aria-expanded="' + info + '"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>' + (info ? 'Infos ausblenden' : 'Weitere Infos') + '</button>' +
       '</div>';
     if (info) {
@@ -1402,6 +1559,7 @@
 
     renderDienstgrade();
     renderZulagen();
+    renderVergleich();
   }
 
   /* ===== Ereignisse ===== */
@@ -1488,6 +1646,16 @@
       if (neu) neu.focus();
       return;
     }
+    var vglBtn = e.target.closest('button[data-vgl]');
+    if (vglBtn) {
+      var vid = vglBtn.getAttribute('data-vgl');
+      vergleichUmschalten(vid);
+      renderDienstgrade();
+      renderVergleich();
+      var neuVgl = document.querySelector('#dg-liste button[data-vgl="' + vid + '"]');
+      if (neuVgl) neuVgl.focus();
+      return;
+    }
     var infoBtn = e.target.closest('button[data-info]');
     if (infoBtn) {
       var iid = infoBtn.getAttribute('data-info');
@@ -1543,6 +1711,51 @@
     var d = e.target;
     if (d && d.tagName === 'DETAILS') gruppeOffen[d.getAttribute('data-g')] = d.open;
   }, true);
+
+  var vglStufenHtml = '';
+  for (var vs = STUFE_MIN; vs <= STUFE_MAX; vs++) {
+    vglStufenHtml += '<label><input type="radio" name="vgl-stufe" value="' + vs + '"><span>' + vs + '</span></label>';
+  }
+  $('vgl-stufe').innerHTML = vglStufenHtml;
+  $('vgl-stufe').addEventListener('change', function (e) { state.vglStufe = Number(e.target.value); renderVergleich(); });
+  $('vgl-amt').addEventListener('change', function (e) { state.vglAmt = e.target.checked; renderVergleich(); });
+  $('vgl-neu').addEventListener('change', function (e) {
+    if (!e.target.value) return;
+    vergleichUmschalten(e.target.value);
+    renderVergleich();
+    renderDienstgrade();
+    $('vgl-neu').focus();
+  });
+  $('vgl-leeren').addEventListener('click', function () {
+    state.vergleich = [];
+    renderDienstgrade();
+    renderVergleich();
+  });
+  $('vgl-tabelle').addEventListener('change', function (e) {
+    var id = e.target.getAttribute('data-vgl-bg');
+    if (!id) return;
+    state.vergleich.forEach(function (x) { if (x.id === id) x.bg = e.target.value; });
+    renderVergleich();
+  });
+  $('vgl-tabelle').addEventListener('click', function (e) {
+    var weg = e.target.closest('button[data-vgl-weg]');
+    if (weg) {
+      vergleichUmschalten(weg.getAttribute('data-vgl-weg'));
+      renderVergleich();
+      renderDienstgrade();
+      return;
+    }
+    var b = e.target.closest('button[data-rechner]');
+    if (!b) return;
+    var dd = dgById(b.getAttribute('data-rechner'));
+    state.gruppe = dd.gruppe;
+    state.dienstgrad = dd.id;
+    state.bg = b.getAttribute('data-bg');
+    if (istA(state.bg)) state.stufe = state.vglStufe;
+    fuelleDienstgrade();
+    render();
+    go('rechner');
+  });
 
   window.addEventListener('hashchange', route);
 
