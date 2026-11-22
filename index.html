@@ -88,7 +88,7 @@
   .notice strong { font-weight: 600; }
   .wrap[data-view="start"] .short { display: none; }
   .wrap:not([data-view="start"]) .full { display: none; }
-  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox { display: none; }
+  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox { display: none; }
   .tskbox .label { display: block; }
   .tskbox .hint { margin-top: 6px; }
 
@@ -261,6 +261,7 @@
   }
   .zeile:first-child { border-top: 0; }
   .zeile .n { font-weight: 500; min-width: 0; }
+  .zeile .abk { font-family: var(--font-mono); font-weight: 400; font-size: .85rem; color: var(--muted); margin-left: 6px; white-space: nowrap; }
   .zeile .r { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
   .zeile .s { grid-column: 1 / -1; color: var(--muted); font-size: .85rem; }
   .zeile.mit-icon { grid-template-columns: auto 1fr auto; column-gap: 12px; align-items: center; }
@@ -765,6 +766,34 @@
     sdg('sb9', 'Generaloberstabsarzt', 'general', ['B9'], 'Marine: Admiraloberstabsarzt')
   ];
 
+  // Abkürzungen der Dienstgrade: [Heer, Marine, Luftwaffe, Sanitätsdienst]. Fehlt Luftwaffe oder
+  // Sanitätsdienst, gilt die Abkürzung des Heeres. Anwärterzusätze (UA)/(FA) werden angehängt.
+  var ABK = {
+    soldat: ['z. B. Gren, Jg, Kan', 'Matr', 'Flg', 'SanSdt'],
+    gefr: ['Gefr', 'Gefr'], ogefr: ['OGefr', 'OGefr'], hgefr: ['HGefr', 'HGefr'],
+    stgefr: ['SG', 'SG'], ostgefr: ['OSG', 'OSG'], korp: ['Kpl', 'Kpl'], stkorp: ['SKpl', 'SKpl'],
+    uffz: ['Uffz', 'Maat'], stuffz: ['StUffz', 'OMaat'],
+    fw: ['Fw', 'Btsm'], ofw: ['OFw', 'OBtsm'], hfw: ['HFw', 'HBtsm'], stfw: ['StFw', 'StBtsm'], ostfw: ['OStFw', 'OStBtsm'],
+    schuetze_ua: ['S', 'Matr', 'Flg', 'SanSdt'], gefr_ua: ['Gefr', 'Gefr'], ogefr_ua: ['OGefr', 'OGefr'], hgefr_ua: ['HGefr', 'HGefr'],
+    gefr_fa: ['Gefr', 'Gefr'], uffz_fa: ['Uffz', 'Maat'],
+    fj: ['Fhj', 'SKad'], faehnrich: ['Fhr', 'FhrzS'], ofaehnrich: ['OFhr', 'OFhrzS'],
+    lt: ['Lt', 'LtzS'], olt: ['OLt', 'OLtzS'],
+    hptm: ['Hptm', 'KptLt'], sthptm: ['StHptm', 'StKptLt'],
+    maj: ['Maj', 'KKpt'], oberstlt: ['OTL', 'FKpt'], oberst: ['O', 'KptzS'],
+    bgen: ['BrigGen', 'FltlAdm'], gmaj: ['GenMaj', 'KAdm'], glt: ['GenLt', 'VAdm'], gen: ['Gen', 'Adm'],
+    sa13: [null, null, null, 'StArzt'], sa14: [null, null, null, 'OStArzt'], sa15: [null, null, null, 'OFArzt'],
+    sa16: [null, null, null, 'OTArzt'], sb6: [null, null, null, 'GenArzt'], sb7: [null, null, null, 'GenStArzt'],
+    sb9: [null, null, null, 'GenOStArzt']
+  };
+  function abkuerzung(id) {
+    var a = ABK[id];
+    if (!a) return '';
+    var i = { heer: 0, marine: 1, luft: 2, san: 3 }[state.tsk];
+    var k = a[i] || a[0] || '';
+    var zusatz = (id.match(/_(ua|fa)$/) || [])[1];
+    return k && zusatz ? k + ' (' + zusatz.toUpperCase() + ')' : k;
+  }
+
   // Amtszulagen kommen aus daten.js
   DIENSTGRADE.forEach(function (x) {
     var az = D.amtszulagen[x.id];
@@ -1111,7 +1140,7 @@
         if (d.amt === 'möglich') ab += ' · Amtszulage möglich';
         if (d.zusatz) ab += ' · ' + d.zusatz;
         return '<button type="button" class="zeile mit-icon" data-dg="' + d.id + '"' + (d.id === state.dienstgrad ? ' aria-current="true"' : '') + '>' +
-          '<span class="rk' + (state.tsk !== 'marine' ? ' bild' : '') + '">' + rangBild(d.id) + '</span><span class="n">' + d.n[state.tsk] + '</span><span class="r">' + bgsLabel(d.bgs).replace(/ oder /g, ' / ') + '</span><span class="s">' + ab + '</span></button>';
+          '<span class="rk' + (state.tsk !== 'marine' ? ' bild' : '') + '">' + rangBild(d.id) + '</span><span class="n">' + d.n[state.tsk] + (abkuerzung(d.id) ? '<span class="abk">' + abkuerzung(d.id) + '</span>' : '') + '</span><span class="r">' + bgsLabel(d.bgs).replace(/ oder /g, ' / ') + '</span><span class="s">' + ab + '</span></button>';
       }).join('');
       var offen = (g.id in gruppeOffen) ? gruppeOffen[g.id] : g.id === state.gruppe;
       return '<details class="panel" data-g="' + g.id + '"' + (offen ? ' open' : '') + '><summary><h2>' + g.name + '</h2>' +
