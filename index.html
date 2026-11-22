@@ -397,6 +397,20 @@
   .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
   .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .u-arten { display: grid; gap: 6px; }
+  .u-arten label { position: relative; display: block; }
+  .u-arten input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  .u-arten span { display: grid; grid-template-columns: 14px 1fr 20px; column-gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
+  .u-arten span::before { content: ""; grid-row: 1 / 3; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
+  .u-arten span::after { content: ""; grid-column: 3; grid-row: 1 / 3; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
+  .u-arten b { font-weight: 600; grid-column: 2; }
+  .u-arten small { grid-column: 2; font-size: .8rem; color: var(--muted); }
+  .u-arten .a-ug span::before { background: var(--accent); border-color: var(--accent); }
+  .u-arten .a-dza span::before { background: var(--warn-bg); border-color: var(--warn-line); }
+  .u-arten .a-so span::before { background: var(--fg); border-color: var(--fg); }
+  .u-arten input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
+  .u-arten input:checked + span::after { border: 6px solid var(--accent); }
+  .u-arten input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
   .u-legende .l-ug::before { background: var(--accent); border-color: var(--accent); }
@@ -896,10 +910,10 @@
           <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
           <div><label class="label" for="u-bis" style="display:block">Bis</label><input type="date" id="u-bis" required></div>
         </div>
-        <fieldset><legend>Art</legend><div class="seg" id="u-art">
-          <label><input type="radio" name="u-art" value="urlaub" checked><span>Erholungsurlaub</span></label>
-          <label><input type="radio" name="u-art" value="dza"><span>Dienstzeitausgleich</span></label>
-          <label><input type="radio" name="u-art" value="sonder"><span>Sonderurlaub</span></label>
+        <fieldset><legend>Art</legend><div class="u-arten" id="u-art">
+          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b><small>Zählt vom Jahresanspruch</small></span></label>
+          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b><small>Für Mehrdienst, wird extra gezählt</small></span></label>
+          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b><small>Zählt nicht vom Jahresanspruch</small></span></label>
         </div></fieldset>
         <fieldset><legend>Status</legend><div class="seg" id="u-status">
           <label><input type="radio" name="u-status" value="geplant" checked><span>Geplant</span></label>
