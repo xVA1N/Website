@@ -343,19 +343,21 @@
   .u-tag.we { color: var(--muted); background: transparent; }
   .u-tag.ft::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--rot); box-shadow: 0 0 0 1.5px var(--surface); }
   .u-tag.heute { border-color: var(--fg); }
+  /* Genehmigt: gefüllt in der Farbe der Art. Geplant: immer heller Grund mit gestrichelter Linie in der Farbe der Art. */
   .u-tag.art-urlaub.genehmigt { background: var(--accent); color: var(--accent-ink); }
-  .u-tag.art-urlaub.geplant { background: var(--soft); border: 2px dashed var(--accent); }
-  .u-tag.art-dza { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-line); }
-  .u-tag.art-dza.geplant { border-style: dashed; border-width: 2px; }
-  .u-tag.art-sonder { background: var(--fg); color: var(--bg); }
-  .u-tag.art-sonder.geplant { opacity: .65; }
+  .u-tag.art-dza.genehmigt { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-line); }
+  .u-tag.art-sonder.genehmigt { background: var(--fg); color: var(--bg); }
+  .u-tag.geplant { background: var(--soft); border: 2px dashed; }
+  .u-tag.art-urlaub.geplant { border-color: var(--accent); }
+  .u-tag.art-dza.geplant { border-color: var(--warn-fg); }
+  .u-tag.art-sonder.geplant { border-color: var(--fg); }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
   .u-legende .l-ug::before { background: var(--accent); border-color: var(--accent); }
-  .u-legende .l-up::before { background: var(--soft); border: 2px dashed var(--accent); }
   .u-legende .l-dza::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-legende .l-so::before { background: var(--fg); border-color: var(--fg); }
+  .u-legende .l-gepl::before { background: var(--soft); border: 2px dashed var(--muted); }
   .u-legende .l-ft::before { width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--rot); vertical-align: 1px; margin-left: 3px; margin-right: 9px; }
   .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
   .u-mini { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
@@ -366,10 +368,13 @@
   .u-mini .g i.x { visibility: hidden; }
   .u-mini .g i.we { background: transparent; }
   .u-mini .g i.ft { background: var(--rot); opacity: .75; }
-  .u-mini .g i.art-urlaub { background: var(--accent); opacity: 1; }
-  .u-mini .g i.art-urlaub.geplant { opacity: .5; }
+  .u-mini .g i.art-urlaub { background: var(--accent); }
   .u-mini .g i.art-dza { background: var(--warn-line); }
   .u-mini .g i.art-sonder { background: var(--fg); }
+  .u-mini .g i.geplant { background: var(--soft); box-shadow: inset 0 0 0 1.5px var(--muted); }
+  .u-mini .g i.art-urlaub.geplant { box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .u-mini .g i.art-dza.geplant { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
+  .u-mini .g i.art-sonder.geplant { box-shadow: inset 0 0 0 1.5px var(--fg); }
   .u-meldung { font-size: .9rem; }
   .u-meldung.fehler { color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 8px 12px; }
   .u-eintrag-akt { display: flex; gap: 6px; align-items: center; padding-right: 8px; }
@@ -715,7 +720,8 @@
         <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
       </div>
       <div class="u-kal" id="u-kal" role="grid"></div>
-      <div class="u-legende"><span class="l-ug">Urlaub genehmigt</span><span class="l-up">Urlaub geplant</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-ft">Feiertag</span></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span></div>
+      <p class="hint" style="margin-top:0">Gefüllt heißt genehmigt, gestrichelt heißt geplant, jeweils in der Farbe der Art.</p>
       <p class="hint" id="u-feiertage-monat"></p>
     </section>
 
