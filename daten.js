@@ -74,6 +74,43 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
+  /* ---------- Urlaubsplaner ---------- */
+  urlaub: {
+    // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn im
+    // Planer anpassen. Maßgeblich ist der eigene Urlaubsbescheid.
+    standardAnspruch: 30,
+    hinweis: "Grundlage ist die Soldatinnen- und Soldatenurlaubsverordnung. Anspruch, Resturlaub und Fristen bitte mit dem eigenen Urlaubsbescheid abgleichen.",
+    bundeslaender: {
+      BW: "Baden-Württemberg", BY: "Bayern", BE: "Berlin", BB: "Brandenburg", HB: "Bremen", HH: "Hamburg",
+      HE: "Hessen", MV: "Mecklenburg-Vorpommern", NI: "Niedersachsen", NW: "Nordrhein-Westfalen",
+      RP: "Rheinland-Pfalz", SL: "Saarland", SN: "Sachsen", ST: "Sachsen-Anhalt", SH: "Schleswig-Holstein", TH: "Thüringen"
+    },
+    // Gesetzliche Feiertage. regel: "fest" (datum MM-TT), "ostern" (tage nach Ostersonntag, negativ = davor),
+    // "bussbettag" (Mittwoch vor dem 23. November). laender: "alle" oder Kürzel mit Komma.
+    // Nur landesweite Feiertage; örtliche (z. B. Mariä Himmelfahrt in Teilen Bayerns) fehlen.
+    feiertage: [
+      { name: "Neujahr", regel: "fest", datum: "01-01", laender: "alle" },
+      { name: "Heilige Drei Könige", regel: "fest", datum: "01-06", laender: "BW,BY,ST" },
+      { name: "Internationaler Frauentag", regel: "fest", datum: "03-08", laender: "BE,MV" },
+      { name: "Karfreitag", regel: "ostern", tage: -2, laender: "alle" },
+      { name: "Ostersonntag", regel: "ostern", tage: 0, laender: "BB" },
+      { name: "Ostermontag", regel: "ostern", tage: 1, laender: "alle" },
+      { name: "Tag der Arbeit", regel: "fest", datum: "05-01", laender: "alle" },
+      { name: "Christi Himmelfahrt", regel: "ostern", tage: 39, laender: "alle" },
+      { name: "Pfingstsonntag", regel: "ostern", tage: 49, laender: "BB" },
+      { name: "Pfingstmontag", regel: "ostern", tage: 50, laender: "alle" },
+      { name: "Fronleichnam", regel: "ostern", tage: 60, laender: "BW,BY,HE,NW,RP,SL" },
+      { name: "Mariä Himmelfahrt", regel: "fest", datum: "08-15", laender: "SL" },
+      { name: "Weltkindertag", regel: "fest", datum: "09-20", laender: "TH" },
+      { name: "Tag der Deutschen Einheit", regel: "fest", datum: "10-03", laender: "alle" },
+      { name: "Reformationstag", regel: "fest", datum: "10-31", laender: "BB,HB,HH,MV,NI,SN,ST,SH,TH" },
+      { name: "Allerheiligen", regel: "fest", datum: "11-01", laender: "BW,BY,NW,RP,SL" },
+      { name: "Buß- und Bettag", regel: "bussbettag", laender: "SN" },
+      { name: "1. Weihnachtstag", regel: "fest", datum: "12-25", laender: "alle" },
+      { name: "2. Weihnachtstag", regel: "fest", datum: "12-26", laender: "alle" }
+    ]
+  },
+
   /* ---------- Eigene Texte zu einzelnen Dienstgraden ---------- */
   // Erscheinen auf der Seite Dienstgrade unter „Weitere Infos“. Schlüssel ist der Dienstgrad:
   // soldat, gefr, ogefr, hgefr, stgefr, ostgefr, korp, stkorp, uffz, stuffz, fw, ofw, hfw, stfw, ostfw,
