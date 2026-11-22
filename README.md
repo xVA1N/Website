@@ -10,7 +10,7 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
 | `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`. |
-| `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte. Sie werden nur auf diesen Seiten geladen. |
+| `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte, dazu `app6d-katalog.js` mit allen APP-6D-Einträgen, erzeugt aus stanag-app6 0.2.0 (MIT). Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
 Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
@@ -71,7 +71,7 @@ Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten
 
 ## Taktische Zeichen
 
-Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (Landeinheiten) zusammen: Zugehörigkeit, Truppengattung, Größe, Status, Stab oder Einsatzverband, Stärke und Beschriftungen. Die Zeichen lassen sich als SVG oder PNG herunterladen. Weitere Truppengattungen trägt man in `js/12-symbole.js` in der Liste `MS_ARTEN` ein (Code aus APP-6D, Symbolsatz 10).
+Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mit originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen (Landeinheiten, Ausrüstung, Einrichtungen, Luft, See, Unterwasser, Weltraum, Ereignisse und weitere), mit Suche, den Zusatzzeichen der Sektoren 1 und 2, Größe bzw. Beweglichkeit, Zugehörigkeit, Kontext (Übung), Status, Stab, Task Force, Täuschung und den Textfeldern nach APP-6. Häufige Landeinheiten haben eine deutsche Übersetzung, gepflegt in `js/12-symbole.js` unter `MS_ARTEN`. Die Zeichen lassen sich als SVG oder PNG herunterladen.
 
 ## Lagekarte
 

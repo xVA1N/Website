@@ -583,34 +583,53 @@
     <section class="panel">
       <h2>Zeichen zusammenstellen</h2>
       <div class="stack">
+        <div class="u-felder einspaltig p-felder">
+          <div><label class="label" for="ms-satz" style="display:block">Symbolsatz</label><select id="ms-satz"></select></div>
+          <div><label class="label" for="ms-suche" style="display:block">Suchen</label><input type="text" id="ms-suche" autocomplete="off" spellcheck="false" placeholder="z. B. Infanterie, tank, 1211"></div>
+          <div><label class="label" for="ms-art" style="display:block">Eintrag <span class="ms-anz" id="ms-art-anz"></span></label><select id="ms-art"></select></div>
+          <div id="ms-m1-wrap"><label class="label" for="ms-m1" style="display:block">Zusatz 1 (Sektor 1)</label><select id="ms-m1"></select></div>
+          <div id="ms-m2-wrap"><label class="label" for="ms-m2" style="display:block">Zusatz 2 (Sektor 2)</label><select id="ms-m2"></select></div>
+        </div>
         <fieldset><legend>Zugehörigkeit</legend><div class="seg" id="ms-zug">
           <label><input type="radio" name="ms-zug" value="3" checked><span>Eigene</span></label>
           <label><input type="radio" name="ms-zug" value="6"><span>Feind</span></label>
           <label><input type="radio" name="ms-zug" value="4"><span>Neutral</span></label>
           <label><input type="radio" name="ms-zug" value="1"><span>Unbekannt</span></label>
+          <label><input type="radio" name="ms-zug" value="2"><span>Vermutl. eigene</span></label>
+          <label><input type="radio" name="ms-zug" value="5"><span>Verdächtig</span></label>
+          <label><input type="radio" name="ms-zug" value="0"><span>Ausstehend</span></label>
         </div></fieldset>
-        <div class="u-felder einspaltig p-felder">
-          <div><label class="label" for="ms-art" style="display:block">Truppengattung</label><select id="ms-art"></select></div>
-          <div><label class="label" for="ms-groesse" style="display:block">Größe</label><select id="ms-groesse"></select></div>
+        <div class="u-felder p-felder">
+          <div id="ms-groesse-wrap"><label class="label" for="ms-groesse" style="display:block" id="ms-groesse-label">Größe</label><select id="ms-groesse"></select></div>
+          <div><label class="label" for="ms-kontext" style="display:block">Kontext</label><select id="ms-kontext"><option value="0">Wirklichkeit</option><option value="1">Übung</option><option value="2">Simulation</option></select></div>
         </div>
         <fieldset><legend>Status</legend><div class="seg" id="ms-status">
           <label><input type="radio" name="ms-status" value="0" checked><span>Vorhanden</span></label>
           <label><input type="radio" name="ms-status" value="1"><span>Geplant</span></label>
+          <label><input type="radio" name="ms-status" value="2"><span>Voll einsatzbereit</span></label>
+          <label><input type="radio" name="ms-status" value="3"><span>Beschädigt</span></label>
+          <label><input type="radio" name="ms-status" value="4"><span>Zerstört</span></label>
+          <label><input type="radio" name="ms-status" value="5"><span>Voll beladen</span></label>
         </div></fieldset>
-        <label class="check" for="ms-stab"><input type="checkbox" id="ms-stab"><span class="t">Stab (Führungselement)</span></label>
+        <label class="check" for="ms-stab"><input type="checkbox" id="ms-stab"><span class="t">Stab (Headquarters)</span></label>
         <label class="check" for="ms-tf"><input type="checkbox" id="ms-tf"><span class="t">Einsatzverband (Task Force)</span></label>
+        <label class="check" for="ms-dummy"><input type="checkbox" id="ms-dummy"><span class="t">Täuschung (Feint/Dummy)</span></label>
         <div class="u-felder p-felder">
-          <div><label class="label" for="ms-staerke" style="display:block">Stärke</label><select id="ms-staerke"><option value="">normal</option><option value="(+)">verstärkt (+)</option><option value="(-)">vermindert (−)</option><option value="(±)">verstärkt und vermindert (±)</option></select></div>
+          <div><label class="label" for="ms-staerke" style="display:block">Stärke (F)</label><select id="ms-staerke"><option value="">normal</option><option value="(+)">verstärkt (+)</option><option value="(-)">vermindert (−)</option><option value="(±)">verstärkt und vermindert (±)</option></select></div>
           <div><label class="label" for="ms-farbe" style="display:block">Füllfarbe</label><select id="ms-farbe"><option value="Light">hell</option><option value="Medium" selected>mittel</option><option value="Dark">dunkel</option><option value="ohne">ohne Füllung</option></select></div>
         </div>
         <div class="u-felder einspaltig p-felder">
-          <div><label class="label" for="ms-bez" style="display:block">Bezeichnung</label><input type="text" id="ms-bez" maxlength="30" autocomplete="off" placeholder="z. B. 2./371"></div>
-          <div><label class="label" for="ms-hoeher" style="display:block">Übergeordnete Einheit</label><input type="text" id="ms-hoeher" maxlength="30" autocomplete="off" placeholder="z. B. PzGrenBrig 37"></div>
-          <div><label class="label" for="ms-info" style="display:block">Zusatzinformation</label><input type="text" id="ms-info" maxlength="30" autocomplete="off"></div>
+          <div><label class="label" for="ms-bez" style="display:block">Bezeichnung (T)</label><input type="text" id="ms-bez" maxlength="30" autocomplete="off" placeholder="z. B. 2./371"></div>
+          <div><label class="label" for="ms-hoeher" style="display:block">Übergeordnete Einheit (M)</label><input type="text" id="ms-hoeher" maxlength="30" autocomplete="off" placeholder="z. B. PzGrenBrig 37"></div>
+          <div><label class="label" for="ms-info" style="display:block">Zusatzinformation (H)</label><input type="text" id="ms-info" maxlength="30" autocomplete="off"></div>
         </div>
+        <details class="ms-mehr">
+          <summary>Weitere Felder nach APP-6</summary>
+          <div class="u-felder p-felder ms-felder" id="ms-felder"></div>
+        </details>
       </div>
     </section>
-    <p class="hint">Zeichen nach NATO-Standard APP-6, erzeugt mit der freien Bibliothek milsymbol (MIT-Lizenz). Die Auswahl umfasst die gängigen Landeinheiten, deutsche Bezeichnungen frei übersetzt. Nicht amtlich.</p>
+    <p class="hint">Alle Einzelzeichen aus NATO APP-6D mit den originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen, dazu die Zusatzzeichen der Sektoren 1 und 2. Bei häufigen Landeinheiten steht eine deutsche Übersetzung davor, sie ist frei übersetzt und nicht amtlich. Zeichen erzeugt mit milsymbol, Katalog aus stanag-app6 (beide MIT-Lizenz, Måns Beckman).</p>
   </section>
 
   <!-- LAGEKARTE -->
