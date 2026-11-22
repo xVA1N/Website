@@ -414,6 +414,10 @@
         <select id="dienstgrad"></select>
         <p class="hint" id="zus-hint" hidden></p>
         <p class="hint" id="amt-hint" hidden></p>
+        <label class="check" for="amt-check" id="amt-check-wrap" hidden style="margin-top:8px">
+          <input type="checkbox" id="amt-check">
+          <span class="t">Funktion hebt sich ab<span class="sub" id="amt-check-sub"></span></span>
+        </label>
         <p class="hint" id="plus-hint" hidden></p>
       </div>
 
@@ -465,7 +469,13 @@
       </fieldset>
 
       <fieldset>
-        <legend>Stellenzulage</legend>
+        <legend>Führungsfunktion</legend>
+        <select id="fuehrung" aria-label="Führungsfunktion"></select>
+        <p class="hint" id="fuehrung-info"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Stellenzulage für besondere Verwendung</legend>
         <div class="stack">
           <select id="stelle" aria-label="Verwendung für die Stellenzulage"></select>
           <div id="dauer-wrap" hidden>
@@ -474,6 +484,7 @@
           </div>
         </div>
         <p class="hint" id="stelle-info"></p>
+        <p class="hint" id="zul-regel" hidden></p>
       </fieldset>
 
       <fieldset>
@@ -497,7 +508,9 @@
       <dl class="lines">
         <div><dt>Grundgehalt</dt><dd id="z-grund"></dd></div>
         <div><dt>Familienzuschlag</dt><dd id="z-fam"></dd></div>
-        <div><dt>Stellenzulage</dt><dd id="z-zul"></dd></div>
+        <div><dt>Amtszulage</dt><dd id="z-amt"></dd></div>
+        <div><dt>Zulage Führungsfunktion</dt><dd id="z-fue"></dd></div>
+        <div><dt>Stellenzulage besondere Verwendung</dt><dd id="z-zul"></dd></div>
         <div><dt>Auslandsverwendungszuschlag</dt><dd id="z-avz"></dd></div>
         <div><dt>12 Monate, ohne Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
       </dl>
@@ -529,7 +542,14 @@
   <section class="view" id="view-zulagen" aria-label="Zulagen" hidden>
     <section class="panel">
       <div>
-        <h2>Stellenzulagen</h2>
+        <h2>Zulagen für Führungsfunktionen</h2>
+        <p class="hint" id="fue-kopf"></p>
+      </div>
+      <div class="liste" id="fue-liste"></div>
+    </section>
+    <section class="panel">
+      <div>
+        <h2>Stellenzulagen für besondere Verwendungen</h2>
         <p class="hint" id="zul-kopf"></p>
       </div>
       <div class="liste" id="zul-liste"></div>
@@ -563,7 +583,7 @@
         </details>
         <details>
           <summary>Welche Zulagen gibt es?</summary>
-          <p>Stellenzulagen hängen an der Verwendung und oft an der Besoldungsgruppe oder an der Dauer in der Verwendung. Der Auslandsverwendungszuschlag wird je Tag gezahlt und hängt vom Einsatzgebiet ab. Eingebaut sind bisher einige Beispiele.</p>
+          <p>Für Führungsfunktionen wie Kompaniechef, Zugführer, Gruppenführer oder Kompaniefeldwebel gibt es eigene Zulagen mit festen Beträgen. Weitere Stellenzulagen hängen an der Verwendung und oft an der Besoldungsgruppe oder an der Dauer in der Verwendung. Der Auslandsverwendungszuschlag wird je Tag gezahlt und hängt vom Einsatzgebiet ab. Eingebaut sind bisher einige Beispiele.</p>
         </details>
       </div>
     </section>
@@ -573,7 +593,7 @@
       <dl class="info">
         <dt>Gültig ab</dt><dd><span data-mk="gueltigAb"></span></dd>
         <dt>Rechtsstand</dt><dd><span data-mk="gesetz"></span>, <span data-mk="fundstelle"></span>. <span data-mk="hinweis"></span></dd>
-        <dt>Quelle</dt><dd>Bundesbesoldungsgesetz. Die Dienstgrade samt Besoldungsgruppen stammen aus Anlage I (Amtszulagen sind nur vermerkt; die Einordnung der Sanitätsoffiziere in Hauptleute, Stabsoffiziere und Generale ist noch zu prüfen). Grundgehälter samt Erhöhungsbeträgen aus Anlage IV, Familienzuschlag aus Anlage V, Stellenzulagen aus Anlage IX, jeweils gültig ab <span data-mk="gueltigAb"></span>. Tagessätze des Auslandsverwendungszuschlags nach <span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>.<span data-mk-avz-platzhalter> Die Zuordnung der Einsatzgebiete zu Stufen ist ein Beispiel.</span></dd>
+        <dt>Quelle</dt><dd>Bundesbesoldungsgesetz. Die Dienstgrade samt Besoldungsgruppen, die Amtszulagen und die Regeln für das Zusammentreffen von Zulagen stammen aus Anlage I (die Einordnung der Sanitätsoffiziere in Hauptleute, Stabsoffiziere und Generale ist noch zu prüfen). Grundgehälter samt Erhöhungsbeträgen aus Anlage IV, Familienzuschlag aus Anlage V, Stellenzulagen aus Anlage IX, jeweils gültig ab <span data-mk="gueltigAb"></span>. Tagessätze des Auslandsverwendungszuschlags nach <span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>.<span data-mk-avz-platzhalter> Die Zuordnung der Einsatzgebiete zu Stufen ist ein Beispiel.</span></dd>
         <dt>Hinweis</dt><dd>Inoffiziell, ohne Gewähr, keine Rechtsberatung.</dd>
       </dl>
     </section>
@@ -651,7 +671,8 @@
   }
 
   var STELLENZULAGEN = [{ id: 'keine', name: 'Keine Stellenzulage' }].concat(D.stellenzulagen.map(function (z) {
-    var o = { id: z.id, name: z.name, nr: z.nr, dauer: z.dauer, quelle: z.quelle, auswahlLabel: z.auswahlLabel };
+    var o = { id: z.id, name: z.name, nr: z.nr, dauer: z.dauer, quelle: z.quelle, auswahlLabel: z.auswahlLabel,
+      nurGruppen: z.nurGruppen, nebenAnderen: z.nebenAnderen, differenzNeben: z.differenzNeben || [], nichtNebenAVZ: z.nichtNebenAVZ };
     if (z.staffel) o.betrag = function (d) {
       var e = z.staffel.filter(function (x) { return passt(x, d); })[0];
       return e ? e.betrag : null;
@@ -659,6 +680,13 @@
     return o;
   }));
   var EINSATZGEBIETE = [{ id: 'keine', name: 'Keine Auslandsverwendung', stufe: 0 }].concat(AVZ.gebiete);
+  var FUEHRUNG = [{ id: 'keine', name: 'Keine Führungsfunktion' }].concat(D.fuehrungszulagen);
+  // Betrag der Führungszulage, null wenn sie für diese Besoldungsgruppe nicht vorgesehen ist
+  function gruppenText(t) { return t.replace(/-/g, ' bis ').replace(/([AB])(\d)/g, '$1 $2'); }
+  function fuehrungBetrag(f, d) {
+    if (!f.betrag) return 0;
+    return f.gruppen && !inGruppen(d.bg, f.gruppen) ? null : f.betrag;
+  }
 
   var GRUPPEN = [
     { id: 'mannschaft', name: 'Mannschaften', standard: 'ogefr' },
@@ -699,6 +727,8 @@
     dg('hgefr', 'Hauptgefreiter', 'Hauptgefreiter', 'mannschaft', ['A4'], 'ja'),
     dg('stgefr', 'Stabsgefreiter', 'Stabsgefreiter', 'mannschaft', ['A5']),
     dg('ostgefr', 'Oberstabsgefreiter', 'Oberstabsgefreiter', 'mannschaft', ['A5'], 'ja'),
+    dg('korp', 'Korporal', 'Korporal', 'mannschaft', ['A6']),
+    dg('stkorp', 'Stabskorporal', 'Stabskorporal', 'mannschaft', ['A6']),
     dg('uffz', 'Unteroffizier', 'Maat', 'uffz_ohne', ['A5']),
     dg('stuffz', 'Stabsunteroffizier', 'Obermaat', 'uffz_ohne', ['A6', 'A7']),
     dg('fw', 'Feldwebel', 'Bootsmann', 'uffz_mit', ['A7']),
@@ -735,6 +765,12 @@
     sdg('sb9', 'Generaloberstabsarzt', 'general', ['B9'], 'Marine: Admiraloberstabsarzt')
   ];
 
+  // Amtszulagen kommen aus daten.js
+  DIENSTGRADE.forEach(function (x) {
+    var az = D.amtszulagen[x.id];
+    x.amt = az ? (az.art === 'immer' ? 'ja' : 'möglich') : undefined;
+  });
+
   /* ===== Hilfen ===== */
   var eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
   var $ = function (id) { return document.getElementById(id); };
@@ -751,7 +787,9 @@
     kinder: 0,
     partner: false,
     kgBei: 'ich',
+    fuehrung: 'keine',
     stelle: 'keine',
+    amtHerausgehoben: false,
     dauer: 0,
     gebiet: 'keine',
     tage: 30
@@ -776,10 +814,11 @@
 
   /* ===== Erklärseiten: Herkunft der Namen der Dienstgradgruppen ===== */
   var INFO = {
-    mannschaft: { kurz: 'Alle Soldatinnen und Soldaten ohne Unteroffizier- oder Offizierlaufbahn, vom Soldaten bis zum Oberstabsgefreiten.', t: [
+    mannschaft: { kurz: 'Alle Soldatinnen und Soldaten ohne Unteroffizier- oder Offizierlaufbahn, vom Soldaten bis zum Stabskorporal.', t: [
       ['Mannschaft', 'Ursprünglich die Gesamtheit der Männer einer Truppe oder einer Schiffsbesatzung, abgeleitet von „Mann“. Gemeint sind die Soldaten ohne Führungsaufgabe.'],
       ['Gefreiter', 'Wörtlich der „Gefreite“, also jemand, der von bestimmten Pflichten befreit wurde, etwa vom Wachdienst. Er stand damit über den einfachen Soldaten.'],
       ['Ober-, Haupt-, Stabs-, Oberstabsgefreiter', 'Die Vorsilben zeigen nur die jeweils nächsthöhere Stufe innerhalb der Mannschaften an.'],
+      ['Korporal, Stabskorporal', 'Die höchsten Mannschaftsdienstgrade, seit 2021. „Korporal“ kommt über das Französische vom italienischen „caporale“, abgeleitet von „capo“, Kopf: der Anführer einer kleinen Gruppe.'],
       ['Matrose und Flieger', 'Bei der Marine heißt der einfachste Dienstgrad Matrose (niederländisch „matroos“, Seemann), bei der Luftwaffe Flieger.']
     ] },
     uffz_ohne: { kurz: 'Unteroffizier und Stabsunteroffizier, bei der Marine Maat und Obermaat.', t: [
@@ -901,6 +940,9 @@
   }
   $('stufen').innerHTML = stufenHtml;
 
+  $('fuehrung').innerHTML = FUEHRUNG.map(function (f) {
+    return '<option value="' + f.id + '">' + f.name + '</option>';
+  }).join('');
   $('stelle').innerHTML = STELLENZULAGEN.map(function (z) {
     return '<option value="' + z.id + '">' + z.name + '</option>';
   }).join('');
@@ -923,7 +965,7 @@
   // Form und Anzahl: chev = Winkel (Mannschaften), bar = Balken (ohne Portepee), dia = Raute (mit Portepee),
   // ring = Kreis (Anwärter), star = Sterne (Leutnante, Hauptleute), laub = Kranz mit Sternen (Stabsoffiziere, Generale)
   var RANG = {
-    soldat: ['chev', 0], gefr: ['chev', 1], ogefr: ['chev', 2], hgefr: ['chev', 3], stgefr: ['chev', 4], ostgefr: ['chev', 5],
+    soldat: ['chev', 0], gefr: ['chev', 1], korp: ['kor', 1], stkorp: ['kor', 2], ogefr: ['chev', 2], hgefr: ['chev', 3], stgefr: ['chev', 4], ostgefr: ['chev', 5],
     uffz: ['bar', 1], stuffz: ['bar', 2],
     schuetze_ua: ['bar', 1], gefr_ua: ['bar', 2], ogefr_ua: ['bar', 3], hgefr_ua: ['bar', 4], gefr_fa: ['chev', 1], uffz_fa: ['bar', 1],
     fw: ['dia', 1], ofw: ['dia', 2], hfw: ['dia', 3], stfw: ['dia', 4], ostfw: ['dia', 5],
@@ -973,6 +1015,9 @@
       var by = ua[k] ? 44 - (ua[k] - 1) * 6 - 8.5 : 41;
       o += '<path class="st" d="M8 ' + by + 'H20"/>';
     }
+    // Korporal: breiter Schrägbalken, Stabskorporal: schmaler Streifen darüber
+    if (k === 'korp') o += '<path class="fl" d="M8 38.7L20.3 32.5V39.7L8 46.2Z"/>';
+    if (k === 'stkorp') o += '<path class="fl" d="M7.7 35.9L20.1 29.4V31.6L7.7 38Z"/><path class="fl" d="M7.7 38.6L20.1 32.3V39.6L7.7 46.3Z"/>';
     var U = 'M6 49V28a8 8 0 0 1 16 0V49', Ui = 'M10 48V28.5a4 4 0 0 1 8 0V48';
     if (k === 'uffz') o += '<path class="u1" d="' + U + '"/>';
     if (k === 'stuffz') o += '<path class="u1" d="M6 48V28a8 8 0 0 1 16 0V48Z"/>';
@@ -1032,6 +1077,9 @@
         var by = 12 + (i - (n - 1) / 2) * 5;
         m += '<path d="M5 ' + by + ' L19 ' + by + '"/>';
       }
+    } else if (f === 'kor') {
+      m = '<path fill="currentColor" stroke="none" d="M5 16.5L19 9.5V14L5 21Z"/>';
+      if (n === 2) m += '<path fill="currentColor" stroke="none" d="M5 13.5L19 6.5V8L5 15Z"/>';
     } else if (f === 'dia') { m = haufen(sRaute, n);
     } else if (f === 'ring') { m = haufen(sKreis, n);
     } else if (f === 'star') { m = haufen(sStern, n);
@@ -1059,7 +1107,7 @@
         var ab = istA(b0)
           ? 'Grundgehalt ab ' + eur.format(TAB_A[b0][0])
           : 'Fester Betrag ' + eur.format(TAB_B[b0]);
-        if (d.amt === 'ja') ab += ' · mit Amtszulage';
+        if (d.amt === 'ja') ab += ' · Amtszulage ' + eur.format(D.amtszulagen[d.id].betrag);
         if (d.amt === 'möglich') ab += ' · Amtszulage möglich';
         if (d.zusatz) ab += ' · ' + d.zusatz;
         return '<button type="button" class="zeile mit-icon" data-dg="' + d.id + '"' + (d.id === state.dienstgrad ? ' aria-current="true"' : '') + '>' +
@@ -1075,6 +1123,13 @@
   function renderZulagen() {
     var d = aktuell();
     $('zul-kopf').textContent = 'Beträge für ' + d.name + ' (' + bgLabel(d.bg) + ') nach Anlage IX BBesG, gültig ab ' + D.stand.gueltigAb + '. Tippe auf eine Zulage, um sie im Rechner zu wählen.';
+    $('fue-kopf').textContent = 'Beträge für ' + d.name + ' (' + bgLabel(d.bg) + ') nach Anlage IX BBesG, gültig ab ' + D.stand.gueltigAb + '. Tippe auf eine Funktion, um sie im Rechner zu wählen.';
+    $('fue-liste').innerHTML = FUEHRUNG.filter(function (f) { return f.id !== 'keine'; }).map(function (f) {
+      var b = fuehrungBetrag(f, d);
+      var text = b === null ? 'Nur für ' + gruppenText(f.gruppen) + ', nicht für ' + bgLabel(d.bg) : eur.format(b) + ' pro Monat';
+      return '<button type="button" class="zeile" data-fuehrung="' + f.id + '"' + (f.id === state.fuehrung ? ' aria-current="true"' : '') + '>' +
+        '<span class="n">' + f.name + '</span><span class="r">Nr. ' + f.nr.split(' ')[0] + '</span><span class="s">' + text + (f.nr.indexOf(' ') > 0 ? ' · Nr. ' + f.nr : '') + '</span></button>';
+    }).join('');
     $('zul-liste').innerHTML = STELLENZULAGEN.filter(function (z) { return z.id !== 'keine'; }).map(function (z) {
       var text;
       if (z.dauer) {
@@ -1108,10 +1163,15 @@
     }
     $('zus-hint').hidden = !d.zusatz;
     $('zus-hint').textContent = d.zusatz ? d.zusatz + '.' : '';
-    $('amt-hint').hidden = !d.amt;
-    $('amt-hint').textContent = d.amt === 'ja'
-      ? 'Für diesen Dienstgrad wird eine Amtszulage gezahlt. Sie ist noch nicht im Rechner.'
-      : d.amt === 'möglich' ? 'Eine Amtszulage ist möglich, wenn sich die Funktion abhebt. Sie ist noch nicht im Rechner.' : '';
+    var az = D.amtszulagen[d.id];
+    $('amt-hint').hidden = !az;
+    $('amt-hint').textContent = !az ? '' : az.art === 'immer'
+      ? 'Für diesen Dienstgrad wird eine Amtszulage von ' + eur.format(az.betrag) + ' gezahlt (Anlage I, ' + az.fussnote + ').'
+      : 'In Funktionen, die sich abheben, ist eine Amtszulage von ' + eur.format(az.betrag) + ' möglich (Anlage I, ' + az.fussnote + ').';
+    $('amt-check-wrap').hidden = !(az && az.art === 'moeglich');
+    $('amt-check').checked = state.amtHerausgehoben;
+    $('amt-check-sub').textContent = az ? 'Amtszulage ' + eur.format(az.betrag) : '';
+    var amtBetrag = az && (az.art === 'immer' || state.amtHerausgehoben) ? az.betrag : 0;
 
     document.querySelector('input[name="gruppe"][value="' + state.gruppe + '"]').checked = true;
     document.querySelector('input[name="tsk"][value="' + state.tsk + '"]').checked = true;
@@ -1144,6 +1204,15 @@
     $('kind-minus').disabled = state.kinder <= 0;
     $('kind-plus').disabled = state.kinder >= 6;
 
+    var fz = FUEHRUNG.filter(function (f) { return f.id === state.fuehrung; })[0];
+    $('fuehrung').value = fz.id;
+    var fueBetrag = fuehrungBetrag(fz, d);
+    $('fuehrung-info').textContent = fz.id === 'keine'
+      ? 'Zulagen für Kompaniechef, Zugführer, Gruppenführer, Kompaniefeldwebel und vergleichbare Funktionen.'
+      : fueBetrag === null
+        ? 'Diese Zulage gibt es nur in ' + gruppenText(fz.gruppen) + ', nicht für ' + bgLabel(d.bg) + '.'
+        : 'Nr. ' + fz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(fueBetrag) + ' pro Monat (Anlage IX, gültig ab ' + D.stand.gueltigAb + ').';
+    fueBetrag = fueBetrag || 0;
     var sz = STELLENZULAGEN.filter(function (z) { return z.id === state.stelle; })[0];
     $('stelle').value = sz.id;
     $('dauer-wrap').hidden = !sz.dauer;
@@ -1157,7 +1226,9 @@
     }
     var stelleBetrag = 0;
     var stelleInfo = 'Die Höhe hängt von der Verwendung und von der Besoldungsgruppe ab.';
-    if (sz.dauer) {
+    if (sz.nurGruppen && !inGruppen(d.bg, sz.nurGruppen)) {
+      stelleInfo = 'Diese Zulage gibt es nur in ' + gruppenText(sz.nurGruppen) + ', nicht für ' + bgLabel(d.bg) + '.';
+    } else if (sz.dauer) {
       stelleBetrag = sz.dauer[state.dauer].betrag;
     } else if (sz.betrag) {
       var sb = sz.betrag(d);
@@ -1179,19 +1250,53 @@
       ? (AVZ.gebieteBeispiel ? 'Beispielzuordnung: ' : '') + 'Stufe ' + geb.stufe + ', ' + eur.format(tagessatz) + ' pro Tag, ' + tage + ' Tage.'
       : 'Ohne Auslandsverwendung entfällt der Zuschlag.';
 
+    // Regeln aus Anlage I, wenn mehrere Zulagen zusammentreffen
+    var regeln = [];
+    if (stelleBetrag && sz.nichtNebenAVZ && avz) {
+      regeln.push('Die Zulage Nr. ' + sz.nr + ' wird nicht neben dem Auslandsverwendungszuschlag gezahlt, deshalb 0 €.');
+      stelleBetrag = 0;
+    }
+    if (fueBetrag && fz.nichtNebenAmtszulageIn && d.bg === fz.nichtNebenAmtszulageIn && amtBetrag) {
+      regeln.push('Neben einer Amtszulage in ' + bgLabel(d.bg) + ' wird die Zulage Nr. ' + fz.nr.split(' ')[0] + ' nicht gezahlt (Nr. 4 Abs. 3).');
+      fueBetrag = 0;
+    }
+    if (fueBetrag && stelleBetrag) {
+      var nrF = fz.nr.split(' ')[0];
+      var fRed = fz.nebenAnderen === 'differenz';
+      var sRed = sz.nebenAnderen === 'differenz' || sz.differenzNeben.indexOf(nrF) >= 0;
+      if (fRed && sRed) {
+        regeln.push('Beide Zulagen werden nebeneinander nur gezahlt, soweit sie die andere übersteigen. Gezahlt wird deshalb nur die höhere.');
+        if (fueBetrag >= stelleBetrag) stelleBetrag = 0; else fueBetrag = 0;
+      } else if (fRed) {
+        regeln.push('Die Führungszulage wird neben der Stellenzulage nur gezahlt, soweit sie diese übersteigt (Nr. 4 Abs. 3): ' +
+          eur.format(fueBetrag) + ' − ' + eur.format(stelleBetrag) + ' = ' + eur.format(Math.max(0, fueBetrag - stelleBetrag)) + '.');
+        fueBetrag = Math.max(0, fueBetrag - stelleBetrag);
+      } else if (sRed) {
+        regeln.push('Die Stellenzulage Nr. ' + sz.nr + ' wird neben der Zulage Nr. ' + nrF + ' nur gezahlt, soweit sie diese übersteigt: ' +
+          eur.format(stelleBetrag) + ' − ' + eur.format(fueBetrag) + ' = ' + eur.format(Math.max(0, stelleBetrag - fueBetrag)) + '.');
+        stelleBetrag = Math.max(0, stelleBetrag - fueBetrag);
+      } else {
+        regeln.push('Beide Zulagen werden nebeneinander voll gezahlt.');
+      }
+    }
+    $('zul-regel').hidden = !regeln.length;
+    $('zul-regel').textContent = regeln.join(' ');
+
     var plus = erhoehung(d);
     var grund = (a ? TAB_A[d.bg][state.stufe - STUFE_MIN] : TAB_B[d.bg]) + plus;
     var kgBeiMir = state.kgBei === 'ich';
     var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder, state.partner, kgBeiMir);
-    var brutto = Math.round((grund + fam + stelleBetrag + avz) * 100) / 100;
+    var brutto = Math.round((grund + amtBetrag + fam + fueBetrag + stelleBetrag + avz) * 100) / 100;
 
     $('brutto').textContent = eur.format(brutto);
     $('kette').textContent = d.name + ' · ' + bgLabel(d.bg) + (a ? ' · Stufe ' + state.stufe : ' · feste Beträge, keine Stufen');
     $('z-grund').textContent = eur.format(grund);
     $('z-fam').textContent = eur.format(fam);
+    $('z-amt').textContent = eur.format(amtBetrag);
+    $('z-fue').textContent = eur.format(fueBetrag);
     $('z-zul').textContent = eur.format(stelleBetrag);
     $('z-avz').textContent = eur.format(avz);
-    $('z-jahr').textContent = eur.format(Math.round((grund + fam + stelleBetrag) * 1200) / 100);
+    $('z-jahr').textContent = eur.format(Math.round((grund + amtBetrag + fam + fueBetrag + stelleBetrag) * 1200) / 100);
     $('plus-hint').hidden = !plus;
     $('plus-hint').textContent = plus ? 'Im Grundgehalt enthalten: Erhöhungsbetrag von ' + eur.format(plus) + ' nach Anlage IV.' : '';
 
@@ -1292,6 +1397,21 @@
     state.dienstgrad = dd.id;
     state.bg = '';
     fuelleDienstgrade();
+    render();
+    go('rechner');
+  });
+  $('amt-check').addEventListener('change', function (e) {
+    state.amtHerausgehoben = e.target.checked;
+    render();
+  });
+  $('fuehrung').addEventListener('change', function (e) {
+    state.fuehrung = e.target.value;
+    render();
+  });
+  $('fue-liste').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-fuehrung]');
+    if (!b) return;
+    state.fuehrung = b.getAttribute('data-fuehrung');
     render();
     go('rechner');
   });
