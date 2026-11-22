@@ -62,16 +62,26 @@ var MS_ARTEN = [
 var MS_GROESSEN = [['00', 'ohne Angabe'], ['11', 'Trupp'], ['12', 'Gruppe'], ['13', 'Halbzug'], ['14', 'Zug'], ['15', 'Kompanie'],
   ['16', 'Bataillon'], ['17', 'Regiment'], ['18', 'Brigade'], ['21', 'Division'], ['22', 'Korps'], ['23', 'Armee']];
 
-var msGeladen = false, msLaedt = false;
+// Fremde Bibliotheken erst laden, wenn sie gebraucht werden (je Datei nur einmal)
+var SKRIPTE = {};
+function ladeSkript(src) {
+  if (!SKRIPTE[src]) {
+    SKRIPTE[src] = new Promise(function (ok, fehler) {
+      var sc = document.createElement('script');
+      sc.src = src;
+      sc.onload = ok;
+      sc.onerror = function () { delete SKRIPTE[src]; fehler(new Error(src)); };
+      document.head.appendChild(sc);
+    });
+  }
+  return SKRIPTE[src];
+}
+var msGeladen = false;
+function ladeMilsymbol() { return window.ms ? Promise.resolve() : ladeSkript('vendor/milsymbol.js'); }
 function zeigeSymbole() {
-  if (window.ms) { msGeladen = true; renderSymbol(); return; }
-  if (msLaedt) return;
-  msLaedt = true;
-  var sc = document.createElement('script');
-  sc.src = 'vendor/milsymbol.js';
-  sc.onload = function () { msGeladen = true; renderSymbol(); };
-  sc.onerror = function () { msLaedt = false; $('ms-vorschau').innerHTML = '<p class="hint">Die Zeichen-Bibliothek konnte nicht geladen werden. Bitte die Verbindung prüfen und die Seite neu öffnen.</p>'; };
-  document.head.appendChild(sc);
+  ladeMilsymbol().then(function () { msGeladen = true; renderSymbol(); }, function () {
+    $('ms-vorschau').innerHTML = '<p class="hint">Die Zeichen-Bibliothek konnte nicht geladen werden. Bitte die Verbindung prüfen und die Seite neu öffnen.</p>';
+  });
 }
 
 function msWert(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
@@ -80,15 +90,23 @@ function msSidc() {
   // Version 10, Wirklichkeit 0, Zugehörigkeit, Symbolsatz 10 (Landeinheit), Status, Stab/Task Force, Größe, Truppengattung, keine Zusätze
   return '10' + '0' + msWert('ms-zug') + '10' + msWert('ms-status') + hq + $('ms-groesse').value + $('ms-art').value + '0000';
 }
-function msSymbol(groesse) {
+// Aktuelle Auswahl als speicherbare Angaben (ohne Größe)
+function msAuswahl() {
   var farbe = $('ms-farbe').value;
-  var o = { size: groesse || 80, fill: farbe !== 'ohne', colorMode: farbe === 'ohne' ? 'Light' : farbe, standard: 'APP6' };
+  var o = { fill: farbe !== 'ohne', colorMode: farbe === 'ohne' ? 'Light' : farbe, standard: 'APP6' };
   if ($('ms-bez').value.trim()) o.uniqueDesignation = $('ms-bez').value.trim();
   if ($('ms-hoeher').value.trim()) o.higherFormation = $('ms-hoeher').value.trim();
   if ($('ms-info').value.trim()) o.additionalInformation = $('ms-info').value.trim();
   if ($('ms-staerke').value) o.reinforcedReduced = $('ms-staerke').value;
-  return new window.ms.Symbol(msSidc(), o);
+  return { sidc: msSidc(), opt: o, name: $('ms-art').selectedOptions[0].textContent + ', ' + $('ms-groesse').selectedOptions[0].textContent };
 }
+function msSymbolAus(a, groesse) {
+  var o = {};
+  Object.keys(a.opt || {}).forEach(function (k) { o[k] = a.opt[k]; });
+  o.size = groesse || 80;
+  return new window.ms.Symbol(a.sidc, o);
+}
+function msSymbol(groesse) { return msSymbolAus(msAuswahl(), groesse); }
 function renderSymbol() {
   if (!msGeladen) return;
   var sidc = msSidc();

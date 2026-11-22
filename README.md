@@ -9,8 +9,8 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-start`. |
-| `vendor/` | Fremde Bibliothek milsymbol 3.0.4 (MIT-Lizenz) für die taktischen Zeichen, wird nur auf dieser Seite geladen. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-lage`, `14-start`. |
+| `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte. Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
 Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
@@ -72,6 +72,10 @@ Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten
 ## Taktische Zeichen
 
 Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (Landeinheiten) zusammen: Zugehörigkeit, Truppengattung, Größe, Status, Stab oder Einsatzverband, Stärke und Beschriftungen. Die Zeichen lassen sich als SVG oder PNG herunterladen. Weitere Truppengattungen trägt man in `js/12-symbole.js` in der Liste `MS_ARTEN` ein (Code aus APP-6D, Symbolsatz 10).
+
+## Lagekarte
+
+Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Zeichen lassen sich verschieben und löschen. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
 
 ## Urlaubskartei
 

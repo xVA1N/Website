@@ -40,6 +40,7 @@
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8-4.3-4.1 5.9-.8z"/></symbol>
   <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="1"/><path d="M3.5 6l17 12M20.5 6l-17 12"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-4 3.8-6.2 7.5-6.2s6.7 2.2 7.5 6.2"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
 </svg>
@@ -62,7 +63,7 @@
     <p class="hint">Sanitätsoffiziere, auch die der Marine, stehen unter Sanitätsdienst.</p>
   </div>
 
-  <p class="notice" role="note">
+  <p class="notice" id="rechtsstand" role="note">
     <span class="full"><strong>Rechtsstand <span data-mk="gueltigAb"></span>.</strong> Grundgehalt, Familienzuschlag und Stellenzulagen stammen aus dem Bundesbesoldungsgesetz (<span data-mk="fundstelle"></span>). <span data-mk="hinweis"></span> <span data-mk-avz-platzhalter>Beim Auslandsverwendungszuschlag ist die Zuordnung der Einsatzgebiete zu Stufen ein Beispiel.</span> Die Seite ist nicht amtlich.</span>
     <span class="short"><strong>Rechtsstand <span data-mk="gueltigAb"></span></strong>, nicht amtlich.</span>
   </p>
@@ -98,6 +99,10 @@
       <a class="tile" href="#symbole">
         <span class="box"><svg class="ic"><use href="#i-flag"/></svg></span>
         <span><span class="tt">Taktische Zeichen</span><span class="td">Militärische Symbole nach NATO APP-6 zusammenstellen und herunterladen</span></span>
+      </a>
+      <a class="tile" href="#lage">
+        <span class="box"><svg class="ic"><use href="#i-map"/></svg></span>
+        <span><span class="tt">Lagekarte</span><span class="td">Taktische Zeichen auf eine Karte oder ein eigenes Bild setzen, nur für Ausbildung und Übung</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -571,6 +576,7 @@
         <button type="button" class="knopf sekundaer" id="ms-png">Als PNG laden</button>
       </div>
       <p class="hint" id="ms-download-hinweis" hidden>In dieser Vorschau sind Downloads gesperrt. Auf der Website funktionieren sie.</p>
+      <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="ms-auf-karte"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg>Auf Lagekarte setzen</button></div>
     </section>
     <section class="panel">
       <h2>Zeichen zusammenstellen</h2>
@@ -603,6 +609,36 @@
       </div>
     </section>
     <p class="hint">Zeichen nach NATO-Standard APP-6, erzeugt mit der freien Bibliothek milsymbol (MIT-Lizenz). Die Auswahl umfasst die gängigen Landeinheiten, deutsche Bezeichnungen frei übersetzt. Nicht amtlich.</p>
+  </section>
+
+  <!-- LAGEKARTE -->
+  <section class="view" id="view-lage" aria-label="Lagekarte" hidden>
+    <p class="notice warn-lage" role="note"><strong>Nur für Ausbildung und Übung.</strong> Keine echten Lagen, Stellungen oder eingestuften Inhalte (VS-NfD) eintragen. Bei Online-Karten erfährt der Kartenanbieter, welchen Ausschnitt du ansiehst.</p>
+    <section class="panel">
+      <fieldset><legend>Grundlage</legend><div class="seg" id="lage-modus">
+        <label><input type="radio" name="lage-modus" value="topo" checked><span>Topografische Karte</span></label>
+        <label><input type="radio" name="lage-modus" value="osm"><span>Straßenkarte</span></label>
+        <label><input type="radio" name="lage-modus" value="bild"><span>Eigenes Bild</span></label>
+      </div></fieldset>
+      <div id="lage-bild-steuerung" hidden>
+        <div class="dg-aktionen">
+          <button type="button" class="knopf sekundaer" id="lage-bild-knopf">Bild wählen</button>
+          <button type="button" class="knopf sekundaer" id="lage-bild-weg" hidden>Bild entfernen</button>
+        </div>
+        <input type="file" id="lage-bild-datei" accept="image/*" hidden>
+        <p class="hint">Zum Beispiel ein Foto einer Übungskarte oder eine Skizze. Das Bild bleibt im Gerät und wird nicht hochgeladen.</p>
+      </div>
+      <p class="u-meldung" id="lage-meldung" aria-live="polite"></p>
+    </section>
+    <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
+    <section class="panel">
+      <div class="u-kopfzeile">
+        <h2>Zeichen auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
+        <a class="u-plus" href="#symbole" aria-label="Zeichen hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
+      </div>
+      <p class="hint">Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
+      <div class="liste" id="lage-liste"></div>
+    </section>
   </section>
 
   <!-- PROFIL -->
@@ -744,6 +780,7 @@
 <script src="js/10-profil.js"></script>
 <script src="js/11-zeitstrahl.js"></script>
 <script src="js/12-symbole.js"></script>
-<script src="js/13-start.js"></script>
+<script src="js/13-lage.js"></script>
+<script src="js/14-start.js"></script>
 </body>
 </html>
