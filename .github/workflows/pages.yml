@@ -21,16 +21,24 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.versuch1.outputs.page_url || steps.versuch2.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prüfen, ob daten.js gültig ist
         run: node -e "global.window={}; require('./daten.js'); if(!window.MK_DATEN) process.exit(1); console.log('daten.js ok')"
       - name: Website-Dateien zusammenstellen
         run: mkdir _site && cp index.html daten.js _site/
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
-      - id: deployment
+      # Veröffentlichen; bei einer kurzen Störung von GitHub einmal nach 30 Sekunden wiederholen
+      - id: versuch1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Kurz warten vor zweitem Versuch
+        if: steps.versuch1.outcome == 'failure'
+        run: sleep 30
+      - id: versuch2
+        if: steps.versuch1.outcome == 'failure'
         uses: actions/deploy-pages@v4
