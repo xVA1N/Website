@@ -14,6 +14,12 @@
  */
 window.MK_DATEN = {
 
+  /* ---------- Über „MeinKamerad“: erscheint auf der Seite Mehr ---------- */
+  // Eigenen Text zwischen die Anführungszeichen schreiben. Ein neuer Absatz beginnt mit \n\n,
+  // zum Beispiel: ueber: "Erster Absatz.\n\nZweiter Absatz.",
+  // Solange der Text leer ist, steht dort „Text folgt.“
+  ueber: "",
+
   /* ---------- Stand und Quelle: erscheinen auf der ganzen Seite ---------- */
   stand: {
     gueltigAb: "1. März 2024",

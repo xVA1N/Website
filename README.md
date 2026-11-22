@@ -31,6 +31,16 @@ Wenn danach in der Seite der Hinweis „Die Datei daten.js fehlt oder enthält e
 
 Wenn die Zuordnung der Einsatzgebiete zu Stufen geprüft ist, `gebieteBeispiel: false` setzen. Dann verschwinden alle Beispiel-Hinweise auf der Seite.
 
+## Text „Über MeinKamerad“
+
+Auf der Seite Mehr steht oben das Feld „Über MeinKamerad“. Den Text trägst du in `daten.js` ganz oben bei `ueber` ein, zum Beispiel:
+
+```js
+ueber: "Erster Absatz.\n\nZweiter Absatz.",
+```
+
+`\n\n` beginnt einen neuen Absatz. Solange der Text leer ist, steht dort „Text folgt.“
+
 ## Eigene Infos zu Dienstgraden
 
 Auf der Seite Dienstgrade klappt ein Dienstgrad beim Antippen auf. Unter „Weitere Infos“ erscheinen die Eckdaten und, falls vorhanden, ein eigener Text. Diesen Text trägst du in `daten.js` unter `dienstgradInfos` ein, zum Beispiel:

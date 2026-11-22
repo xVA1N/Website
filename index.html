@@ -413,6 +413,8 @@
   .u-plus[aria-expanded="true"] svg { transform: rotate(45deg); }
   #u-tag-meldung:empty, #u-tag-liste:empty { display: none; }
   .u-tag-neu { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--soft); margin-top: 10px; }
+  .ueber-text p { margin: 0 0 10px; line-height: 1.55; }
+  .ueber-text p:last-child { margin-bottom: 0; }
   .panel > .u-kal-hint { margin: 0 0 10px; text-align: center; }
   .u-arten { display: grid; gap: 6px; }
   .u-arten label { position: relative; display: block; }
@@ -1088,6 +1090,11 @@
 
   <!-- MEHR -->
   <section class="view" id="view-mehr" aria-label="Mehr" hidden>
+    <section class="panel" aria-labelledby="ueber-titel">
+      <h2 id="ueber-titel">Über „MeinKamerad“</h2>
+      <div class="ueber-text" id="ueber-text"></div>
+    </section>
+
     <section class="panel" aria-label="Erklärungen">
       <h2>So setzt sich das zusammen</h2>
       <div>
@@ -1711,6 +1718,12 @@
     favSpeichern();
   }
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Über „MeinKamerad“ (Text aus daten.js, Absätze mit Leerzeile getrennt)
+  (function () {
+    var t = typeof D.ueber === 'string' ? D.ueber.trim() : '';
+    $('ueber-text').innerHTML = t ? t.split(/\n\s*\n/).map(function (a) { return '<p>' + esc(a.trim()).replace(/\n/g, '<br>') + '</p>'; }).join('')
+      : '<p class="hint" style="margin-top:0">Text folgt.</p>';
+  })();
   function sternKlein(key, name) {
     var an = istFav('zulagen', key);
     return '<button type="button" class="stern-klein" data-fav-zul="' + key + '" aria-pressed="' + an + '" aria-label="' +
