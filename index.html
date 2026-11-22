@@ -344,9 +344,11 @@
   }
   /* Safari (iPhone) zentriert den Wert nur über diese inneren Elemente */
   .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] { text-align-last: center; }
-  .u-felder input::-webkit-date-and-time-value { text-align: center; width: 100%; margin: 0 auto; }
+  .u-felder input::-webkit-date-and-time-value { text-align: center; width: 100%; margin: 0 auto; line-height: 44px; height: 44px; padding: 0; }
   .u-felder input::-webkit-datetime-edit { display: inline-flex; justify-content: center; width: 100%; }
   .u-felder input[type="date"], .u-felder input[type="text"], .u-felder input[type="month"], .u-felder input[type="time"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
+  /* Senkrecht mittig: feste Höhe und gleiche Zeilenhöhe (Safari richtet den Wert sonst oben aus) */
+  .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] { height: 46px; min-height: 46px; line-height: 44px; padding-top: 0; padding-bottom: 0; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
   .u-nav .m { font-weight: 600; }
