@@ -763,7 +763,8 @@
     <section class="panel">
       <h2>Kalender-Export</h2>
       <p class="hint">Lädt alle Einträge als .ics-Datei herunter. Die Datei lässt sich in Kalender-Apps auf Handy und Computer importieren.</p>
-      <div class="dg-aktionen">
+      <p class="hint" id="u-export-hinweis" hidden>In dieser Vorschau sind Downloads nicht möglich. Der Export funktioniert auf der Website unter xva1n.github.io/Website.</p>
+      <div class="dg-aktionen" id="u-export-knoepfe">
         <button type="button" class="knopf primaer" id="u-export-jahr"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Dieses Jahr exportieren</button>
         <button type="button" class="knopf sekundaer" id="u-export-alle">Alle Jahre exportieren</button>
       </div>
@@ -2472,6 +2473,11 @@
     renderUrlaub();
     $('u-monat').scrollIntoView({ block: 'center' });
   });
+  // In der Artefakt-Vorschau auf claude.ai sind .ics-Downloads nicht erlaubt: dort Hinweis statt Knöpfen
+  if (window.claude && typeof window.claude.use === 'function') {
+    $('u-export-knoepfe').hidden = true;
+    $('u-export-hinweis').hidden = false;
+  }
   $('u-export-jahr').addEventListener('click', function () { icsExport(uAnsicht.jahr); });
   $('u-export-alle').addEventListener('click', function () { icsExport(0); });
 
