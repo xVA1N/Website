@@ -76,7 +76,8 @@ window.MK_DATEN = {
 
   /* ---------- Anlage IX: Stellenzulagen ---------- */
   // Jede Zulage hat entweder "staffel" (Betrag je Besoldungsgruppe, optional je Laufbahn)
-  // oder "dauer" (Betrag nach Dauer in der Verwendung).
+  // oder "dauer" (Auswahlliste, z. B. nach Dauer in der Verwendung; die Überschrift der
+  // Auswahl steht in "auswahlLabel"). "quelle" ist optional, sonst gilt Anlage IX mit Stand oben.
   stellenzulagen: [
     { id: "polizei", name: "Vollzugspolizeiliche Aufgaben (z. B. Feldjäger)", nr: "9",
       dauer: [ { label: "nach 1 Jahr", betrag: 95 }, { label: "nach 2 Jahren", betrag: 228 } ] },
@@ -97,6 +98,12 @@ window.MK_DATEN = {
                  { gruppen: "A10-A13", betrag: 275 }, { gruppen: "A14, A15, B1", betrag: 330 },
                  { gruppen: "A16, B2-B4", betrag: 400 }, { gruppen: "B5-B7", betrag: 470 },
                  { gruppen: "B8-B10", betrag: 540 }, { gruppen: "B11", betrag: 610 } ] },
+    { id: "combatcontroller", name: "Combat Controller (Luftlande- und Fernspähkräfte)", nr: "5b",
+      quelle: "Anlage IX, eingefügt durch BGBl. 2025 I Nr. 72",
+      auswahlLabel: "Qualifikation",
+      dauer: [ { label: "bis zur Basisqualifikation Stufe B", betrag: 150 },
+               { label: "nach Basisqualifikation Stufe B", betrag: 300 },
+               { label: "nach Basisqualifikation Stufe C", betrag: 350 } ] },
     { id: "flugtechnik", name: "Flugzeugtechnisches Personal", nr: "5",
       staffel: [ { laufbahn: "Mannschaften", betrag: 53 },
                  { laufbahn: "Unteroffiziere", gruppen: "A3-A6", betrag: 53 },
@@ -106,11 +113,15 @@ window.MK_DATEN = {
 
   /* ---------- Auslandsverwendungszuschlag ---------- */
   auslandsverwendung: {
-    // true, solange Tagessätze und Gebiete noch Platzhalter sind. Auf false setzen, sobald
-    // sie geprüft sind: Dann verschwinden die Platzhalter-Hinweise auf der ganzen Seite.
-    platzhalter: true,
+    // Tagessätze nach § 3 Abs. 1 AuslVZV, Höchstsatz nach § 56 Abs. 3 BBesG
+    gueltigAb: "6. März 2025",
+    fundstelle: "§ 3 AuslVZV, BGBl. 2025 I Nr. 78",
     hoechstsatz: 153,
-    tagessatzJeStufe: { 1: 30, 2: 45, 3: 60, 4: 75, 5: 90, 6: 120, 7: 153 },
+    tagessatzJeStufe: { 1: 54, 2: 77, 3: 93, 4: 111, 5: 131, 6: 153 },
+    // Welche Stufe für einen Einsatz gilt, legt das Verteidigungsministerium fest und ist nicht
+    // amtlich veröffentlicht. true, solange die Zuordnung unten nur ein Beispiel ist. Auf false
+    // setzen, sobald sie geprüft ist: Dann verschwinden die Beispiel-Hinweise auf der ganzen Seite.
+    gebieteBeispiel: true,
     gebiete: [
       { id: "kfor", name: "Kosovo (KFOR)", stufe: 3 },
       { id: "irak", name: "Irak", stufe: 5 },

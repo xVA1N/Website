@@ -374,7 +374,7 @@
   </div>
 
   <p class="notice" role="note">
-    <span class="full"><strong>Rechtsstand <span data-mk="gueltigAb"></span>.</strong> Grundgehalt, Familienzuschlag und Stellenzulagen stammen aus dem Bundesbesoldungsgesetz (<span data-mk="fundstelle"></span>). <span data-mk="hinweis"></span> <span data-mk-avz-platzhalter>Tagessätze im Ausland sind noch Platzhalter.</span> Die Seite ist nicht amtlich.</span>
+    <span class="full"><strong>Rechtsstand <span data-mk="gueltigAb"></span>.</strong> Grundgehalt, Familienzuschlag und Stellenzulagen stammen aus dem Bundesbesoldungsgesetz (<span data-mk="fundstelle"></span>). <span data-mk="hinweis"></span> <span data-mk-avz-platzhalter>Beim Auslandsverwendungszuschlag ist die Zuordnung der Einsatzgebiete zu Stufen ein Beispiel.</span> Die Seite ist nicht amtlich.</span>
     <span class="short"><strong>Rechtsstand <span data-mk="gueltigAb"></span></strong>, nicht amtlich.</span>
   </p>
 
@@ -469,7 +469,7 @@
         <div class="stack">
           <select id="stelle" aria-label="Verwendung für die Stellenzulage"></select>
           <div id="dauer-wrap" hidden>
-            <label class="label" for="dauer" style="display:block">Dauer in dieser Verwendung</label>
+            <label class="label" for="dauer" id="dauer-label" style="display:block">Dauer in dieser Verwendung</label>
             <select id="dauer"></select>
           </div>
         </div>
@@ -486,7 +486,7 @@
           </div>
         </div>
         <p class="hint" id="avz-info"></p>
-        <p class="hint">Gezahlt wird je Tag der Verwendung. Bei weniger als 15 Tagen kann die nächstniedrigere Stufe gelten. Der Höchstsatz laut § 56 BBesG liegt bei <span data-mk="avzHoechstsatz"></span> pro Tag.<span data-mk-avz-platzhalter> Die übrigen Tagessätze und die Zuordnung der Gebiete zu Stufen sind Platzhalter.</span></p>
+        <p class="hint">Gezahlt wird je Tag der Verwendung. Bei weniger als 15 Tagen kann die nächstniedrigere Stufe gelten. Die Tagessätze reichen von <span data-mk="avzMin"></span> bis zum Höchstsatz von <span data-mk="avzHoechstsatz"></span> nach § 56 BBesG (<span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>).<span data-mk-avz-platzhalter> Welche Stufe für ein Einsatzgebiet gilt, legt das Verteidigungsministerium fest. Die Zuordnung hier ist ein Beispiel.</span></p>
       </fieldset>
     </section>
 
@@ -533,12 +533,12 @@
         <p class="hint" id="zul-kopf"></p>
       </div>
       <div class="liste" id="zul-liste"></div>
-      <p class="hint">Weitere Zulagen (fliegerische Verwendung, maritimer Bereich, Combat Controller) folgen. Ihre Unterstufen sind noch zu prüfen.</p>
+      <p class="hint">Weitere Zulagen (fliegerische Verwendung, maritimer Bereich) folgen. Ihre Unterstufen sind noch zu prüfen.</p>
     </section>
     <section class="panel">
       <div>
         <h2>Auslandsverwendungszuschlag</h2>
-        <p class="hint">Er wird je Tag der Verwendung gezahlt, in Stufen nach den Belastungen des jeweiligen Einsatzes. Der Höchstsatz liegt laut § 56 BBesG bei <span data-mk="avzHoechstsatz"></span> pro Tag, bei Einsätzen unter 15 Tagen kann die nächstniedrigere Stufe gezahlt werden.<span data-mk-avz-platzhalter> Tagessätze und Zuordnung der Gebiete unten sind Platzhalter.</span></p>
+        <p class="hint">Er wird je Tag der Verwendung gezahlt, in Stufen nach den Belastungen des jeweiligen Einsatzes. Der Höchstsatz liegt laut § 56 BBesG bei <span data-mk="avzHoechstsatz"></span> pro Tag, bei Einsätzen unter 15 Tagen kann die nächstniedrigere Stufe gezahlt werden. Tagessätze nach <span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>.<span data-mk-avz-platzhalter> Die Zuordnung der Gebiete unten ist ein Beispiel.</span></p>
       </div>
       <div class="liste" id="avz-liste"></div>
     </section>
@@ -573,7 +573,7 @@
       <dl class="info">
         <dt>Gültig ab</dt><dd><span data-mk="gueltigAb"></span></dd>
         <dt>Rechtsstand</dt><dd><span data-mk="gesetz"></span>, <span data-mk="fundstelle"></span>. <span data-mk="hinweis"></span></dd>
-        <dt>Quelle</dt><dd>Bundesbesoldungsgesetz. Die Dienstgrade samt Besoldungsgruppen stammen aus Anlage I (Amtszulagen sind nur vermerkt; die Einordnung der Sanitätsoffiziere in Hauptleute, Stabsoffiziere und Generale ist noch zu prüfen). Grundgehälter samt Erhöhungsbeträgen aus Anlage IV, Familienzuschlag aus Anlage V, Stellenzulagen aus Anlage IX, jeweils gültig ab <span data-mk="gueltigAb"></span>.<span data-mk-avz-platzhalter> Beim Auslandsverwendungszuschlag sind die Tagessätze und die Zuordnung der Gebiete noch Platzhalter.</span></dd>
+        <dt>Quelle</dt><dd>Bundesbesoldungsgesetz. Die Dienstgrade samt Besoldungsgruppen stammen aus Anlage I (Amtszulagen sind nur vermerkt; die Einordnung der Sanitätsoffiziere in Hauptleute, Stabsoffiziere und Generale ist noch zu prüfen). Grundgehälter samt Erhöhungsbeträgen aus Anlage IV, Familienzuschlag aus Anlage V, Stellenzulagen aus Anlage IX, jeweils gültig ab <span data-mk="gueltigAb"></span>. Tagessätze des Auslandsverwendungszuschlags nach <span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>.<span data-mk-avz-platzhalter> Die Zuordnung der Einsatzgebiete zu Stufen ist ein Beispiel.</span></dd>
         <dt>Hinweis</dt><dd>Inoffiziell, ohne Gewähr, keine Rechtsberatung.</dd>
       </dl>
     </section>
@@ -651,7 +651,7 @@
   }
 
   var STELLENZULAGEN = [{ id: 'keine', name: 'Keine Stellenzulage' }].concat(D.stellenzulagen.map(function (z) {
-    var o = { id: z.id, name: z.name, nr: z.nr, dauer: z.dauer };
+    var o = { id: z.id, name: z.name, nr: z.nr, dauer: z.dauer, quelle: z.quelle, auswahlLabel: z.auswahlLabel };
     if (z.staffel) o.betrag = function (d) {
       var e = z.staffel.filter(function (x) { return passt(x, d); })[0];
       return e ? e.betrag : null;
@@ -876,12 +876,14 @@
 
   /* ===== Stand-Angaben aus daten.js überall einsetzen ===== */
   var TEXTE = { gueltigAb: D.stand.gueltigAb, fundstelle: D.stand.fundstelle, gesetz: D.stand.gesetz,
-    hinweis: D.stand.hinweis, avzHoechstsatz: eur.format(AVZ.hoechstsatz) };
+    hinweis: D.stand.hinweis, avzHoechstsatz: eur.format(AVZ.hoechstsatz),
+    avzMin: eur.format(Math.min.apply(null, Object.keys(AVZ_STUFEN).map(function (k) { return AVZ_STUFEN[k]; }))),
+    avzFundstelle: AVZ.fundstelle, avzGueltigAb: AVZ.gueltigAb };
   Array.prototype.forEach.call(document.querySelectorAll('[data-mk]'), function (el) {
     el.textContent = TEXTE[el.getAttribute('data-mk')] || '';
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-mk-avz-platzhalter]'), function (el) {
-    el.hidden = !AVZ.platzhalter;
+    el.hidden = !AVZ.gebieteBeispiel;
   });
 
   /* ===== Aufbau der Bedienelemente ===== */
@@ -1087,7 +1089,7 @@
 
     $('avz-liste').innerHTML = EINSATZGEBIETE.filter(function (g) { return g.stufe > 0; }).map(function (g) {
       return '<button type="button" class="zeile" data-gebiet="' + g.id + '"' + (g.id === state.gebiet ? ' aria-current="true"' : '') + '>' +
-        '<span class="n">' + g.name + '</span><span class="r">Stufe ' + g.stufe + '</span><span class="s">' + eur.format(AVZ_STUFEN[g.stufe]) + ' pro Tag' + (AVZ.platzhalter ? ' (Beispiel)' : '') + '</span></button>';
+        '<span class="n">' + g.name + '</span><span class="r">Stufe ' + g.stufe + '</span><span class="s">' + eur.format(AVZ_STUFEN[g.stufe]) + ' pro Tag' + (AVZ.gebieteBeispiel ? ' (Beispiel)' : '') + '</span></button>';
     }).join('');
   }
 
@@ -1145,6 +1147,7 @@
     var sz = STELLENZULAGEN.filter(function (z) { return z.id === state.stelle; })[0];
     $('stelle').value = sz.id;
     $('dauer-wrap').hidden = !sz.dauer;
+    $('dauer-label').textContent = sz.auswahlLabel || 'Dauer in dieser Verwendung';
     if (sz.dauer) {
       if ($('dauer').getAttribute('data-for') !== sz.id) {
         $('dauer').innerHTML = sz.dauer.map(function (x, i) { return '<option value="' + i + '">' + x.label + '</option>'; }).join('');
@@ -1162,7 +1165,7 @@
       else { stelleBetrag = sb; }
     }
     if (stelleBetrag) {
-      stelleInfo = 'Nr. ' + sz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(stelleBetrag) + ' pro Monat (Anlage IX, gültig ab ' + D.stand.gueltigAb + ').';
+      stelleInfo = 'Nr. ' + sz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(stelleBetrag) + ' pro Monat (' + (sz.quelle || 'Anlage IX, gültig ab ' + D.stand.gueltigAb) + ').';
     }
     $('stelle-info').textContent = stelleInfo;
 
@@ -1173,7 +1176,7 @@
     var tagessatz = geb.stufe ? AVZ_STUFEN[geb.stufe] : 0;
     var avz = tagessatz * tage;
     $('avz-info').textContent = geb.stufe
-      ? (AVZ.platzhalter ? 'Beispielzuordnung: ' : '') + 'Stufe ' + geb.stufe + ', ' + eur.format(tagessatz) + ' pro Tag, ' + tage + ' Tage.'
+      ? (AVZ.gebieteBeispiel ? 'Beispielzuordnung: ' : '') + 'Stufe ' + geb.stufe + ', ' + eur.format(tagessatz) + ' pro Tag, ' + tage + ' Tage.'
       : 'Ohne Auslandsverwendung entfällt der Zuschlag.';
 
     var plus = erhoehung(d);
