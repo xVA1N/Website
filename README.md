@@ -6,8 +6,12 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 
 | Datei | Inhalt |
 | --- | --- |
-| `index.html` | Die Seite: Aufbau, Gestaltung, Rechenlogik. Muss bei einer Besoldungsanpassung **nicht** geändert werden. |
-| `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. |
+| `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
+| `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
+| `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-rechner`, `07-ereignisse`, `08-urlaubskartei`, `09-profil`, `10-start`. |
+
+Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
 
 ## Werte ändern (zum Beispiel bei einer Besoldungsanpassung)
 
