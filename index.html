@@ -769,7 +769,14 @@
 
   <!-- DUZ -->
   <section class="view" id="view-duz" aria-label="DuZ-Rechner" hidden>
-    <p class="hint" id="duz-fuer"></p>
+    <section class="panel">
+      <h2>Dein Dienstgrad</h2>
+      <div class="u-felder">
+        <div><label class="label" for="duz-dg" style="display:block">Dienstgrad</label><select id="duz-dg"></select></div>
+        <div id="duz-bg-wrap" hidden><label class="label" for="duz-bg" style="display:block">Besoldungsgruppe</label><select id="duz-bg"></select></div>
+      </div>
+      <p class="hint" id="duz-fuer"></p>
+    </section>
     <section class="panel">
       <h2>Monat und Feiertage</h2>
         <div class="u-felder">
@@ -2000,8 +2007,22 @@
   }
   function renderDuzSeite(d, land) {
     var m = state.duzMonat;
-    $('duz-fuer').textContent = 'Berechnet für ' + d.name + ' (' + bgLabel(d.bg) + '). Den Dienstgrad änderst du im Rechner.' +
-      (d.bg.charAt(0) !== D.duz.nurOrdnung ? ' In Besoldungsordnung B gibt es keine Zulage für Dienst zu ungünstigen Zeiten.' : '');
+    // Dienstgrad-Auswahl direkt auf der DuZ-Seite (gemeinsam mit dem Rechner)
+    if (document.activeElement !== $('duz-dg')) {
+      $('duz-dg').innerHTML = GRUPPEN.map(function (g) {
+        var opts = DIENSTGRADE.filter(function (x) { return x.gruppe === g.id && sichtbar(x); })
+          .map(function (x) { return '<option value="' + x.id + '">' + x.n[state.tsk] + (abkuerzung(x.id) ? ' (' + abkuerzung(x.id) + ')' : '') + '</option>'; }).join('');
+        return opts ? '<optgroup label="' + g.name + '">' + opts + '</optgroup>' : '';
+      }).join('');
+      $('duz-dg').value = d.id;
+    }
+    $('duz-bg-wrap').hidden = d.bgs.length < 2;
+    $('duz-bg').innerHTML = d.bgs.map(function (b) { return '<option value="' + b + '">' + bgLabel(b) + '</option>'; }).join('');
+    $('duz-bg').value = d.bg;
+    $('duz-fuer').textContent = (d.bg.charAt(0) !== D.duz.nurOrdnung
+      ? 'In Besoldungsordnung B gibt es keine Zulage für Dienst zu ungünstigen Zeiten, die Beträge unten sind deshalb 0 €. '
+      : 'Wichtig ist nur, ob du in Besoldungsordnung A bist; die Höhe der Zulage hängt nicht vom Dienstgrad ab. ') +
+      'Die Auswahl gilt auch im Rechner.';
     $('duz-liste-titel').textContent = 'Dienste im ' + monatName(m);
     var mb = duzMonatBetrag(m, d, land);
     $('duz-v-betrag').innerHTML = '<strong>Zulage ' + monatName(m) + ': ' + eur.format(mb.betrag) + '</strong>' +
@@ -3056,6 +3077,13 @@
   $('duz-r-monat').addEventListener('change', function (e) {
     if (/^\d{4}-\d{2}$/.test(e.target.value)) { state.duzMonat = e.target.value; render(); }
   });
+  $('duz-dg').addEventListener('change', function (e) {
+    var dd = dgById(e.target.value);
+    if (!dd) return;
+    state.gruppe = dd.gruppe; state.dienstgrad = dd.id; state.bg = '';
+    fuelleDienstgrade(); render();
+  });
+  $('duz-bg').addEventListener('change', function (e) { state.bg = e.target.value; render(); });
   $('duz-zeitraum').addEventListener('change', function (e) { state.duzZeitraum = e.target.value; render(); });
   function diensteZeigen(an) { UZ.diensteZeigen = an; uSpeichern(); render(); renderUrlaub(); }
   $('duz-kal-zeigen').addEventListener('change', function (e) { diensteZeigen(e.target.checked); });
