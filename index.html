@@ -339,9 +339,9 @@
   .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
   .u-felder > div { min-width: 0; }
   .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] {
-    -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; box-sizing: border-box; text-align: left;
+    -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; box-sizing: border-box; text-align: center;
   }
-  .u-felder input::-webkit-date-and-time-value { text-align: left; }
+  .u-felder input::-webkit-date-and-time-value { text-align: center; }
   .u-felder input[type="date"], .u-felder input[type="text"], .u-felder input[type="month"], .u-felder input[type="time"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
@@ -1966,14 +1966,19 @@
     });
     return { so: s.so / 60, sa: s.sa / 60, na: s.na / 60 };
   }
+  // Vorbelegung: Beginn am 1. des gewählten Monats um 7 Uhr, Ende am Folgetag um 7 Uhr (24-Stunden-Dienst)
+  function duzFormVorbelegen() {
+    var erster = state.duzMonat + '-01';
+    $('duz-start-tag').value = erster;
+    $('duz-start-zeit').value = '07:00';
+    $('duz-ende-tag').value = iso(plusTage(vonIso(erster), 1));
+    $('duz-ende-zeit').value = '07:00';
+  }
   function renderDuzListe(land, h) {
     $('duz-monat').value = state.duzMonat;
     $('duz-land').value = land;
     var aktiv = document.activeElement;
-    if ($('duz-start-tag').value.slice(0, 7) !== state.duzMonat && aktiv !== $('duz-start-tag') && aktiv !== $('duz-ende-tag')) {
-      $('duz-start-tag').value = state.duzMonat + '-01';
-      $('duz-ende-tag').value = state.duzMonat + '-01';
-    }
+    if ($('duz-start-tag').value.slice(0, 7) !== state.duzMonat && aktiv !== $('duz-start-tag') && aktiv !== $('duz-ende-tag')) duzFormVorbelegen();
     var monat = state.duzMonat;
     var liste = DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, monat); });
     $('duz-liste').hidden = !liste.length;
@@ -2338,7 +2343,10 @@
   function duzMeldung(t, fehler) { $('duz-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('duz-meldung').textContent = t; }
   $('duz-start-tag').addEventListener('change', function (e) {
     var et = $('duz-ende-tag');
-    if (e.target.value && (!et.value || et.value < e.target.value)) et.value = e.target.value;
+    // Ende-Tag mitziehen: bei gleicher Uhrzeit ein Tag später, sonst mindestens der Beginn-Tag
+    if (e.target.value && (!et.value || et.value <= e.target.value)) {
+      et.value = $('duz-ende-zeit').value && $('duz-ende-zeit').value <= $('duz-start-zeit').value ? iso(plusTage(vonIso(e.target.value), 1)) : e.target.value;
+    }
   });
   $('duz-add').addEventListener('click', function () {
     var st = $('duz-start-tag').value, sz = $('duz-start-zeit').value, et = $('duz-ende-tag').value, ez = $('duz-ende-zeit').value;
@@ -2357,8 +2365,7 @@
     if (!duzImMonat(neu, state.duzMonat)) state.duzMonat = st.slice(0, 7);
     var r = duzDienstAuswerten(neu, '', UZ.land);
     duzMeldung('Dienst eingetragen: ' + stdText(r.dauer, true) + ', davon ' + stdText(r.so + r.sa + r.na, true) + ' zu ungünstigen Zeiten.');
-    $('duz-start-zeit').value = ''; $('duz-ende-zeit').value = '';
-    $('duz-start-tag').value = et; $('duz-ende-tag').value = et;
+    duzFormVorbelegen();
     render();
   });
   $('duz-liste').addEventListener('click', function (e) {
