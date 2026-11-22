@@ -9,7 +9,8 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-rechner`, `07-ereignisse`, `08-urlaubskartei`, `09-profil`, `10-start`. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-start`. |
+| `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
 Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
 
@@ -61,6 +62,12 @@ Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber
 
 Unter „Mein Profil“ (Personen-Symbol oben rechts) trägt jeder Nutzer einmal Dienstgrad, Besoldungsgruppe, Stufe, Familie, Bundesland und Dienstzeiten ein. Rechner, DuZ-Rechner und Urlaubskartei übernehmen die Werte. Gespeichert wird nur im Browser, es gibt keinen Login und keinen Server. Mit „Daten sichern“ und „Daten laden“ lassen sich alle Einträge als Datei auf ein anderes Gerät übertragen.
 
+## Netto und Zeitstrahl
+
+Der Rechner zeigt unter dem Brutto eine Netto-Näherung: Lohnsteuer, Solidaritätszuschlag und Kirchensteuer nach dem Tarif 2026 für die Steuerklassen I bis IV. Soldaten zahlen keine Renten-, Arbeitslosen- und Krankenversicherung, berücksichtigt wird der selbst gezahlte Beitrag zur privaten Pflegeversicherung aus dem Profil. Auslandsverwendungszuschlag (§ 3 Nr. 64 EStG) und DuZ (§ 3b EStG) gelten als steuerfrei. Die Steuerwerte stehen in `daten.js` unter `steuer` und müssen jedes Jahr angepasst werden.
+
+Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten nach § 27 BBesG, in `daten.js` unter `stufenlaufzeit`) und, bei Mannschaften, ab wann frühestens die nächste Beförderung möglich ist.
+
 ## Urlaubskartei
 
 Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Übersicht führt vier Konten (Erholungsurlaub, Überstunden, ATB = Ausnahmetatbestand, Sonderurlaub), jeweils mit dem Anspruch dieses Jahres und dem Rest aus dem Vorjahr. Überstunden werden in Stunden geführt. Ein Tag Dienstzeitausgleich zieht die Stunden dieses Wochentags ab. Der Vorschlag für die Dienstzeiten (Beginn, Ende, Pause je Wochentag) steht in `daten.js` unter `urlaub.dienstzeiten`, jeder Nutzer kann ihn in der Urlaubskartei ändern. Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer in der Urlaubskartei über das Plus selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
@@ -75,3 +82,4 @@ Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` 
 - Auslandsverwendungszuschlag: Tagessätze nach § 3 AuslVZV, gültig ab 6. März 2025, BGBl. 2025 I Nr. 78. Die Zuordnung der Einsatzgebiete zu Stufen ist ein Beispiel.
 - Dienst zu ungünstigen Zeiten: §§ 3 bis 5 Erschwerniszulagenverordnung, Beträge gültig ab 1. März 2024, BGBl. 2023 I Nr. 414.
 - Kindergeld: § 6 BKGG, gültig ab 1. Januar 2026, BGBl. 2024 I Nr. 449.
+- Lohnsteuer: Einkommensteuertarif § 32a EStG 2026, Grundfreibetrag 12.348 €, Soli-Freigrenze 20.350 €, Kinderfreibeträge 9.756 € je Kind. Werte aus Sekundärquellen, an den Zonengrenzen nachgerechnet. Die Mindestvorsorgepauschale ist ab 2026 entfallen.

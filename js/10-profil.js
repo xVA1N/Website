@@ -27,6 +27,9 @@ function profilAnwenden() {
   state.partner = !!PROF.verheiratet && !!PROF.partner;
   state.kinder = Math.max(0, Math.min(6, +PROF.kinder || 0));
   state.kgBei = PROF.kgBei === 'partner' ? 'partner' : 'ich';
+  state.stkl = [1, 2, 3, 4].indexOf(PROF.stkl) >= 0 ? PROF.stkl : 0;
+  state.kirche = !!PROF.kirche;
+  state.pvMonat = Math.max(0, Math.min(500, +PROF.pvMonat || 0));
 }
 function profilText() {
   var d = dgById(PROF.dienstgrad), bg = d.bgs.indexOf(PROF.bg) >= 0 ? PROF.bg : d.bgs[0];
@@ -39,7 +42,8 @@ function profilGleichState() {
   var d = aktuell();
   return PROF && state.tsk === PROF.tsk && d.id === PROF.dienstgrad && d.bg === (dgById(PROF.dienstgrad).bgs.indexOf(PROF.bg) >= 0 ? PROF.bg : d.bgs[0]) &&
     (!istA(d.bg) || state.stufe === PROF.stufe) && state.verheiratet === !!PROF.verheiratet && state.kinder === (+PROF.kinder || 0) &&
-    state.partner === (!!PROF.verheiratet && !!PROF.partner) && (!state.partner || !state.kinder || state.kgBei === PROF.kgBei);
+    state.partner === (!!PROF.verheiratet && !!PROF.partner) && (!state.partner || !state.kinder || state.kgBei === PROF.kgBei) &&
+    state.stkl === ([1, 2, 3, 4].indexOf(PROF.stkl) >= 0 ? PROF.stkl : 0) && state.kirche === !!PROF.kirche;
 }
 function renderProfilHinweis() {
   var zeigen = !!PROF && !profilGleichState();
@@ -47,7 +51,7 @@ function renderProfilHinweis() {
   if (zeigen) $('r-profil-text').textContent = 'Mein Profil: ' + profilText();
 }
 function renderProfil() {
-  var p = PROF || { tsk: state.tsk, dienstgrad: state.dienstgrad, bg: aktuell().bg, stufe: state.stufe, verheiratet: state.verheiratet, partner: state.partner, kinder: state.kinder, kgBei: state.kgBei };
+  var p = PROF || { tsk: state.tsk, dienstgrad: state.dienstgrad, bg: aktuell().bg, stufe: state.stufe, verheiratet: state.verheiratet, partner: state.partner, kinder: state.kinder, kgBei: state.kgBei, stkl: state.stkl, kirche: state.kirche, pvMonat: state.pvMonat };
   var d = dgById(p.dienstgrad), tsk = TSK.some(function (t) { return t.id === p.tsk; }) ? p.tsk : 'heer';
   if (!d.n[tsk]) d = DIENSTGRADE.filter(function (x) { return x.n[tsk]; })[0];
   var bg = d.bgs.indexOf(p.bg) >= 0 ? p.bg : d.bgs[0];
@@ -76,6 +80,12 @@ function renderProfil() {
   $('p-kinder').value = String(+p.kinder || 0);
   $('p-kg-wrap').hidden = !(p.verheiratet && p.partner && +p.kinder > 0);
   $('p-kg').value = p.kgBei === 'partner' ? 'partner' : 'ich';
+  $('p-stkl').value = String([1, 2, 3, 4].indexOf(p.stkl) >= 0 ? p.stkl : 0);
+  $('p-kirche').checked = !!p.kirche;
+  $('p-pv').value = p.pvMonat ? p.pvMonat : '';
+  $('p-eintritt').value = p.eintritt || '';
+  $('p-stufe-seit').value = p.stufeSeit || '';
+  renderZeitstrahl(p, d, bg);
   $('p-land').innerHTML = $('u-land').innerHTML;
   $('p-land').value = UZ.land;
   $('p-dz').innerHTML = dienstzeitenHtml();
@@ -87,14 +97,17 @@ function profilAusFormular() {
   var bg = d.bgs.indexOf($('p-bg').value) >= 0 ? $('p-bg').value : d.bgs[0];
   var verh = $('p-verh').checked;
   PROF = { tsk: tsk, dienstgrad: d.id, bg: bg, stufe: +$('p-stufe').value || STUFE_MIN, verheiratet: verh,
-    partner: verh && $('p-partner').checked, kinder: +$('p-kinder').value || 0, kgBei: $('p-kg').value === 'partner' ? 'partner' : 'ich' };
+    partner: verh && $('p-partner').checked, kinder: +$('p-kinder').value || 0, kgBei: $('p-kg').value === 'partner' ? 'partner' : 'ich',
+    stkl: +$('p-stkl').value || 0, kirche: $('p-kirche').checked, pvMonat: Math.max(0, Math.min(500, parseFloat(String($('p-pv').value).replace(',', '.')) || 0)),
+    eintritt: /^\d{4}-\d{2}-\d{2}$/.test($('p-eintritt').value) ? $('p-eintritt').value : '',
+    stufeSeit: /^\d{4}-\d{2}$/.test($('p-stufe-seit').value) ? $('p-stufe-seit').value : '' };
   profilSpeichern();
   profilAnwenden();
   fuelleDienstgrade();
   render();
   renderProfil();
 }
-['p-tsk', 'p-dg', 'p-bg', 'p-stufe', 'p-verh', 'p-partner', 'p-kinder', 'p-kg'].forEach(function (id) { $(id).addEventListener('change', profilAusFormular); });
+['p-tsk', 'p-dg', 'p-bg', 'p-stufe', 'p-verh', 'p-partner', 'p-kinder', 'p-kg', 'p-stkl', 'p-kirche', 'p-pv', 'p-eintritt', 'p-stufe-seit'].forEach(function (id) { $(id).addEventListener('change', profilAusFormular); });
 $('p-land').addEventListener('change', function (e) { UZ.land = e.target.value; uSpeichern(); renderUrlaub(); render(); });
 $('p-dz').addEventListener('change', function (e) {
   var dzTag = e.target.getAttribute('data-dz');

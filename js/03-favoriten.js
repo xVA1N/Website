@@ -10,7 +10,7 @@ var SEITEN_FAV = { rechner: ['Rechner', 'i-calc', 'Dienstgrad, Stufe, Familie un
   vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
   urlaub: ['Urlaubskartei', 'i-cal', 'Urlaub, Überstunden, ATB und Kalender-Export'],
   duz: ['DuZ-Rechner', 'i-clock', 'Dienste zu ungünstigen Zeiten, Übersicht je Monat, Quartal und Jahr'] };
-var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat',
+var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat', 'stkl', 'kirche', 'pvMonat',
   'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
 function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
 function favLaden() {

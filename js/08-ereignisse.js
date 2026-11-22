@@ -36,6 +36,8 @@ $('stufen-tabelle').addEventListener('click', function (e) {
   state.stufe = Number(b.getAttribute('data-stufe'));
   render();
 });
+$('r-stkl').addEventListener('change', function (e) { state.stkl = +e.target.value; render(); });
+$('r-kirche').addEventListener('change', function (e) { state.kirche = e.target.checked; render(); });
 $('verheiratet').addEventListener('change', function (e) {
   state.verheiratet = e.target.checked;
   render();

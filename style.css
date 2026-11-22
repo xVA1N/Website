@@ -225,6 +225,11 @@ select:focus-visible, input[type="number"]:focus-visible, button:focus-visible, 
 .lines dt, .lines dd { margin: 0; }
 .lines dd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
 .result .small { font-size: .85rem; }
+.netto { display: grid; gap: 10px; border-top: 2px solid color-mix(in srgb, var(--accent-ink) 45%, transparent); padding-top: 14px; }
+.netto-einst { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: .9rem; }
+.netto-einst select { width: auto; min-height: 38px; padding: 0 10px; border-color: var(--accent-ink); }
+.netto-check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.netto-check input { width: 18px; height: 18px; accent-color: var(--accent-ink); }
 
 .stufen, .liste { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .stufen button {
@@ -585,3 +590,16 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 @media (prefers-reduced-motion: no-preference) {
   .seg span, .stufen button, .zeile, .tile, .tabbar a { transition: background-color .12s ease; }
 }
+
+/* Mein Zeitstrahl */
+.zeitstrahl { list-style: none; margin: 12px 0 0; padding: 0 0 0 14px; border-left: 2px solid var(--line); display: grid; gap: 12px; }
+.zeitstrahl li { position: relative; display: grid; grid-template-columns: 86px 1fr; gap: 10px; align-items: baseline; }
+.zeitstrahl li::before { content: ""; position: absolute; left: -21px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--surface); }
+.zeitstrahl li.vorbei::before { background: var(--muted); }
+.zeitstrahl .wann { font-family: var(--font-mono); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.zeitstrahl .was b { display: block; font-weight: 600; }
+.zeitstrahl .was small { display: block; color: var(--muted); font-size: .82rem; }
+.p-felder input[type="date"], .p-felder input[type="month"] { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: 46px; min-height: 46px; line-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; text-align: center; box-sizing: border-box; }
+.p-felder input::-webkit-date-and-time-value { text-align: center; margin: 0 auto; }
+
+.app-schritte { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }

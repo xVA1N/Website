@@ -234,7 +234,10 @@ var state = {
   frageDuz: false,
   frageAvz: false,
   duzMonat: '',
-  duzZeitraum: 'monat'
+  duzZeitraum: 'monat',
+  stkl: 0,
+  kirche: false,
+  pvMonat: 0
 };
 
 function sichtbar(d) { return !!d.n[state.tsk]; }

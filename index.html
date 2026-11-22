@@ -8,6 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#35553A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MeinKamerad">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
   /* Bleibt hier: verweist auf den Zeichenfilter im SVG dieser Seite */
   .ic { filter: url(#skizze); }
@@ -242,6 +250,22 @@
         <div><dt>12 Monate, ohne DuZ und Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
       </dl>
       <p class="small" id="kg-info" hidden></p>
+      <div class="netto">
+        <div class="k">Netto pro Monat, Näherung</div>
+        <div class="big netto-wert" id="netto">–</div>
+        <div class="netto-einst">
+          <label for="r-stkl">Steuerklasse</label>
+          <select id="r-stkl"><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option></select>
+          <label class="netto-check" for="r-kirche"><input type="checkbox" id="r-kirche"> Kirchensteuer</label>
+        </div>
+        <dl class="lines">
+          <div><dt>Bruttobesoldung</dt><dd id="n-brutto"></dd></div>
+          <div><dt>Lohnsteuer</dt><dd id="n-lst"></dd></div>
+          <div><dt>Solidaritätszuschlag</dt><dd id="n-soli"></dd></div>
+          <div id="n-kist-zeile"><dt id="n-kist-t">Kirchensteuer</dt><dd id="n-kist"></dd></div>
+        </dl>
+        <p class="small" id="netto-info"></p>
+      </div>
       <div class="fav-speichern">
         <button type="button" class="knopf" id="calc-fav-open"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>Als Favorit speichern</button>
         <form id="calc-fav-form" hidden>
@@ -254,7 +278,6 @@
         </form>
         <p class="small" id="calc-fav-msg" aria-live="polite"></p>
       </div>
-      <p class="small">Netto folgt in einer späteren Version, weil Steuer, Krankenversicherung und weitere Abzüge einzeln gerechnet werden müssen.</p>
     </section>
 
     <section class="panel" id="tabelle-panel" aria-label="Stufentabelle">
@@ -557,6 +580,23 @@
       </div>
     </section>
     <section class="panel">
+      <h2>Steuer</h2>
+      <div class="u-felder p-felder">
+        <div><label class="label" for="p-stkl" style="display:block">Steuerklasse</label><select id="p-stkl"><option value="0">aus Familie</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option></select></div>
+        <div><label class="label" for="p-pv" style="display:block">Pflegevers. € / Monat</label><input type="number" id="p-pv" min="0" max="500" step="0.01" inputmode="decimal"></div>
+      </div>
+      <label class="check" for="p-kirche" style="margin-top:10px"><input type="checkbox" id="p-kirche"><span class="t">Kirchensteuerpflichtig</span></label>
+      <p class="hint">Für das Netto im Rechner. Den Beitrag zur privaten Pflegeversicherung findest du auf deiner Beitragsrechnung, er mindert die Lohnsteuer.</p>
+    </section>
+    <section class="panel">
+      <h2>Mein Zeitstrahl</h2>
+      <div class="u-felder p-felder">
+        <div><label class="label" for="p-eintritt" style="display:block">Diensteintritt</label><input type="date" id="p-eintritt"></div>
+        <div><label class="label" for="p-stufe-seit" style="display:block">Aktuelle Stufe seit</label><input type="month" id="p-stufe-seit"></div>
+      </div>
+      <div id="p-zeitstrahl"></div>
+    </section>
+    <section class="panel">
       <h2>Standort</h2>
       <div class="u-felder einspaltig p-felder"><div><label class="label" for="p-land" style="display:block">Bundesland</label><select id="p-land"></select></div></div>
       <p class="hint">Für die Feiertage in Urlaubskartei und DuZ-Rechner.</p>
@@ -582,6 +622,19 @@
     <section class="panel" aria-labelledby="ueber-titel">
       <h2 id="ueber-titel">Über „MeinKamerad“</h2>
       <div class="ueber-text" id="ueber-text"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="app-titel">
+      <h2 id="app-titel">Als App installieren</h2>
+      <p class="hint" style="margin-top:0">Mit eigenem Symbol auf dem Startbildschirm. Die Seite funktioniert dann auch ohne Netz, deine Einträge bleiben im Gerät.</p>
+      <p id="app-fertig" hidden>Läuft bereits als App.</p>
+      <div class="dg-aktionen" id="app-knopf" hidden><button type="button" class="knopf primaer">App installieren</button></div>
+      <ol class="app-schritte" id="app-ios" hidden>
+        <li>Seite in Safari öffnen.</li>
+        <li>Unten auf „Teilen“ tippen (Quadrat mit Pfeil nach oben).</li>
+        <li>„Zum Home-Bildschirm“ wählen und „Hinzufügen“ tippen.</li>
+      </ol>
+      <p class="hint" id="app-sonst" hidden>Im Browser-Menü „App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen. Das geht auf der Website, nicht in dieser Vorschau.</p>
     </section>
 
     <section class="panel" aria-label="Erklärungen">
@@ -635,10 +688,12 @@
 <script src="js/03-favoriten.js"></script>
 <script src="js/04-vergleich.js"></script>
 <script src="js/05-duz.js"></script>
-<script src="js/06-rechner.js"></script>
-<script src="js/07-ereignisse.js"></script>
-<script src="js/08-urlaubskartei.js"></script>
-<script src="js/09-profil.js"></script>
-<script src="js/10-start.js"></script>
+<script src="js/06-netto.js"></script>
+<script src="js/07-rechner.js"></script>
+<script src="js/08-ereignisse.js"></script>
+<script src="js/09-urlaubskartei.js"></script>
+<script src="js/10-profil.js"></script>
+<script src="js/11-zeitstrahl.js"></script>
+<script src="js/12-start.js"></script>
 </body>
 </html>

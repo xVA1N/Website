@@ -177,6 +177,26 @@ function render() {
   var brutto = Math.round((grund + amtBetrag + fam + fueBetrag + stelleBetrag + duz + avz) * 100) / 100;
 
   $('brutto').textContent = eur.format(brutto);
+// Netto: Lohnsteuer auf die steuerpflichtigen Bezüge. Auslandsverwendungszuschlag ist steuerfrei (§ 3 Nr. 64 EStG),
+// die Zulage für Dienst zu ungünstigen Zeiten wird als steuerfrei nach § 3b EStG angenommen.
+var stkl = state.stkl || stklVorschlag();
+var steuerpfl = grund + amtBetrag + fam + fueBetrag + stelleBetrag;
+var nt = nettoBerechnen({ steuerpflichtig: steuerpfl, stkl: stkl, kinder: state.kinder, kirche: state.kirche, land: UZ.land, pvMonat: state.pvMonat });
+var netto = Math.round((brutto - nt.abzuege) * 100) / 100;
+$('r-stkl').value = String(stkl);
+$('r-kirche').checked = state.kirche;
+$('netto').textContent = eur.format(netto);
+$('n-brutto').textContent = eur.format(brutto);
+$('n-lst').textContent = '− ' + eur.format(nt.lst);
+$('n-soli').textContent = '− ' + eur.format(nt.soli);
+$('n-kist-zeile').hidden = !state.kirche;
+$('n-kist-t').textContent = 'Kirchensteuer (' + String(nt.kistSatz * 100).replace('.', ',') + ' %)';
+$('n-kist').textContent = '− ' + eur.format(nt.kist);
+$('netto-info').textContent = 'Steuerklasse ' + ['I', 'II', 'III', 'IV'][stkl - 1] + (state.stkl ? '' : ' (Vorschlag aus den Familienangaben)') +
+  '. Soldaten zahlen keine Renten-, Arbeitslosen- und Krankenversicherung. ' +
+  (state.pvMonat ? 'Berücksichtigt ist ein Beitrag zur privaten Pflegeversicherung von ' + eur.format(state.pvMonat) + ', den du selbst überweist. ' : 'Den Beitrag zur privaten Pflegeversicherung zahlst du selbst, eintragen kannst du ihn im Profil. ') +
+  (avz || duz ? 'Auslandsverwendungszuschlag und DuZ sind als steuerfrei gerechnet. ' : '') +
+  (state.kinder ? 'Kindergeld kommt zusätzlich. ' : '') + ST.hinweis;
   $('kette').textContent = d.name + ' · ' + bgLabel(d.bg) + (a ? ' · Stufe ' + state.stufe : ' · feste Beträge, keine Stufen');
   $('z-grund').textContent = eur.format(grund);
   $('z-fam').textContent = eur.format(fam);
