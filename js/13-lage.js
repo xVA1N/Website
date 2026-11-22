@@ -103,6 +103,14 @@ function lageGrundlage() {
   } else {
     var k = LAGE_KARTEN[LAGE.modus];
     lageGrund = L.tileLayer(k.url, { maxZoom: k.max, subdomains: k.sub || 'abc', attribution: k.quelle }).addTo(lageKarte);
+    // Laden keine Kartenbilder (z. B. in einer Vorschau, die fremde Server sperrt, oder ohne Netz), einen Hinweis zeigen
+    var geladen = false, fehler = 0;
+    lageGrund.on('tileload', function () { geladen = true; var h = $('lage-karte').querySelector('.lage-kachelfehler'); if (h) h.remove(); });
+    lageGrund.on('tileerror', function () {
+      fehler++;
+      if (geladen || fehler < 3 || $('lage-karte').querySelector('.lage-kachelfehler')) return;
+      $('lage-karte').insertAdjacentHTML('beforeend', '<p class="lage-kachelfehler">Die Kartenbilder lassen sich hier nicht laden, zum Beispiel ohne Netz oder in einer Vorschau, die fremde Server sperrt. Auf der Website funktioniert die Karte. Alternativ „Eigenes Bild“ als Grundlage wählen.</p>');
+    });
     lageKarte.setView(LAGE.mitte, Math.min(LAGE.zoom, k.max));
     lageZeichenZeigen();
   }

@@ -614,11 +614,13 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 
 /* Lagekarte */
 .warn-lage { margin: 0; }
-.lage-karte { height: min(62vh, 560px); min-height: 320px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--soft); position: relative; z-index: 0; }
+.lage-karte { height: min(62vh, 560px); min-height: 320px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #E4E7E1; position: relative; z-index: 0; color-scheme: light; }
+.lage-karte.leaflet-container { background: #E4E7E1; }
 .lage-karte .leaflet-control-attribution { font-size: 10px; }
 .lage-zeichen { background: none; border: 0; }
 .lage-zeichen svg { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
-.lage-leer { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); z-index: 500; pointer-events: none; }
+.lage-leer { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #4A544C; z-index: 500; pointer-events: none; }
+.lage-kachelfehler { position: absolute; left: 10px; right: 10px; bottom: 28px; z-index: 600; padding: 10px 12px; border-radius: 8px; background: #FFF0CC; color: #5E4200; border: 1px solid #E8C86A; font-size: .85rem; pointer-events: none; }
 .lage-liste-zeichen { display: inline-grid; place-items: center; width: 44px; height: 36px; flex: none; }
 .lage-liste-zeichen svg { max-width: 44px; max-height: 36px; }
 #lage-meldung:empty { display: none; }
