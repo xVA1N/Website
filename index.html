@@ -727,6 +727,8 @@
     dg('hgefr', 'Hauptgefreiter', 'Hauptgefreiter', 'mannschaft', ['A4'], 'ja'),
     dg('stgefr', 'Stabsgefreiter', 'Stabsgefreiter', 'mannschaft', ['A5']),
     dg('ostgefr', 'Oberstabsgefreiter', 'Oberstabsgefreiter', 'mannschaft', ['A5'], 'ja'),
+    dg('korp', 'Korporal', 'Korporal', 'mannschaft', ['A6']),
+    dg('stkorp', 'Stabskorporal', 'Stabskorporal', 'mannschaft', ['A6']),
     dg('uffz', 'Unteroffizier', 'Maat', 'uffz_ohne', ['A5']),
     dg('stuffz', 'Stabsunteroffizier', 'Obermaat', 'uffz_ohne', ['A6', 'A7']),
     dg('fw', 'Feldwebel', 'Bootsmann', 'uffz_mit', ['A7']),
@@ -812,10 +814,11 @@
 
   /* ===== Erklärseiten: Herkunft der Namen der Dienstgradgruppen ===== */
   var INFO = {
-    mannschaft: { kurz: 'Alle Soldatinnen und Soldaten ohne Unteroffizier- oder Offizierlaufbahn, vom Soldaten bis zum Oberstabsgefreiten.', t: [
+    mannschaft: { kurz: 'Alle Soldatinnen und Soldaten ohne Unteroffizier- oder Offizierlaufbahn, vom Soldaten bis zum Stabskorporal.', t: [
       ['Mannschaft', 'Ursprünglich die Gesamtheit der Männer einer Truppe oder einer Schiffsbesatzung, abgeleitet von „Mann“. Gemeint sind die Soldaten ohne Führungsaufgabe.'],
       ['Gefreiter', 'Wörtlich der „Gefreite“, also jemand, der von bestimmten Pflichten befreit wurde, etwa vom Wachdienst. Er stand damit über den einfachen Soldaten.'],
       ['Ober-, Haupt-, Stabs-, Oberstabsgefreiter', 'Die Vorsilben zeigen nur die jeweils nächsthöhere Stufe innerhalb der Mannschaften an.'],
+      ['Korporal, Stabskorporal', 'Die höchsten Mannschaftsdienstgrade, seit 2021. „Korporal“ kommt über das Französische vom italienischen „caporale“, abgeleitet von „capo“, Kopf: der Anführer einer kleinen Gruppe.'],
       ['Matrose und Flieger', 'Bei der Marine heißt der einfachste Dienstgrad Matrose (niederländisch „matroos“, Seemann), bei der Luftwaffe Flieger.']
     ] },
     uffz_ohne: { kurz: 'Unteroffizier und Stabsunteroffizier, bei der Marine Maat und Obermaat.', t: [
@@ -962,7 +965,7 @@
   // Form und Anzahl: chev = Winkel (Mannschaften), bar = Balken (ohne Portepee), dia = Raute (mit Portepee),
   // ring = Kreis (Anwärter), star = Sterne (Leutnante, Hauptleute), laub = Kranz mit Sternen (Stabsoffiziere, Generale)
   var RANG = {
-    soldat: ['chev', 0], gefr: ['chev', 1], ogefr: ['chev', 2], hgefr: ['chev', 3], stgefr: ['chev', 4], ostgefr: ['chev', 5],
+    soldat: ['chev', 0], gefr: ['chev', 1], korp: ['kor', 1], stkorp: ['kor', 2], ogefr: ['chev', 2], hgefr: ['chev', 3], stgefr: ['chev', 4], ostgefr: ['chev', 5],
     uffz: ['bar', 1], stuffz: ['bar', 2],
     schuetze_ua: ['bar', 1], gefr_ua: ['bar', 2], ogefr_ua: ['bar', 3], hgefr_ua: ['bar', 4], gefr_fa: ['chev', 1], uffz_fa: ['bar', 1],
     fw: ['dia', 1], ofw: ['dia', 2], hfw: ['dia', 3], stfw: ['dia', 4], ostfw: ['dia', 5],
@@ -1012,6 +1015,9 @@
       var by = ua[k] ? 44 - (ua[k] - 1) * 6 - 8.5 : 41;
       o += '<path class="st" d="M8 ' + by + 'H20"/>';
     }
+    // Korporal: breiter Schrägbalken, Stabskorporal: schmaler Streifen darüber
+    if (k === 'korp') o += '<path class="fl" d="M8 38.7L20.3 32.5V39.7L8 46.2Z"/>';
+    if (k === 'stkorp') o += '<path class="fl" d="M7.7 35.9L20.1 29.4V31.6L7.7 38Z"/><path class="fl" d="M7.7 38.6L20.1 32.3V39.6L7.7 46.3Z"/>';
     var U = 'M6 49V28a8 8 0 0 1 16 0V49', Ui = 'M10 48V28.5a4 4 0 0 1 8 0V48';
     if (k === 'uffz') o += '<path class="u1" d="' + U + '"/>';
     if (k === 'stuffz') o += '<path class="u1" d="M6 48V28a8 8 0 0 1 16 0V48Z"/>';
@@ -1071,6 +1077,9 @@
         var by = 12 + (i - (n - 1) / 2) * 5;
         m += '<path d="M5 ' + by + ' L19 ' + by + '"/>';
       }
+    } else if (f === 'kor') {
+      m = '<path fill="currentColor" stroke="none" d="M5 16.5L19 9.5V14L5 21Z"/>';
+      if (n === 2) m += '<path fill="currentColor" stroke="none" d="M5 13.5L19 6.5V8L5 15Z"/>';
     } else if (f === 'dia') { m = haufen(sRaute, n);
     } else if (f === 'ring') { m = haufen(sKreis, n);
     } else if (f === 'star') { m = haufen(sStern, n);

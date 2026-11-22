@@ -84,6 +84,7 @@ window.MK_DATEN = {
     hgefr:      { betrag: 9.99,   art: "immer",    fussnote: "A 4 Fußnote 4" },
     hgefr_ua:   { betrag: 9.99,   art: "immer",    fussnote: "A 4 Fußnote 4" },
     ostgefr:    { betrag: 49.73,  art: "immer",    fussnote: "A 5 Fußnote 1" },
+    stkorp:     { betrag: 49.73,  art: "immer",    fussnote: "A 6 Fußnote 5" },
     ofw:        { betrag: 61.76,  art: "immer",    fussnote: "A 7 Fußnote 5" },
     hfw:        { betrag: 79.56,  art: "immer",    fussnote: "A 8 Fußnote 1" },
     ofaehnrich: { betrag: 79.56,  art: "immer",    fussnote: "A 8 Fußnote 1" },
