@@ -24,6 +24,8 @@
     --warn-line: #E8C86A;
     --rot: #C62828;
     --dienst: #2F62A8;
+    --atb: #7A4FA8;
+    --atb-ink: #FFFFFF;
     --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -42,6 +44,8 @@
       --warn-line: #6B5517;
       --rot: #FF7A6E;
       --dienst: #8AB4F0;
+      --atb: #C3A6EB;
+      --atb-ink: #1A1424;
       color-scheme: dark;
     }
   }
@@ -59,6 +63,8 @@
     --warn-line: #6B5517;
     --rot: #FF7A6E;
     --dienst: #8AB4F0;
+    --atb: #C3A6EB;
+    --atb-ink: #1A1424;
     color-scheme: dark;
   }
 
@@ -363,10 +369,12 @@
   .u-tag.art-urlaub.genehmigt { background: var(--accent); color: var(--accent-ink); }
   .u-tag.art-dza.genehmigt { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-line); }
   .u-tag.art-sonder.genehmigt { background: var(--fg); color: var(--bg); }
+  .u-tag.art-atb.genehmigt { background: var(--atb); color: var(--atb-ink); }
   .u-tag.geplant { background: var(--soft); border: 2px dashed; }
   .u-tag.art-urlaub.geplant { border-color: var(--accent); }
   .u-tag.art-dza.geplant { border-color: var(--warn-fg); }
   .u-tag.art-sonder.geplant { border-color: var(--fg); }
+  .u-tag.art-atb.geplant { border-color: var(--atb); }
   .u-tag.dienst::before { content: ""; position: absolute; top: 4px; left: 50%; width: 16px; height: 3px; margin-left: -8px; border-radius: 2px; background: var(--dienst); }
   .u-legende .l-di::before { height: 4px; width: 16px; border: 0; border-radius: 2px; background: var(--dienst); vertical-align: 3px; }
   a.knopf { text-decoration: none; }
@@ -409,6 +417,20 @@
   .u-arten .a-ug span::before { background: var(--accent); border-color: var(--accent); }
   .u-arten .a-dza span::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-arten .a-so span::before { background: var(--fg); border-color: var(--fg); }
+  .u-arten .a-atb span::before { background: var(--atb); border-color: var(--atb); }
+  .u-konten { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .u-konto { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); min-width: 0; }
+  .u-konto .kopf { display: grid; grid-template-columns: 14px 1fr auto; column-gap: 10px; align-items: center; }
+  .u-konto .kopf::before { content: ""; grid-row: 1 / 3; width: 14px; height: 14px; border-radius: 4px; background: var(--kfarbe); border: 1px solid var(--krand, var(--kfarbe)); }
+  .u-konto .kopf b { font-weight: 600; grid-column: 2; }
+  .u-konto .kopf small { grid-column: 2; font-size: .8rem; color: var(--muted); }
+  .u-konto .uebrig { grid-column: 3; grid-row: 1 / 3; text-align: right; font-family: var(--font-mono); font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .u-konto .uebrig span { display: block; font-family: var(--font-text); font-size: .72rem; color: var(--muted); }
+  .u-konto .uebrig.minus { color: var(--rot); }
+  .u-konto .felder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .u-konto .felder label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 4px; }
+  .u-konto .felder input { width: 100%; min-width: 0; text-align: center; }
+  .u-konto .stand { margin-top: 8px; font-size: .82rem; color: var(--muted); }
   .u-arten input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
   .u-arten input:checked + span::after { border: 6px solid var(--accent); }
   .u-arten input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -417,6 +439,7 @@
   .u-legende .l-ug::before { background: var(--accent); border-color: var(--accent); }
   .u-legende .l-dza::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-legende .l-so::before { background: var(--fg); border-color: var(--fg); }
+  .u-legende .l-atb::before { background: var(--atb); border-color: var(--atb); }
   .u-legende .l-gepl::before { background: var(--soft); border: 2px dashed var(--muted); }
   .u-legende .l-ft::before { width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--rot); vertical-align: 1px; margin-left: 3px; margin-right: 9px; }
   .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
@@ -434,10 +457,12 @@
   .u-mini .g i.art-urlaub { background: var(--accent); }
   .u-mini .g i.art-dza { background: var(--warn-line); }
   .u-mini .g i.art-sonder { background: var(--fg); }
+  .u-mini .g i.art-atb { background: var(--atb); }
   .u-mini .g i.geplant { background: var(--soft); box-shadow: inset 0 0 0 1.5px var(--muted); }
   .u-mini .g i.art-urlaub.geplant { box-shadow: inset 0 0 0 1.5px var(--accent); }
   .u-mini .g i.art-dza.geplant { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
   .u-mini .g i.art-sonder.geplant { box-shadow: inset 0 0 0 1.5px var(--fg); }
+  .u-mini .g i.art-atb.geplant { box-shadow: inset 0 0 0 1.5px var(--atb); }
   .u-meldung { font-size: .9rem; }
   .u-meldung.fehler { color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 8px 12px; }
   .u-eintrag-akt { display: flex; gap: 6px; align-items: center; padding-right: 8px; }
@@ -875,20 +900,13 @@
           </div>
         </div>
       </div>
-      <div class="u-felder">
-        <div><label class="label" for="u-anspruch" style="display:block">Jahresurlaub (Tage)</label><input type="number" id="u-anspruch" min="0" max="60" step="0.5" inputmode="decimal"></div>
-        <div><label class="label" for="u-rest" style="display:block">Rest aus Vorjahr</label><input type="number" id="u-rest" min="0" max="60" step="0.5" inputmode="decimal"></div>
-        <div><label class="label" for="u-zusatz" style="display:block">Zusatzurlaub</label><input type="number" id="u-zusatz" min="0" max="60" step="0.5" inputmode="decimal"></div>
-      </div>
-      <p class="hint" id="u-hinweis"></p>
     </section>
 
-    <section class="u-zahlen" aria-label="Übersicht" aria-live="polite">
-      <div class="u-zahl haupt"><div class="w" id="u-z-rest"></div><div class="t">Urlaubstage übrig</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gesamt"></div><div class="t">Anspruch gesamt</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gen"></div><div class="t">genehmigt</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gepl"></div><div class="t">geplant</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-dza"></div><div class="t">Dienstzeitausgleich</div></div>
+    <section class="panel">
+      <h2 id="u-konten-titel">Übersicht</h2>
+      <p class="hint">Alle Angaben in Tagen. Trag ein, was dir in diesem Jahr zusteht und was aus dem Vorjahr übrig ist. Eingetragene Zeiträume werden automatisch abgezogen.</p>
+      <div class="u-konten" id="u-konten" aria-live="polite"></div>
+      <p class="hint" id="u-hinweis"></p>
     </section>
 
     <section class="panel">
@@ -899,7 +917,7 @@
         <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
       </div>
       <div class="u-kal" id="u-kal" role="grid"></div>
-      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span><span id="u-leg-tags"></span></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-atb">ATB</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span><span id="u-leg-tags"></span></div>
       <label class="check" for="u-dienste-zeigen"><input type="checkbox" id="u-dienste-zeigen"><span class="t">Dienste aus dem DuZ-Rechner anzeigen</span></label>
       <p class="hint" id="u-feiertage-monat"></p>
     </section>
@@ -912,9 +930,10 @@
           <div><label class="label" for="u-bis" style="display:block">Bis</label><input type="date" id="u-bis" required></div>
         </div>
         <fieldset><legend>Art</legend><div class="u-arten" id="u-art">
-          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b><small>Zählt vom Jahresanspruch</small></span></label>
-          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b><small>Für Mehrdienst, wird extra gezählt</small></span></label>
-          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b><small>Zählt nicht vom Jahresanspruch</small></span></label>
+          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b><small>Zählt vom Urlaubskonto</small></span></label>
+          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b><small>Zählt vom Überstundenkonto</small></span></label>
+          <label class="a-atb"><input type="radio" name="u-art" value="atb"><span><b>ATB</b><small>Zählt vom ATB-Konto</small></span></label>
+          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b><small>Zum Beispiel Kindkranktage</small></span></label>
         </div></fieldset>
         <fieldset><legend>Status</legend><div class="seg" id="u-status">
           <label><input type="radio" name="u-status" value="geplant" checked><span>Geplant</span></label>
@@ -2660,19 +2679,26 @@
   var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
   var WT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   var WT_LANG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-  var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', sonder: 'Sonderurlaub' };
+  var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', atb: 'ATB', sonder: 'Sonderurlaub' };
+  // Konten der Übersicht: jedes zählt die Einträge einer Art
+  var KONTEN = [
+    { art: 'urlaub', name: 'Erholungsurlaub', info: 'Jahresurlaub inklusive Zusatzurlaub', farbe: 'var(--accent)' },
+    { art: 'dza', name: 'Überstunden', info: 'Abbau als Dienstzeitausgleich', farbe: 'var(--warn-bg)', rand: 'var(--warn-line)' },
+    { art: 'atb', name: 'ATB', info: '', farbe: 'var(--atb)' },
+    { art: 'sonder', name: 'Sonderurlaub', info: 'Zum Beispiel Kindkranktage', farbe: 'var(--fg)' }
+  ];
   var heute = new Date();
   var RX_FARBE = /^#[0-9a-fA-F]{6}$/;
   var FARBEN = [['#D64545', 'Rot'], ['#E07B24', 'Orange'], ['#C9A227', 'Gelb'], ['#3C9D5D', 'Grün'], ['#1F9AA0', 'Türkis'],
     ['#3A6FD8', 'Blau'], ['#8B5CC7', 'Lila'], ['#D2549A', 'Pink'], ['#7A7F87', 'Grau']];
   function uLaden() {
-    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, eintraege: [], tags: [], markierungen: [] };
+    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, konten: {}, eintraege: [], tags: [], markierungen: [] };
     try {
       var j = JSON.parse(localStorage.getItem(U_KEY) || 'null');
       if (j && typeof j === 'object') {
         if (UD.bundeslaender[j.land]) u.land = j.land;
         u.diensteZeigen = !!j.diensteZeigen;
-        ['anspruch', 'rest', 'zusatz'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
+        ['anspruch', 'rest', 'zusatz', 'konten'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
         if (Array.isArray(j.tags)) u.tags = j.tags.filter(function (t) { return t && t.id && typeof t.name === 'string' && RX_FARBE.test(t.farbe); });
         if (Array.isArray(j.markierungen)) u.markierungen = j.markierungen.filter(function (m) { return m && /^\d{4}-\d{2}-\d{2}$/.test(m.von) && /^\d{4}-\d{2}-\d{2}$/.test(m.bis); });
         if (Array.isArray(j.eintraege)) u.eintraege = j.eintraege.filter(function (e) { return e && /^\d{4}-\d{2}-\d{2}$/.test(e.von) && /^\d{4}-\d{2}-\d{2}$/.test(e.bis) && ARTEN[e.art]; });
@@ -2728,6 +2754,13 @@
     return UZ.eintraege.filter(function (e) { return e.von <= s && s <= e.bis; })[0];
   }
   function jahrWert(k, j) { var v = UZ[k][j]; return typeof v === 'number' && v >= 0 ? v : (k === 'anspruch' ? UD.standardAnspruch : 0); }
+  // feld: 'neu' (dieses Jahr) oder 'alt' (aus dem Vorjahr). Ältere Speicherstände (anspruch, rest, zusatz) gelten weiter.
+  function kontoWert(art, feld, j) {
+    var k = UZ.konten[j] && UZ.konten[j][art], v = k && k[feld];
+    if (typeof v === 'number' && v >= 0) return v;
+    if (art !== 'urlaub') return 0;
+    return feld === 'neu' ? jahrWert('anspruch', j) + jahrWert('zusatz', j) : jahrWert('rest', j);
+  }
   function zahl(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
 
   // Dienste, die an diesem Tag stattfinden (Ende genau um 0 Uhr zählt nicht mehr)
@@ -2759,30 +2792,33 @@
     return { cls: c.join(' '), e: e, di: di, mk: mk };
   }
 
+  function renderKonten(j) {
+    var summe = {};
+    KONTEN.forEach(function (k) { summe[k.art] = { gen: 0, gepl: 0 }; });
+    UZ.eintraege.forEach(function (e) {
+      var n = arbeitstage(e.von, e.bis, j);
+      if (n && summe[e.art]) summe[e.art][e.status === 'genehmigt' ? 'gen' : 'gepl'] += n;
+    });
+    $('u-konten-titel').textContent = 'Übersicht ' + j;
+    $('u-konten').innerHTML = KONTEN.map(function (k) {
+      var neu = kontoWert(k.art, 'neu', j), alt = kontoWert(k.art, 'alt', j), s = summe[k.art];
+      var uebrig = neu + alt - s.gen - s.gepl, id = 'u-k-' + k.art;
+      return '<div class="u-konto" style="--kfarbe:' + k.farbe + (k.rand ? ';--krand:' + k.rand : '') + '">' +
+        '<div class="kopf"><b>' + k.name + '</b>' + (k.info ? '<small>' + k.info + '</small>' : '') +
+        '<div class="uebrig' + (uebrig < 0 ? ' minus' : '') + '">' + zahl(uebrig) + '<span>übrig</span></div></div>' +
+        '<div class="felder">' +
+        '<div><label for="' + id + '-neu">' + j + '</label><input type="number" id="' + id + '-neu" data-konto="' + k.art + '" data-feld="neu" min="0" max="366" step="0.5" inputmode="decimal" value="' + neu + '"></div>' +
+        '<div><label for="' + id + '-alt">Aus ' + (j - 1) + '</label><input type="number" id="' + id + '-alt" data-konto="' + k.art + '" data-feld="alt" min="0" max="366" step="0.5" inputmode="decimal" value="' + alt + '"></div>' +
+        '</div><div class="stand">Genehmigt ' + zahl(s.gen) + ' · geplant ' + zahl(s.gepl) + '</div></div>';
+    }).join('');
+  }
+
   function renderUrlaub() {
     var j = uAnsicht.jahr, land = UZ.land;
     $('u-land').value = land;
     $('u-jahr').textContent = j;
-    $('u-anspruch').value = jahrWert('anspruch', j);
-    $('u-rest').value = jahrWert('rest', j);
-    $('u-zusatz').value = jahrWert('zusatz', j);
     $('u-hinweis').textContent = UD.hinweis;
-
-    // Zahlen für das gewählte Jahr
-    var gen = 0, gepl = 0, dza = 0;
-    UZ.eintraege.forEach(function (e) {
-      var n = arbeitstage(e.von, e.bis, j);
-      if (!n) return;
-      if (e.art === 'urlaub') { if (e.status === 'genehmigt') gen += n; else gepl += n; }
-      if (e.art === 'dza') dza += n;
-    });
-    var gesamt = jahrWert('anspruch', j) + jahrWert('rest', j) + jahrWert('zusatz', j);
-    var rest = gesamt - gen - gepl;
-    $('u-z-rest').textContent = zahl(rest);
-    $('u-z-gesamt').textContent = zahl(gesamt);
-    $('u-z-gen').textContent = zahl(gen);
-    $('u-z-gepl').textContent = zahl(gepl);
-    $('u-z-dza').textContent = zahl(dza);
+    renderKonten(j);
 
     // Monatskalender
     var m = uAnsicht.monat, erster = new Date(j, m, 1), versatz = (erster.getDay() + 6) % 7;
@@ -2961,12 +2997,13 @@
   function jahrWechsel(n) { uAnsicht.jahr += n; renderUrlaub(); }
   $('u-jahr-zurueck').addEventListener('click', function () { jahrWechsel(-1); });
   $('u-jahr-vor').addEventListener('click', function () { jahrWechsel(1); });
-  ['anspruch', 'rest', 'zusatz'].forEach(function (k) {
-    $('u-' + k).addEventListener('change', function (e) {
-      var v = parseFloat(String(e.target.value).replace(',', '.'));
-      if (isNaN(v) || v < 0) delete UZ[k][uAnsicht.jahr]; else UZ[k][uAnsicht.jahr] = Math.min(v, 60);
-      uSpeichern(); renderUrlaub();
-    });
+  $('u-konten').addEventListener('change', function (e) {
+    var art = e.target.getAttribute('data-konto'), feld = e.target.getAttribute('data-feld');
+    if (!art || !feld) return;
+    var j = uAnsicht.jahr, v = parseFloat(String(e.target.value).replace(',', '.'));
+    var k = UZ.konten[j] || (UZ.konten[j] = {}), w = k[art] || (k[art] = {});
+    if (isNaN(v) || v < 0) delete w[feld]; else w[feld] = Math.min(v, 366);
+    uSpeichern(); renderUrlaub();
   });
   function monatWechsel(n) {
     uAnsicht.monat += n;
