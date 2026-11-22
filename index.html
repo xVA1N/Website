@@ -649,11 +649,14 @@
           <div><label class="label" for="duz-land" style="display:block">Bundesland (Feiertage)</label><select id="duz-land"></select></div>
         </div>
         <div class="u-felder">
-          <div><label class="label" for="duz-datum" style="display:block">Tag</label><input type="date" id="duz-datum"></div>
-          <div><label class="label" for="duz-von" style="display:block">Von</label><input type="time" id="duz-von" step="300"></div>
-          <div><label class="label" for="duz-bis" style="display:block">Bis</label><input type="time" id="duz-bis" step="300"></div>
+          <div><label class="label" for="duz-start-tag" style="display:block">Beginn: Tag</label><input type="date" id="duz-start-tag"></div>
+          <div><label class="label" for="duz-start-zeit" style="display:block">Beginn: Uhrzeit</label><input type="time" id="duz-start-zeit" step="300"></div>
         </div>
-        <p class="hint" style="margin-top:0">Endet der Dienst nach Mitternacht, einfach die Endzeit eintragen, z. B. 18:00 bis 02:00.</p>
+        <div class="u-felder">
+          <div><label class="label" for="duz-ende-tag" style="display:block">Ende: Tag</label><input type="date" id="duz-ende-tag"></div>
+          <div><label class="label" for="duz-ende-zeit" style="display:block">Ende: Uhrzeit</label><input type="time" id="duz-ende-zeit" step="300"></div>
+        </div>
+        <p class="hint" style="margin-top:0">Beispiel: Dienst von Sonntag 22:00 bis Montag 06:00, dann Sonntag als Beginn-Tag und Montag als End-Tag wählen. Ein Dienst darf bis zu 7 Tage dauern.</p>
         <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="duz-add">Dienst hinzufügen</button></div>
         <p class="u-meldung" id="duz-meldung" aria-live="polite"></p>
         <div class="liste" id="duz-liste"></div>
@@ -663,16 +666,22 @@
       </fieldset>
 
       <fieldset>
-        <legend>Auslandsverwendung</legend>
-        <div class="stack">
+        <legend>Bist du in einer Auslandsverwendung?</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="frage-avz" value="nein" checked><span>Nein</span></label>
+          <label><input type="radio" name="frage-avz" value="ja"><span>Ja</span></label>
+        </div>
+        <p class="hint">Zum Beispiel ein Auslandseinsatz wie KFOR, für den es den Auslandsverwendungszuschlag gibt.</p>
+        <div class="stack frage-inhalt" id="frage-avz-inhalt" hidden>
           <select id="gebiet" aria-label="Einsatzgebiet"></select>
           <div id="tage-wrap" hidden>
             <label class="label" for="avz-tage" style="display:block">Tage im Monat</label>
             <input type="number" id="avz-tage" min="1" max="31" step="1" value="30" inputmode="numeric">
           </div>
         </div>
-        <p class="hint" id="avz-info"></p>
-        <p class="hint">Gezahlt wird je Tag der Verwendung. Bei weniger als 15 Tagen kann die nächstniedrigere Stufe gelten. Die Tagessätze reichen von <span data-mk="avzMin"></span> bis zum Höchstsatz von <span data-mk="avzHoechstsatz"></span> nach § 56 BBesG (<span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>).<span data-mk-avz-platzhalter> Welche Stufe für ein Einsatzgebiet gilt, legt das Verteidigungsministerium fest. Die Zuordnung hier ist ein Beispiel.</span></p>
+          <p class="hint" id="avz-info"></p>
+          <p class="hint">Gezahlt wird je Tag der Verwendung. Bei weniger als 15 Tagen kann die nächstniedrigere Stufe gelten. Die Tagessätze reichen von <span data-mk="avzMin"></span> bis zum Höchstsatz von <span data-mk="avzHoechstsatz"></span> nach § 56 BBesG (<span data-mk="avzFundstelle"></span>, gültig ab <span data-mk="avzGueltigAb"></span>).<span data-mk-avz-platzhalter> Welche Stufe für ein Einsatzgebiet gilt, legt das Verteidigungsministerium fest. Die Zuordnung hier ist ein Beispiel.</span></p>
+        </div>
       </fieldset>
     </section>
 
@@ -878,7 +887,7 @@
         <p class="hint" id="zul-kopf"></p>
       </div>
       <div class="liste" id="zul-liste"></div>
-      <p class="hint">Weitere Zulagen (fliegerische Verwendung, maritimer Bereich) folgen. Ihre Unterstufen sind noch zu prüfen.</p>
+      <p class="hint">Noch nicht enthalten: Zulage für Flugsicherung, Einsatzführungsdienst und Geoinformationsdienst (Nr. 5a). Bei der fliegerischen Verwendung ist die Weitergewährung nach Ende der Verwendung (Nr. 6 Abs. 2) nicht abgebildet.</p>
     </section>
     <section class="panel">
       <div>
@@ -1008,7 +1017,8 @@
 
   var STELLENZULAGEN = [{ id: 'keine', name: 'Keine Stellenzulage' }].concat(D.stellenzulagen.map(function (z) {
     var o = { id: z.id, name: z.name, nr: z.nr, dauer: z.dauer, quelle: z.quelle, auswahlLabel: z.auswahlLabel,
-      nurGruppen: z.nurGruppen, nebenAnderen: z.nebenAnderen, differenzNeben: z.differenzNeben || [], nichtNebenAVZ: z.nichtNebenAVZ };
+      nurGruppen: z.nurGruppen, nebenAnderen: z.nebenAnderen, differenzNeben: z.differenzNeben || [], nichtNebenAVZ: z.nichtNebenAVZ,
+      vollNeben: z.vollNeben || [], nurDienstgrade: z.nurDienstgrade, nurDienstgradeText: z.nurDienstgradeText, hinweis: z.hinweis };
     if (z.staffel) o.betrag = function (d) {
       var e = z.staffel.filter(function (x) { return passt(x, d); })[0];
       return e ? e.betrag : null;
@@ -1166,6 +1176,7 @@
     frageFue: false,
     frageStelle: false,
     frageDuz: false,
+    frageAvz: false,
     duzMonat: ''
   };
 
@@ -1495,7 +1506,7 @@
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
     urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'] };
-  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'duzMonat',
+  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
   function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
   function favLaden() {
@@ -1773,33 +1784,47 @@
 
   /* ===== Dienst zu ungünstigen Zeiten: Dienste eintragen, Rechner teilt auf ===== */
   var DUZ_KEY = 'meinkamerad-duz';
+  var DUZ_MAX_TAGE = 7;
+  var RX_DT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
   function duzLaden() {
     try {
       var j = JSON.parse(localStorage.getItem(DUZ_KEY) || 'null');
-      if (Array.isArray(j)) return j.filter(function (x) { return x && /^\d{4}-\d{2}-\d{2}$/.test(x.datum) && /^\d{2}:\d{2}$/.test(x.von) && /^\d{2}:\d{2}$/.test(x.bis); });
+      if (Array.isArray(j)) return j.map(function (x) {
+        // Ältere Einträge (Tag, von, bis) umwandeln
+        if (x && x.datum && x.von && x.bis && !x.start) {
+          var endTag = x.bis <= x.von ? iso(plusTage(vonIso(x.datum), 1)) : x.datum;
+          return { id: x.id, start: x.datum + 'T' + x.von, ende: endTag + 'T' + x.bis };
+        }
+        return x;
+      }).filter(function (x) { return x && RX_DT.test(x.start) && RX_DT.test(x.ende) && x.ende > x.start; });
     } catch (e) { /* ohne Speicher weiter */ }
     return [];
   }
   var DUZ_DIENSTE = duzLaden();
   function duzSpeichern() { try { localStorage.setItem(DUZ_KEY, JSON.stringify(DUZ_DIENSTE)); } catch (e) { /* nicht speicherbar */ } }
   function minuten(hhmm) { var t = hhmm.split(':'); return (+t[0]) * 60 + (+t[1]); }
+  function tagNr(isoTag) { var t = isoTag.split('-'); return Date.UTC(+t[0], +t[1] - 1, +t[2]) / 864e5; }
+  // Dauer in Minuten nach Kalender (ohne Zeitumstellung)
+  function duzDauer(x) { return (tagNr(x.ende.slice(0, 10)) - tagNr(x.start.slice(0, 10))) * 1440 + minuten(x.ende.slice(11)) - minuten(x.start.slice(11)); }
+  function dtKurz(dt) { return datumKurz(dt.slice(0, 10)).slice(0, -4) + ' ' + dt.slice(11); }
   // Kategorie einer Minute nach § 3 Abs. 2 und § 4 Abs. 1 EZulV
   function duzKategorie(datum, min, land) {
-    var d = vonIso(datum), j = d.getFullYear(), w = d.getDay(), iso_ = datum;
-    if (w === 0 || feiertage(j, land)[iso_]) return 'so';
-    var ostern = ostersonntag(j), mmdd = iso_.slice(5);
-    var sonder = iso_ === iso(plusTage(ostern, -1)) || iso_ === iso(plusTage(ostern, 48)) || mmdd === '12-24' || mmdd === '12-31';
+    var d = vonIso(datum), j = d.getFullYear(), w = d.getDay();
+    if (w === 0 || feiertage(j, land)[datum]) return 'so';
+    var ostern = ostersonntag(j), mmdd = datum.slice(5);
+    var sonder = datum === iso(plusTage(ostern, -1)) || datum === iso(plusTage(ostern, 48)) || mmdd === '12-24' || mmdd === '12-31';
     if (sonder && min >= 12 * 60) return 'so';
     if (w === 6 && min >= 13 * 60 && min < 20 * 60) return 'sa';
     if (min >= 20 * 60 || min < 6 * 60) return 'na';
     return '';
   }
-  // Wertet Dienste aus: Minuten je Kategorie, nur die Minuten im gewählten Monat (JJJJ-MM)
+  // Minuten je Kategorie; mit monat (JJJJ-MM) nur die Minuten in diesem Monat
   function duzDienstAuswerten(x, monat, land) {
-    var start = minuten(x.von), ende = minuten(x.bis), dauer = ende > start ? ende - start : ende + 1440 - start;
-    var r = { so: 0, sa: 0, na: 0, dauer: dauer, imMonat: 0 };
+    var start = minuten(x.start.slice(11)), dauer = duzDauer(x), tag0 = vonIso(x.start.slice(0, 10));
+    var r = { so: 0, sa: 0, na: 0, dauer: dauer, imMonat: 0 }, tage = {};
     for (var m = 0; m < dauer; m++) {
-      var abs = start + m, tag = iso(plusTage(vonIso(x.datum), Math.floor(abs / 1440)));
+      var abs = start + m, off = Math.floor(abs / 1440);
+      var tag = tage[off] || (tage[off] = iso(plusTage(tag0, off)));
       if (monat && tag.slice(0, 7) !== monat) continue;
       r.imMonat++;
       var k = duzKategorie(tag, abs % 1440, land);
@@ -1807,11 +1832,11 @@
     }
     return r;
   }
+  function duzImMonat(x, monat) { return x.start.slice(0, 7) <= monat && monat <= x.ende.slice(0, 7); }
   function duzMonatAuswerten(monat, land) {
     var s = { so: 0, sa: 0, na: 0 };
     DUZ_DIENSTE.forEach(function (x) {
-      var vor = iso(plusTage(vonIso(x.datum), 1)).slice(0, 7);
-      if (x.datum.slice(0, 7) !== monat && vor !== monat) return;
+      if (!duzImMonat(x, monat)) return;
       var r = duzDienstAuswerten(x, monat, land);
       s.so += r.so; s.sa += r.sa; s.na += r.na;
     });
@@ -1820,19 +1845,23 @@
   function renderDuzListe(land, h) {
     $('duz-monat').value = state.duzMonat;
     $('duz-land').value = land;
-    if ($('duz-datum').value.slice(0, 7) !== state.duzMonat && document.activeElement !== $('duz-datum')) $('duz-datum').value = state.duzMonat + '-01';
+    var aktiv = document.activeElement;
+    if ($('duz-start-tag').value.slice(0, 7) !== state.duzMonat && aktiv !== $('duz-start-tag') && aktiv !== $('duz-ende-tag')) {
+      $('duz-start-tag').value = state.duzMonat + '-01';
+      $('duz-ende-tag').value = state.duzMonat + '-01';
+    }
     var monat = state.duzMonat;
-    var liste = DUZ_DIENSTE.filter(function (x) { return x.datum.slice(0, 7) === monat || iso(plusTage(vonIso(x.datum), 1)).slice(0, 7) === monat; });
+    var liste = DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, monat); });
     $('duz-liste').hidden = !liste.length;
     $('duz-liste').innerHTML = liste.map(function (x) {
       var r = duzDienstAuswerten(x, monat, land), teile = [];
       if (r.so) teile.push(stdText(r.so, true) + ' Sonn-/Feiertag');
       if (r.sa) teile.push(stdText(r.sa, true) + ' Samstag');
       if (r.na) teile.push(stdText(r.na, true) + ' nachts');
-      var ft = feiertage(vonIso(x.datum).getFullYear(), land)[x.datum];
-      return '<div class="fav-item"><div class="zeile" style="cursor:default"><span class="n">' + datumKurz(x.datum) + (ft ? ' · ' + ft : '') + '</span><span class="r">' + x.von + '–' + x.bis + '</span>' +
-        '<span class="s">' + stdText(r.dauer, true) + ' Dienst' + (r.imMonat !== r.dauer ? ' (' + stdText(r.imMonat, true) + ' in diesem Monat)' : '') + ' · ' + (teile.length ? teile.join(', ') : 'keine ungünstigen Zeiten') + '</span></div>' +
-        '<span class="u-eintrag-akt"><button type="button" data-duz-weg="' + x.id + '" aria-label="Dienst am ' + datumKurz(x.datum) + ' löschen">Löschen</button></span></div>';
+      var ft = [x.start.slice(0, 10), x.ende.slice(0, 10)].map(function (t) { return feiertage(vonIso(t).getFullYear(), land)[t]; }).filter(Boolean);
+      return '<div class="fav-item"><div class="zeile" style="cursor:default"><span class="n">' + dtKurz(x.start) + ' bis ' + dtKurz(x.ende) + '</span><span class="r">' + stdText(r.dauer, true) + '</span>' +
+        '<span class="s">' + (ft.length ? ft.join(', ') + ' · ' : '') + (r.imMonat !== r.dauer ? stdText(r.imMonat, true) + ' in diesem Monat · ' : '') + (teile.length ? teile.join(', ') : 'keine ungünstigen Zeiten') + '</span></div>' +
+        '<span class="u-eintrag-akt"><button type="button" data-duz-weg="' + x.id + '" aria-label="Dienst ab ' + dtKurz(x.start) + ' löschen">Löschen</button></span></div>';
     }).join('');
     var S = D.duz.saetze;
     $('duz-summe').innerHTML = liste.length ? [
@@ -1898,7 +1927,7 @@
     $('kind-plus').disabled = state.kinder >= 6;
 
     // Fragen: Ja/Nein steuert, ob der Bereich aufklappt und mitgerechnet wird
-    [['fue', 'frageFue'], ['stelle', 'frageStelle'], ['duz', 'frageDuz']].forEach(function (q) {
+    [['fue', 'frageFue'], ['stelle', 'frageStelle'], ['duz', 'frageDuz'], ['avz', 'frageAvz']].forEach(function (q) {
       document.querySelector('input[name="frage-' + q[0] + '"][value="' + (state[q[1]] ? 'ja' : 'nein') + '"]').checked = true;
       $('frage-' + q[0] + '-inhalt').hidden = !state[q[1]];
     });
@@ -1924,7 +1953,9 @@
     }
     var stelleBetrag = 0;
     var stelleInfo = 'Die Höhe hängt von der Verwendung und von der Besoldungsgruppe ab.';
-    if (sz.nurGruppen && !inGruppen(d.bg, sz.nurGruppen)) {
+    if (sz.nurDienstgrade && sz.nurDienstgrade.indexOf(d.id) < 0) {
+      stelleInfo = 'Diese Zulage gibt es nur für ' + sz.nurDienstgradeText + '.';
+    } else if (sz.nurGruppen && !inGruppen(d.bg, sz.nurGruppen)) {
       stelleInfo = 'Diese Zulage gibt es nur in ' + gruppenText(sz.nurGruppen) + ', nicht für ' + bgLabel(d.bg) + '.';
     } else if (sz.dauer) {
       stelleBetrag = sz.dauer[state.dauer].betrag;
@@ -1934,12 +1965,12 @@
       else { stelleBetrag = sb; }
     }
     if (stelleBetrag) {
-      stelleInfo = 'Nr. ' + sz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(stelleBetrag) + ' pro Monat (' + (sz.quelle || 'Anlage IX, gültig ab ' + D.stand.gueltigAb) + ').';
+      stelleInfo = 'Nr. ' + sz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(stelleBetrag) + ' pro Monat (' + (sz.quelle || 'Anlage IX, gültig ab ' + D.stand.gueltigAb) + ').' + (sz.hinweis ? ' ' + sz.hinweis : '');
     }
     $('stelle-info').textContent = stelleInfo;
 
-    var geb = EINSATZGEBIETE.filter(function (g) { return g.id === state.gebiet; })[0];
-    $('gebiet').value = geb.id;
+    var geb = EINSATZGEBIETE.filter(function (g) { return g.id === (state.frageAvz ? state.gebiet : 'keine'); })[0];
+    $('gebiet').value = state.gebiet;
     $('tage-wrap').hidden = !geb.stufe;
     var tage = Math.min(31, Math.max(1, state.tage || 1));
     var tagessatz = geb.stufe ? AVZ_STUFEN[geb.stufe] : 0;
@@ -1961,7 +1992,7 @@
     if (fueBetrag && stelleBetrag) {
       var nrF = fz.nr.split(' ')[0];
       var fRed = fz.nebenAnderen === 'differenz';
-      var sRed = sz.nebenAnderen === 'differenz' || sz.differenzNeben.indexOf(nrF) >= 0;
+      var sRed = (sz.nebenAnderen === 'differenz' && sz.vollNeben.indexOf(nrF) < 0) || sz.differenzNeben.indexOf(nrF) >= 0;
       if (fRed && sRed) {
         regeln.push('Beide Zulagen werden nebeneinander nur gezahlt, soweit sie die andere übersteigen. Gezahlt wird deshalb nur die höhere.');
         if (fueBetrag >= stelleBetrag) stelleBetrag = 0; else fueBetrag = 0;
@@ -2105,7 +2136,7 @@
     state.gebiet = e.target.value;
     render();
   });
-  [['fue', 'frageFue', 'fuehrung'], ['stelle', 'frageStelle', 'stelle'], ['duz', 'frageDuz', 'duz-datum']].forEach(function (q) {
+  [['fue', 'frageFue', 'fuehrung'], ['stelle', 'frageStelle', 'stelle'], ['duz', 'frageDuz', 'duz-start-tag'], ['avz', 'frageAvz', 'gebiet']].forEach(function (q) {
     Array.prototype.forEach.call(document.querySelectorAll('input[name="frage-' + q[0] + '"]'), function (r) {
       r.addEventListener('change', function (e) {
         state[q[1]] = e.target.value === 'ja';
@@ -2121,24 +2152,29 @@
   });
   $('duz-land').addEventListener('change', function (e) { UZ.land = e.target.value; uSpeichern(); render(); });
   function duzMeldung(t, fehler) { $('duz-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('duz-meldung').textContent = t; }
+  $('duz-start-tag').addEventListener('change', function (e) {
+    var et = $('duz-ende-tag');
+    if (e.target.value && (!et.value || et.value < e.target.value)) et.value = e.target.value;
+  });
   $('duz-add').addEventListener('click', function () {
-    var datum = $('duz-datum').value, von = $('duz-von').value, bis = $('duz-bis').value;
-    if (!datum || !von || !bis) { duzMeldung('Bitte Tag, Beginn und Ende eintragen.', true); return; }
-    if (von === bis) { duzMeldung('Beginn und Ende sind gleich. Für 24 Stunden bitte zwei Dienste eintragen.', true); return; }
-    var neu = { id: 'd' + Date.now(), datum: datum, von: von, bis: bis };
-    // Überschneidung mit vorhandenen Diensten prüfen (in Minuten ab einem festen Punkt)
-    function spanne(x) { var a = vonIso(x.datum).getTime() / 6e4 + minuten(x.von), e = vonIso(x.datum).getTime() / 6e4 + minuten(x.bis); if (e <= a) e += 1440; return [a, e]; }
-    var sn = spanne(neu);
-    var konflikt = DUZ_DIENSTE.filter(function (x) { var s = spanne(x); return s[0] < sn[1] && sn[0] < s[1]; })[0];
-    if (konflikt) { duzMeldung('Überschneidet sich mit dem Dienst am ' + datumKurz(konflikt.datum) + ' von ' + konflikt.von + ' bis ' + konflikt.bis + '.', true); return; }
+    var st = $('duz-start-tag').value, sz = $('duz-start-zeit').value, et = $('duz-ende-tag').value, ez = $('duz-ende-zeit').value;
+    if (!st || !sz || !et || !ez) { duzMeldung('Bitte Beginn und Ende jeweils mit Tag und Uhrzeit eintragen.', true); return; }
+    var neu = { id: 'd' + Date.now(), start: st + 'T' + sz, ende: et + 'T' + ez };
+    if (neu.ende <= neu.start) {
+      duzMeldung('Das Ende liegt nicht nach dem Beginn.' + (et === st ? ' Geht der Dienst über Mitternacht, beim Ende den nächsten Tag wählen.' : ''), true);
+      return;
+    }
+    if (duzDauer(neu) > DUZ_MAX_TAGE * 1440) { duzMeldung('Ein Dienst darf höchstens ' + DUZ_MAX_TAGE + ' Tage dauern. Bitte in mehrere Dienste aufteilen.', true); return; }
+    var konflikt = DUZ_DIENSTE.filter(function (x) { return x.start < neu.ende && neu.start < x.ende; })[0];
+    if (konflikt) { duzMeldung('Überschneidet sich mit dem Dienst ' + dtKurz(konflikt.start) + ' bis ' + dtKurz(konflikt.ende) + '.', true); return; }
     DUZ_DIENSTE.push(neu);
-    DUZ_DIENSTE.sort(function (a, b) { return (a.datum + a.von) < (b.datum + b.von) ? -1 : 1; });
+    DUZ_DIENSTE.sort(function (a, b) { return a.start < b.start ? -1 : 1; });
     duzSpeichern();
-    state.duzMonat = datum.slice(0, 7);
+    if (!duzImMonat(neu, state.duzMonat)) state.duzMonat = st.slice(0, 7);
     var r = duzDienstAuswerten(neu, '', UZ.land);
     duzMeldung('Dienst eingetragen: ' + stdText(r.dauer, true) + ', davon ' + stdText(r.so + r.sa + r.na, true) + ' zu ungünstigen Zeiten.');
-    $('duz-von').value = ''; $('duz-bis').value = '';
-    var nd = plusTage(vonIso(datum), 1); if (iso(nd).slice(0, 7) === state.duzMonat) $('duz-datum').value = iso(nd);
+    $('duz-start-zeit').value = ''; $('duz-ende-zeit').value = '';
+    $('duz-start-tag').value = et; $('duz-ende-tag').value = et;
     render();
   });
   $('duz-liste').addEventListener('click', function (e) {
@@ -2246,6 +2282,7 @@
     var b = e.target.closest('button[data-gebiet]');
     if (!b) return;
     state.gebiet = b.getAttribute('data-gebiet');
+    state.frageAvz = true;
     render();
     go('rechner');
   });
@@ -2321,7 +2358,7 @@
     e.preventDefault();
     var name = $('calc-fav-name').value.trim() || $('kette').textContent;
     var snap = {};
-    snap.duzDienste = DUZ_DIENSTE.filter(function (x) { return x.datum.slice(0, 7) === (state.duzMonat || ''); });
+    snap.duzDienste = DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, state.duzMonat || ''); });
     CALC_KEYS.forEach(function (k) { snap[k] = state[k]; });
     FAV.berechnungen.unshift({ id: 'b' + Date.now(), name: name.slice(0, 60), snap: snap, brutto: $('brutto').textContent, kette: $('kette').textContent });
     FAV.berechnungen = FAV.berechnungen.slice(0, 20);
@@ -2350,9 +2387,15 @@
     if (!('frageFue' in b.snap)) state.frageFue = state.fuehrung !== 'keine';
     if (!('frageStelle' in b.snap)) state.frageStelle = state.stelle !== 'keine';
     if (!('frageDuz' in b.snap)) state.frageDuz = false;
+    if (!('frageAvz' in b.snap)) state.frageAvz = state.gebiet !== 'keine';
     // Dienste des gespeicherten Monats wiederherstellen, andere Monate bleiben unverändert
     if (Array.isArray(b.snap.duzDienste) && b.snap.duzMonat) {
-      DUZ_DIENSTE = DUZ_DIENSTE.filter(function (x) { return x.datum.slice(0, 7) !== b.snap.duzMonat; }).concat(b.snap.duzDienste.map(function (x) { return { id: x.id, datum: x.datum, von: x.von, bis: x.bis }; }));
+      var gesp = b.snap.duzDienste.map(function (x) {
+        if (x.datum && !x.start) return { id: x.id, start: x.datum + 'T' + x.von, ende: (x.bis <= x.von ? iso(plusTage(vonIso(x.datum), 1)) : x.datum) + 'T' + x.bis };
+        return { id: x.id, start: x.start, ende: x.ende };
+      }).filter(function (x) { return RX_DT.test(x.start) && RX_DT.test(x.ende); });
+      DUZ_DIENSTE = DUZ_DIENSTE.filter(function (x) { return !duzImMonat(x, b.snap.duzMonat) && !gesp.some(function (g) { return g.start < x.ende && x.start < g.ende; }); }).concat(gesp);
+      DUZ_DIENSTE.sort(function (a, c) { return a.start < c.start ? -1 : 1; });
       duzSpeichern();
     }
     var dd = dgById(state.dienstgrad);
