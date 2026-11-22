@@ -1308,6 +1308,9 @@
     oberstlt: 'OF-4', sa15: 'OF-4', oberst: 'OF-5', sa16: 'OF-5', bgen: 'OF-6', sb6: 'OF-6',
     gmaj: 'OF-7', sb7: 'OF-7', glt: 'OF-8', sb9: 'OF-8', gen: 'OF-9'
   };
+  // Frühester Beförderungszeitpunkt nach der Soldatenlaufbahnverordnung, gezählt ab Diensteintritt.
+  // Nur eingetragen, wo die Mindestdienstzeit eindeutig ist (Mannschaften).
+  var BEFOERDERUNG = { gefr: '3 Monaten', ogefr: '6 Monaten', hgefr: '12 Monaten', stgefr: '36 Monaten', ostgefr: '48 Monaten', korp: '7 Jahren', stkorp: '10 Jahren' };
   // Abkürzungen der Dienstgrade: [Heer, Marine, Luftwaffe, Sanitätsdienst]. Fehlt Luftwaffe oder
   // Sanitätsdienst, gilt die Abkürzung des Heeres. Anwärterzusätze (UA)/(FA) werden angehängt.
   var ABK = {
@@ -1908,6 +1911,7 @@
       var zeilen = [];
       if (abkuerzung(d.id)) zeilen.push(['Abkürzung', abkuerzung(d.id)]);
       if (NATO_RANG[d.id]) zeilen.push(['NATO-Rang', NATO_RANG[d.id]]);
+      if (BEFOERDERUNG[d.id]) zeilen.push(['Beförderung', 'Frühestens nach ' + BEFOERDERUNG[d.id] + ' Dienstzeit ab Diensteintritt']);
       zeilen.push(['Dienstgradgruppe', g.name]);
       zeilen.push(['Besoldungsgruppe', bgsLabel(d.bgs)]);
       d.bgs.forEach(function (bg) {
