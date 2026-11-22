@@ -376,10 +376,13 @@
   .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
   .u-mini { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
   .u-mini .mn { font-weight: 600; font-size: .85rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
-  .u-mini .mn small { color: var(--muted); font-weight: 400; }
+  .u-mini .mn { flex-wrap: wrap; }
+  .u-mini .mn small { color: var(--muted); font-weight: 400; flex-basis: 100%; font-size: .75rem; }
   .u-mini .g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
   .u-mini .g i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--soft); }
   .u-mini .g i.x { visibility: hidden; }
+  .u-mini .g i { position: relative; }
+  .u-mini .g i.dienst::after { content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 3px; border-radius: 1px; background: var(--dienst); }
   .u-mini .g i.we { background: transparent; }
   .u-mini .g i.ft { background: var(--rot); opacity: .75; }
   .u-mini .g i.art-urlaub { background: var(--accent); }
@@ -2704,17 +2707,19 @@
 
     // Jahresübersicht
     $('u-jahresansicht').innerHTML = MONATE.map(function (name, mi) {
-      var ers = new Date(j, mi, 1), vs = (ers.getDay() + 6) % 7, n = new Date(j, mi + 1, 0).getDate(), g = '', ut = 0;
+      var ers = new Date(j, mi, 1), vs = (ers.getDay() + 6) % 7, n = new Date(j, mi + 1, 0).getDate(), g = '', ut = 0, dt = 0;
       for (var x = 0; x < vs; x++) g += '<i class="x"></i>';
       for (var tt = 1; tt <= n; tt++) {
         var dd = new Date(j, mi, tt), e = eintragAm(iso(dd)), c = [];
         if (dd.getDay() === 0 || dd.getDay() === 6) c.push('we');
         if (ftName(dd)) c.push('ft');
         if (e && !istFrei(dd)) { c.push('art-' + e.art, e.status); if (e.art === 'urlaub') ut++; }
+        if (UZ.diensteZeigen && diensteAm(iso(dd)).length) { c.push('dienst'); dt++; }
         g += '<i class="' + c.join(' ') + '"></i>';
       }
-      return '<button type="button" class="u-mini" data-u-monat="' + mi + '" aria-label="' + name + ' ' + j + ' anzeigen' + (ut ? ', ' + tageText(ut) + ' Urlaub' : '') + '">' +
-        '<span class="mn">' + name + (ut ? '<small>' + tageText(ut) + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
+      var info = [ut ? tageText(ut) + ' Urlaub' : '', dt ? dt + (dt === 1 ? ' Diensttag' : ' Diensttage') : ''].filter(Boolean);
+      return '<button type="button" class="u-mini" data-u-monat="' + mi + '" aria-label="' + name + ' ' + j + ' anzeigen' + (info.length ? ', ' + info.join(', ') : '') + '">' +
+        '<span class="mn">' + name + (info.length ? '<small>' + info.join(' · ') + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
     }).join('');
 
     $('u-dienste-zeigen').checked = !!UZ.diensteZeigen;
