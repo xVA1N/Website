@@ -336,6 +336,11 @@
   .u-zahl.haupt .t { color: inherit; }
   .frage-inhalt { margin-top: 12px; }
   .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
+  .u-felder > div { min-width: 0; }
+  .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] {
+    -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; box-sizing: border-box; text-align: left;
+  }
+  .u-felder input::-webkit-date-and-time-value { text-align: left; }
   .u-felder input[type="date"], .u-felder input[type="text"], .u-felder input[type="month"], .u-felder input[type="time"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
@@ -365,6 +370,21 @@
   .duz-tab thead th:first-child { text-align: left; }
   .duz-tab td.zahl { text-align: right; }
   .duz-tab tr.summe td, .duz-tab tr.summe th { font-weight: 700; }
+  .u-tag.mark { box-shadow: inset 0 -5px 0 var(--tagfarbe); }
+  .u-tag.mark.mark2 { box-shadow: none; background-image: linear-gradient(to right, var(--tagfarbe) 50%, var(--tagfarbe2) 50%); background-size: 100% 5px; background-repeat: no-repeat; background-position: bottom; }
+  .u-mini .g i.mark::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: 0; height: 3px; border-radius: 1px; background: var(--tagfarbe); }
+  #u-leg-tags { display: contents; }
+  #u-leg-tags::before { display: none; }
+  .u-legende .l-tag::before { height: 5px; width: 16px; border: 0; border-radius: 2px; background: var(--tagfarbe); vertical-align: 2px; }
+  .u-chip { display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: var(--tagfarbe); vertical-align: -2px; margin-right: 6px; }
+  .u-farben { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .u-farben label { position: relative; }
+  .u-farben input[type="radio"] { position: absolute; opacity: 0; inset: 0; }
+  .u-farben .sw { display: block; width: 36px; height: 36px; border-radius: 50%; background: var(--tagfarbe); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+  .u-farben input:checked + .sw { box-shadow: 0 0 0 3px var(--fg); }
+  .u-farben input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .u-farben input[type="color"] { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 2px; }
+  .u-markieren { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
@@ -833,7 +853,7 @@
         <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
       </div>
       <div class="u-kal" id="u-kal" role="grid"></div>
-      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span><span id="u-leg-tags"></span></div>
       <label class="check" for="u-dienste-zeigen"><input type="checkbox" id="u-dienste-zeigen"><span class="t">Dienste aus dem DuZ-Rechner anzeigen</span></label>
       <p class="hint" style="margin-top:0">Gefüllt heißt genehmigt, gestrichelt heißt geplant, jeweils in der Farbe der Art.</p>
       <p class="hint" id="u-feiertage-monat"></p>
@@ -862,6 +882,12 @@
           <button type="submit" class="knopf primaer">Eintragen</button>
           <button type="button" class="knopf sekundaer" id="u-auswahl-weg">Auswahl leeren</button>
         </div>
+        <div class="u-markieren">
+          <div class="label">Oder als eigene Markierung eintragen</div>
+          <div class="u-felder"><div><label class="label" for="u-mark-tag" style="display:block">Markierung</label><select id="u-mark-tag"></select></div></div>
+          <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="u-mark-add">Markierung eintragen</button></div>
+          <p class="hint" style="margin-top:0">Markierungen zählen nicht als Urlaub. Eigene Markierungen legst du weiter unten unter „Eigene Markierungen“ an.</p>
+        </div>
       </form>
     </section>
 
@@ -869,6 +895,19 @@
       <h2>Einträge <span id="u-eintraege-jahr"></span></h2>
       <div class="liste" id="u-liste"></div>
       <p class="hint" id="u-liste-leer">Noch keine Einträge in diesem Jahr.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Eigene Markierungen</h2>
+      <p class="hint">Lege eigene Markierungen mit Farbe an, zum Beispiel „Lehrgang“, „Wache“ oder „Übung“. Danach kannst du sie oben bei „Zeitraum eintragen“ für ausgewählte Tage setzen. Im Kalender erscheinen sie als farbiger Balken unten im Tag.</p>
+      <div class="u-felder"><div><label class="label" for="u-tag-name" style="display:block">Name</label><input type="text" id="u-tag-name" maxlength="30" autocomplete="off"></div></div>
+      <fieldset><legend>Farbe</legend><div class="u-farben" id="u-tag-farben"></div></fieldset>
+      <div class="dg-aktionen"><button type="button" class="knopf primaer" id="u-tag-add">Markierung anlegen</button></div>
+      <p class="u-meldung" id="u-tag-meldung" aria-live="polite"></p>
+      <div class="liste" id="u-tag-liste"></div>
+      <h2 style="margin-top:6px">Markierte Zeiträume <span id="u-mark-jahr"></span></h2>
+      <div class="liste" id="u-mark-liste"></div>
+      <p class="hint" id="u-mark-leer">Noch keine markierten Zeiträume in diesem Jahr.</p>
     </section>
 
     <section class="panel">
@@ -2558,14 +2597,19 @@
   var WT_LANG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
   var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', sonder: 'Sonderurlaub' };
   var heute = new Date();
+  var RX_FARBE = /^#[0-9a-fA-F]{6}$/;
+  var FARBEN = [['#D64545', 'Rot'], ['#E07B24', 'Orange'], ['#C9A227', 'Gelb'], ['#3C9D5D', 'Grün'], ['#1F9AA0', 'Türkis'],
+    ['#3A6FD8', 'Blau'], ['#8B5CC7', 'Lila'], ['#D2549A', 'Pink'], ['#7A7F87', 'Grau']];
   function uLaden() {
-    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, eintraege: [] };
+    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, eintraege: [], tags: [], markierungen: [] };
     try {
       var j = JSON.parse(localStorage.getItem(U_KEY) || 'null');
       if (j && typeof j === 'object') {
         if (UD.bundeslaender[j.land]) u.land = j.land;
         u.diensteZeigen = !!j.diensteZeigen;
         ['anspruch', 'rest', 'zusatz'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
+        if (Array.isArray(j.tags)) u.tags = j.tags.filter(function (t) { return t && t.id && typeof t.name === 'string' && RX_FARBE.test(t.farbe); });
+        if (Array.isArray(j.markierungen)) u.markierungen = j.markierungen.filter(function (m) { return m && /^\d{4}-\d{2}-\d{2}$/.test(m.von) && /^\d{4}-\d{2}-\d{2}$/.test(m.bis); });
         if (Array.isArray(j.eintraege)) u.eintraege = j.eintraege.filter(function (e) { return e && /^\d{4}-\d{2}-\d{2}$/.test(e.von) && /^\d{4}-\d{2}-\d{2}$/.test(e.bis) && ARTEN[e.art]; });
       }
     } catch (e) { /* ohne Speicher mit leerem Planer weiter */ }
@@ -2625,6 +2669,12 @@
   function diensteAm(s) {
     return DUZ_DIENSTE.filter(function (x) { return x.start.slice(0, 10) <= s && (s < x.ende.slice(0, 10) || (s === x.ende.slice(0, 10) && x.ende.slice(11) !== '00:00')); });
   }
+  function tagById(id) { return UZ.tags.filter(function (t) { return t.id === id; })[0]; }
+  // Markierungen eines Tages, nur solche mit vorhandenem Tag
+  function markierungenAm(s) {
+    return UZ.markierungen.filter(function (m) { return m.von <= s && s <= m.bis && tagById(m.tag); })
+      .map(function (m) { return { m: m, t: tagById(m.tag) }; });
+  }
   function tagKlassen(d) {
     var s = iso(d), c = ['u-tag'], e = eintragAm(s);
     var w = d.getDay();
@@ -2635,7 +2685,10 @@
     if (uAnsicht.auswahlStart === s) c.push('auswahl');
     var di = UZ.diensteZeigen ? diensteAm(s) : [];
     if (di.length) c.push('dienst');
-    return { cls: c.join(' '), e: e, di: di };
+    var mk = markierungenAm(s);
+    if (mk.length) c.push('mark');
+    if (mk.length > 1) c.push('mark2');
+    return { cls: c.join(' '), e: e, di: di, mk: mk };
   }
 
   function renderUrlaub() {
@@ -2673,8 +2726,11 @@
       var d = new Date(j, m, t), k = tagKlassen(d), ft = ftName(d);
       var label = WT_LANG[d.getDay()] + ', ' + t + '. ' + MONATE[m] + (ft ? ', Feiertag ' + ft : '') +
         (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '') +
-        (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '');
-      html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + label + '"' + (ft ? ' title="' + ft + '"' : '') + '>' + t + '</button>';
+        (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '') +
+        (k.mk.length ? ', ' + k.mk.map(function (x) { return x.t.name; }).join(', ') : '');
+      var titel = [ft].concat(k.mk.map(function (x) { return x.t.name; })).filter(Boolean).join(', ');
+      html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + esc(label) + '"' + (titel ? ' title="' + esc(titel) + '"' : '') +
+        (k.mk.length ? ' style="--tagfarbe:' + k.mk[0].t.farbe + (k.mk.length > 1 ? ';--tagfarbe2:' + k.mk[1].t.farbe : '') + '"' : '') + '>' + t + '</button>';
     }
     $('u-kal').innerHTML = html;
     var ftMonat = Object.keys(feiertage(j, land)).filter(function (s) { return vonIso(s).getMonth() === m; }).sort();
@@ -2715,17 +2771,59 @@
         if (ftName(dd)) c.push('ft');
         if (e && !istFrei(dd)) { c.push('art-' + e.art, e.status); if (e.art === 'urlaub') ut++; }
         if (UZ.diensteZeigen && diensteAm(iso(dd)).length) { c.push('dienst'); dt++; }
-        g += '<i class="' + c.join(' ') + '"></i>';
+        var mkt = markierungenAm(iso(dd));
+        if (mkt.length) c.push('mark');
+        g += '<i class="' + c.join(' ') + '"' + (mkt.length ? ' style="--tagfarbe:' + mkt[0].t.farbe + '"' : '') + '></i>';
       }
       var info = [ut ? tageText(ut) + ' Urlaub' : '', dt ? dt + (dt === 1 ? ' Diensttag' : ' Diensttage') : ''].filter(Boolean);
       return '<button type="button" class="u-mini" data-u-monat="' + mi + '" aria-label="' + name + ' ' + j + ' anzeigen' + (info.length ? ', ' + info.join(', ') : '') + '">' +
         '<span class="mn">' + name + (info.length ? '<small>' + info.join(' · ') + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
     }).join('');
 
+    renderMarkierungen(j);
     $('u-dienste-zeigen').checked = !!UZ.diensteZeigen;
     $('u-leg-dienst').hidden = !UZ.diensteZeigen;
     uVorschau();
     renderSeitenStern();
+  }
+
+  function renderMarkierungen(j) {
+    $('u-leg-tags').innerHTML = UZ.tags.map(function (t) { return '<span class="l-tag" style="--tagfarbe:' + t.farbe + '">' + esc(t.name) + '</span>'; }).join('');
+    var wahl = $('u-mark-tag').value;
+    $('u-mark-tag').innerHTML = UZ.tags.length
+      ? UZ.tags.map(function (t) { return '<option value="' + t.id + '">' + esc(t.name) + '</option>'; }).join('')
+      : '<option value="">Noch keine Markierung angelegt</option>';
+    if (tagById(wahl)) $('u-mark-tag').value = wahl;
+    $('u-mark-tag').disabled = !UZ.tags.length;
+    $('u-mark-add').disabled = !UZ.tags.length;
+    if (!$('u-tag-farben').innerHTML) {
+      $('u-tag-farben').innerHTML = FARBEN.map(function (f, i) {
+        return '<label><input type="radio" name="u-tag-farbe" value="' + f[0] + '"' + (i === 0 ? ' checked' : '') + ' aria-label="' + f[1] + '"><span class="sw" style="--tagfarbe:' + f[0] + '"></span></label>';
+      }).join('') + '<label><input type="radio" name="u-tag-farbe" value="eigen" aria-label="Eigene Farbe"><span class="sw" style="background:conic-gradient(#d64545,#c9a227,#3c9d5d,#1f9aa0,#3a6fd8,#8b5cc7,#d64545)"></span></label>' +
+        '<input type="color" id="u-tag-farbe-eigen" value="#3a6fd8" aria-label="Eigene Farbe wählen">';
+    }
+    var ys = String(j);
+    $('u-tag-liste').innerHTML = UZ.tags.map(function (t) {
+      var tage = 0;
+      UZ.markierungen.forEach(function (m) {
+        if (m.tag !== t.id) return;
+        for (var d = vonIso(m.von); d <= vonIso(m.bis); d = plusTage(d, 1)) if (iso(d).slice(0, 4) === ys) tage++;
+      });
+      return '<div class="fav-item"><div class="zeile" style="cursor:default"><span class="n"><span class="u-chip" style="--tagfarbe:' + t.farbe + '"></span>' + esc(t.name) + '</span><span class="r">' + tage + (tage === 1 ? ' Tag' : ' Tage') + '</span><span class="s">in ' + j + '</span></div>' +
+        '<span class="u-eintrag-akt"><button type="button" data-u-tag-weg="' + t.id + '" aria-label="Markierung ' + esc(t.name) + ' löschen">Löschen</button></span></div>';
+    }).join('');
+    $('u-tag-liste').hidden = !UZ.tags.length;
+    $('u-mark-jahr').textContent = j;
+    var mliste = UZ.markierungen.filter(function (m) { return tagById(m.tag) && m.von.slice(0, 4) <= ys && m.bis.slice(0, 4) >= ys; })
+      .sort(function (a, b) { return a.von < b.von ? -1 : 1; });
+    $('u-mark-leer').hidden = mliste.length > 0;
+    $('u-mark-liste').hidden = !mliste.length;
+    $('u-mark-liste').innerHTML = mliste.map(function (m) {
+      var t = tagById(m.tag);
+      return '<div class="fav-item"><button type="button" class="zeile" data-u-mark-zeige="' + m.id + '"><span class="n"><span class="u-chip" style="--tagfarbe:' + t.farbe + '"></span>' + esc(t.name) + '</span>' +
+        '<span class="r"></span><span class="s">' + datumKurz(m.von) + (m.bis !== m.von ? ' bis ' + datumKurz(m.bis) : '') + (m.notiz ? ' · ' + esc(m.notiz) : '') + '</span></button>' +
+        '<span class="u-eintrag-akt"><button type="button" data-u-mark-weg="' + m.id + '" aria-label="Markierung löschen">Löschen</button></span></div>';
+    }).join('');
   }
 
   // Brückentage: kurze Arbeitstag-Folgen (bis 4 Tage) zwischen freien Tagen, an die ein Feiertag grenzt
@@ -2760,8 +2858,10 @@
 
   function icsText(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
   function icsExport(nurJahr) {
-    var liste = UZ.eintraege.filter(function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); });
-    if (!liste.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
+    var imJahr = function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); };
+    var liste = UZ.eintraege.filter(imJahr);
+    var marks = UZ.markierungen.filter(function (m) { return imJahr(m) && tagById(m.tag); });
+    if (!liste.length && !marks.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
     var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
     var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubsplaner//DE', 'CALSCALE:GREGORIAN'];
     liste.forEach(function (e) {
@@ -2771,6 +2871,11 @@
         'DESCRIPTION:' + icsText(arbeitstage(e.von, e.bis) + ' Arbeitstag(e)' + (e.notiz ? '. ' + e.notiz : '')),
         'TRANSP:OPAQUE', 'END:VEVENT');
     });
+    marks.forEach(function (m) {
+      z.push('BEGIN:VEVENT', 'UID:' + m.id + '@meinkamerad', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + m.von.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + iso(plusTage(vonIso(m.bis), 1)).replace(/-/g, ''),
+        'SUMMARY:' + icsText(tagById(m.tag).name), 'DESCRIPTION:' + icsText(m.notiz || ''), 'TRANSP:TRANSPARENT', 'END:VEVENT');
+    });
     z.push('END:VCALENDAR');
     var blob = new Blob([z.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
     var a = document.createElement('a');
@@ -2778,7 +2883,8 @@
     a.download = 'urlaub' + (nurJahr ? '-' + nurJahr : '') + '.ics';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-    uMeldung(liste.length + (liste.length === 1 ? ' Eintrag' : ' Einträge') + ' exportiert.');
+    var anz = liste.length + marks.length;
+    uMeldung(anz + (anz === 1 ? ' Eintrag' : ' Einträge') + ' exportiert.');
   }
 
   $('u-land').innerHTML = Object.keys(UD.bundeslaender).map(function (k) { return '<option value="' + k + '">' + UD.bundeslaender[k] + '</option>'; }).join('');
@@ -2871,6 +2977,67 @@
     $('u-export-knoepfe').hidden = true;
     $('u-export-hinweis').hidden = false;
   }
+  // Eigene Markierungen
+  function tagMeldung(t, fehler) { $('u-tag-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('u-tag-meldung').textContent = t; }
+  $('u-tag-farben').addEventListener('input', function (e) {
+    if (e.target.id === 'u-tag-farbe-eigen') document.querySelector('input[name="u-tag-farbe"][value="eigen"]').checked = true;
+  });
+  $('u-tag-add').addEventListener('click', function () {
+    var name = $('u-tag-name').value.trim().slice(0, 30);
+    if (!name) { tagMeldung('Bitte einen Namen eingeben.', true); $('u-tag-name').focus(); return; }
+    if (UZ.tags.some(function (t) { return t.name.toLowerCase() === name.toLowerCase(); })) { tagMeldung('Eine Markierung mit diesem Namen gibt es schon.', true); return; }
+    var w = document.querySelector('input[name="u-tag-farbe"]:checked');
+    var farbe = w && w.value === 'eigen' ? $('u-tag-farbe-eigen').value : (w ? w.value : FARBEN[0][0]);
+    if (!RX_FARBE.test(farbe)) farbe = FARBEN[0][0];
+    var t = { id: 't' + Date.now(), name: name, farbe: farbe.toUpperCase() };
+    UZ.tags.push(t);
+    uSpeichern();
+    $('u-tag-name').value = '';
+    renderUrlaub();
+    $('u-mark-tag').value = t.id;
+    tagMeldung('Markierung „' + name + '“ angelegt. Wähle oben im Kalender Tage aus und tippe auf „Markierung eintragen“.');
+  });
+  $('u-tag-liste').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-u-tag-weg]');
+    if (!b) return;
+    var id = b.getAttribute('data-u-tag-weg'), t = tagById(id);
+    var anz = UZ.markierungen.filter(function (m) { return m.tag === id; }).length;
+    if (anz && b.getAttribute('data-bestaetigt') !== '1') {
+      b.setAttribute('data-bestaetigt', '1');
+      b.textContent = 'Wirklich löschen?';
+      tagMeldung('„' + t.name + '“ ist ' + anz + (anz === 1 ? ' Zeitraum' : ' Zeiträumen') + ' zugeordnet. Beim Löschen werden diese mit entfernt. Zum Bestätigen noch einmal tippen.', true);
+      return;
+    }
+    UZ.tags = UZ.tags.filter(function (x) { return x.id !== id; });
+    UZ.markierungen = UZ.markierungen.filter(function (m) { return m.tag !== id; });
+    uSpeichern();
+    renderUrlaub();
+    tagMeldung('Markierung „' + t.name + '“ gelöscht.');
+  });
+  $('u-mark-add').addEventListener('click', function () {
+    var tagId = $('u-mark-tag').value, von = $('u-von').value, bis = $('u-bis').value || von;
+    if (!tagById(tagId)) { uMeldung('Bitte zuerst unter „Eigene Markierungen“ eine Markierung anlegen.', true); return; }
+    if (!von) { uMeldung('Bitte im Kalender oder oben einen Zeitraum wählen.', true); return; }
+    if (bis < von) { uMeldung('Das Ende liegt vor dem Beginn.', true); return; }
+    var dopp = UZ.markierungen.filter(function (m) { return m.tag === tagId && m.von <= bis && von <= m.bis; })[0];
+    if (dopp) { uMeldung('„' + tagById(tagId).name + '“ ist für einen Teil dieser Tage schon eingetragen (' + datumKurz(dopp.von) + (dopp.bis !== dopp.von ? ' bis ' + datumKurz(dopp.bis) : '') + ').', true); return; }
+    UZ.markierungen.push({ id: 'm' + Date.now(), tag: tagId, von: von, bis: bis, notiz: $('u-notiz').value.trim().slice(0, 80) });
+    uSpeichern();
+    uAnsicht.auswahlStart = '';
+    $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = '';
+    var dv = vonIso(von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth();
+    renderUrlaub();
+    uMeldung('„' + tagById(tagId).name + '“ eingetragen: ' + datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + '.');
+  });
+  $('u-mark-liste').addEventListener('click', function (e) {
+    var w = e.target.closest('button[data-u-mark-weg]');
+    if (w) { UZ.markierungen = UZ.markierungen.filter(function (m) { return m.id !== w.getAttribute('data-u-mark-weg'); }); uSpeichern(); renderUrlaub(); return; }
+    var z = e.target.closest('button[data-u-mark-zeige]');
+    if (z) {
+      var m = UZ.markierungen.filter(function (x) { return x.id === z.getAttribute('data-u-mark-zeige'); })[0];
+      if (m) { var dv = vonIso(m.von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth(); renderUrlaub(); $('u-kal').scrollIntoView({ block: 'center' }); }
+    }
+  });
   $('u-export-jahr').addEventListener('click', function () { icsExport(uAnsicht.jahr); });
   $('u-export-alle').addEventListener('click', function () { icsExport(0); });
 

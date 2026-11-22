@@ -45,7 +45,7 @@ Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber
 
 ## Urlaubsplaner
 
-Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
+Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer im Planer selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
 
 ## Quellen
 
