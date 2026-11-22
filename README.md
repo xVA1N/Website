@@ -55,7 +55,7 @@ Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber
 
 ## Mein Profil
 
-Unter „Mein Profil“ (Startseite oder Mehr) trägt jeder Nutzer einmal Dienstgrad, Besoldungsgruppe, Stufe, Familie, Bundesland und Dienstzeiten ein. Rechner, DuZ-Rechner und Urlaubskartei übernehmen die Werte. Gespeichert wird nur im Browser, es gibt keinen Login und keinen Server. Mit „Daten sichern“ und „Daten laden“ lassen sich alle Einträge als Datei auf ein anderes Gerät übertragen.
+Unter „Mein Profil“ (Personen-Symbol oben rechts) trägt jeder Nutzer einmal Dienstgrad, Besoldungsgruppe, Stufe, Familie, Bundesland und Dienstzeiten ein. Rechner, DuZ-Rechner und Urlaubskartei übernehmen die Werte. Gespeichert wird nur im Browser, es gibt keinen Login und keinen Server. Mit „Daten sichern“ und „Daten laden“ lassen sich alle Einträge als Datei auf ein anderes Gerät übertragen.
 
 ## Urlaubskartei
 

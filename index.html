@@ -294,6 +294,9 @@
   .stern-btn, .stern-klein { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 999px; background: none; color: var(--accent); cursor: pointer; }
   .stern-btn { margin-top: 18px; border: 1px solid var(--line); background: var(--surface); }
   .stern-btn .ic, .stern-klein .ic { width: 22px; height: 22px; }
+  .kopf-knoepfe { display: flex; gap: 8px; flex: none; }
+  .profil-btn { color: var(--accent); }
+  .profil-btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .stern-btn[aria-pressed="true"] .ic, .stern-klein[aria-pressed="true"] .ic, .knopf[aria-pressed="true"] .ic.stern { fill: currentColor; }
   .stern-klein { align-self: center; margin-right: 4px; }
   .stern-klein.loeschen { color: var(--muted); font-size: 1.4rem; line-height: 1; }
@@ -620,7 +623,10 @@
       <p class="app">MeinKamerad</p>
       <h1 id="titel">Was möchtest du öffnen?</h1>
     </div>
-    <button type="button" class="stern-btn" id="seite-fav" aria-pressed="false" hidden><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></button>
+    <div class="kopf-knoepfe">
+      <button type="button" class="stern-btn" id="seite-fav" aria-pressed="false" hidden><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></button>
+      <a class="stern-btn profil-btn" id="profil-btn" href="#profil" aria-label="Mein Profil" title="Mein Profil"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></a>
+    </div>
   </header>
 
   <div class="tskbox">
@@ -661,10 +667,6 @@
       <a class="tile" href="#urlaub">
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
         <span><span class="tt">Urlaubskartei</span><span class="td">Urlaub, Überstunden und ATB, Feiertage, Brückentage und Kalender-Export</span></span>
-      </a>
-      <a class="tile" href="#profil">
-        <span class="box"><svg class="ic"><use href="#i-user"/></svg></span>
-        <span><span class="tt">Mein Profil</span><span class="td">Dienstgrad, Familie, Bundesland und Dienstzeiten einmal eintragen</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -1159,12 +1161,6 @@
   </section>
 
   <section class="view" id="view-mehr" aria-label="Mehr" hidden>
-    <nav class="tiles" aria-label="Profil" style="margin-bottom:12px">
-      <a class="tile" href="#profil">
-        <span class="box"><svg class="ic"><use href="#i-user"/></svg></span>
-        <span><span class="tt">Mein Profil</span><span class="td">Dienstgrad, Familie, Bundesland und Dienstzeiten</span></span>
-      </a>
-    </nav>
     <section class="panel" aria-labelledby="ueber-titel">
       <h2 id="ueber-titel">Über „MeinKamerad“</h2>
       <div class="ueber-text" id="ueber-text"></div>
@@ -1560,7 +1556,7 @@
     if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
     // Werkzeuge erreicht man über Start, deshalb ist dort der Reiter Start aktiv
     if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz'].indexOf(v) >= 0) tab = 'start';
-    if (v === 'profil') tab = 'mehr';
+    if (v === 'profil') tab = '';
     ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz', 'profil'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelector('.wrap').setAttribute('data-view', v);
     aktuelleAnsicht = v;
@@ -1570,6 +1566,7 @@
     if (v === 'urlaub') renderUrlaub();
     if (v === 'duz') render();
     if (v === 'profil') renderProfil();
+    if (v === 'profil') $('profil-btn').setAttribute('aria-current', 'page'); else $('profil-btn').removeAttribute('aria-current');
     if (v === 'rechner') renderProfilHinweis();
     $('titel').textContent = titel || VIEWS[v];
     var tabs = document.querySelectorAll('.tabbar a');
