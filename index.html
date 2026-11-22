@@ -392,7 +392,8 @@
   .u-farben input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 3px; }
   .u-farben input[type="color"] { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 2px; }
   .u-markieren { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
-  .u-kal { touch-action: none; -webkit-user-select: none; user-select: none; }
+  .u-kal { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .u-kal.ziehen { touch-action: none; }
   .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
   .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
@@ -890,7 +891,7 @@
 
     <section class="panel">
       <h2>Zeitraum eintragen</h2>
-      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag, oder tippe auf den ersten Tag und ziehe bis zum letzten. Der Zeitraum wird im Kalender hervorgehoben. Du kannst die Daten auch hier eingeben.</p>
+      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag, oder halte den ersten Tag kurz gedrückt und ziehe bis zum letzten. Der Zeitraum wird im Kalender hervorgehoben. Du kannst die Daten auch hier eingeben.</p>
       <form id="u-form" class="stack" novalidate>
         <div class="u-felder">
           <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
@@ -2994,7 +2995,7 @@
   }
   $('u-kal').addEventListener('pointerdown', function (e) {
     var b = e.target.closest('button[data-tag]');
-    if (!b || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (!b || e.pointerType === 'touch' || (e.pointerType === 'mouse' && e.button !== 0)) return;
     zug = { start: b.getAttribute('data-tag'), ende: b.getAttribute('data-tag'), bewegt: false, id: e.pointerId };
     try { $('u-kal').setPointerCapture(e.pointerId); } catch (x) { /* nicht nötig */ }
   });
@@ -3018,9 +3019,55 @@
   }
   $('u-kal').addEventListener('pointerup', zugEnde);
   $('u-kal').addEventListener('pointercancel', function (e) { if (zug && e.pointerId === zug.id) { zug = null; renderUrlaub(); } });
+  // Finger: kurz gedrückt halten startet das Ziehen, sofortige Bewegung scrollt die Seite
+  var halte = null, fingerZug = null;
+  $('u-kal').addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) { clearTimeout(halte && halte.timer); halte = null; return; }
+    var b = e.target.closest('button[data-tag]');
+    if (!b) return;
+    var t0 = e.touches[0];
+    halte = { tag: b.getAttribute('data-tag'), x: t0.clientX, y: t0.clientY };
+    halte.timer = setTimeout(function () {
+      fingerZug = { start: halte.tag, ende: halte.tag, bewegt: false };
+      halte = null;
+      $('u-kal').classList.add('ziehen');
+      uAnsicht.auswahlStart = '';
+      auswahlSetzen(fingerZug.start, fingerZug.start);
+      auswahlZeigen();
+      try { if (navigator.vibrate) navigator.vibrate(12); } catch (x) { /* ohne Vibration */ }
+    }, 350);
+  }, { passive: true });
+  $('u-kal').addEventListener('touchmove', function (e) {
+    var t0 = e.touches[0];
+    if (halte) {
+      if (Math.abs(t0.clientX - halte.x) > 8 || Math.abs(t0.clientY - halte.y) > 8) { clearTimeout(halte.timer); halte = null; }
+      return;
+    }
+    if (!fingerZug) return;
+    e.preventDefault();
+    var t = tagUnter(t0.clientX, t0.clientY);
+    if (!t || t === fingerZug.ende) return;
+    fingerZug.ende = t;
+    if (t !== fingerZug.start) fingerZug.bewegt = true;
+    auswahlSetzen(fingerZug.start, t);
+    auswahlZeigen();
+  }, { passive: false });
+  function fingerEnde() {
+    if (halte) { clearTimeout(halte.timer); halte = null; return; }
+    if (!fingerZug) return;
+    var z = fingerZug; fingerZug = null;
+    $('u-kal').classList.remove('ziehen');
+    klickIgnorieren = Date.now();
+    if (z.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(z.start, z.ende); }
+    else { uAnsicht.auswahlStart = z.start; auswahlSetzen(z.start, z.start); }
+    renderUrlaub();
+  }
+  $('u-kal').addEventListener('touchend', fingerEnde);
+  $('u-kal').addEventListener('touchcancel', fingerEnde);
+  $('u-kal').addEventListener('contextmenu', function (e) { if (e.target.closest('button[data-tag]')) e.preventDefault(); });
   // Tastatur (Enter/Leertaste) löst nur einen Klick aus
   $('u-kal').addEventListener('click', function (e) {
-    if (Date.now() - klickIgnorieren < 600) return;
+    if (Date.now() - klickIgnorieren < 350) return;
     var b = e.target.closest('button[data-tag]');
     if (!b) return;
     auswahlTippen(b.getAttribute('data-tag'));
