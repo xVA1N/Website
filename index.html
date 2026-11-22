@@ -448,6 +448,19 @@
               <button type="button" id="kind-plus" aria-label="Ein Kind mehr">+</button>
             </div>
           </div>
+          <label class="check" for="partner-oed">
+            <input type="checkbox" id="partner-oed">
+            <span class="t">Partner/in ebenfalls im öffentlichen Dienst<span class="sub">z. B. Soldat, Beamtin oder Tarifbeschäftigte bei Bund, Land oder Kommune. Der Familienzuschlag wird dann geteilt.</span></span>
+          </label>
+          <div id="kg-wrap" hidden>
+            <div class="label" id="kg-label">Wer erhält das Kindergeld?</div>
+            <div class="seg" id="kg-bei" role="radiogroup" aria-labelledby="kg-label">
+              <label><input type="radio" name="kg-bei" value="ich"><span>Ich</span></label>
+              <label><input type="radio" name="kg-bei" value="partner"><span>Partner/in</span></label>
+            </div>
+          </div>
+        </div>
+        <p class="hint" id="fam-info" hidden></p>
         </div>
       </fieldset>
 
@@ -488,6 +501,7 @@
         <div><dt>Auslandsverwendungszuschlag</dt><dd id="z-avz"></dd></div>
         <div><dt>12 Monate, ohne Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
       </dl>
+      <p class="small" id="kg-info" hidden></p>
       <p class="small">Netto folgt in einer späteren Version, weil Steuer, Krankenversicherung und weitere Abzüge einzeln gerechnet werden müssen.</p>
     </section>
 
@@ -545,7 +559,7 @@
         </details>
         <details>
           <summary>Was ist der Familienzuschlag?</summary>
-          <p>Ein Zuschlag für Verheiratete und für Eltern. Die genauen Voraussetzungen stehen im Bundesbesoldungsgesetz.</p>
+          <p>Ein Zuschlag für Verheiratete und für Eltern. Ist der Partner oder die Partnerin ebenfalls im öffentlichen Dienst, wird er geteilt: Den Betrag für Verheiratete bekommt jeder zur Hälfte, die Beträge für die Kinder bekommt, wer das Kindergeld erhält. Das Kindergeld selbst zahlt die Familienkasse, es gehört nicht zur Besoldung.</p>
         </details>
         <details>
           <summary>Welche Zulagen gibt es?</summary>
@@ -621,8 +635,14 @@
     for (var k in tabelle) { if (inGruppen(bg, k)) return tabelle[k]; }
     return 0;
   }
-  function familienzuschlag(bg, verheiratet, kinder) {
-    var b = verheiratet ? FZ.verheiratet : 0;
+  // partner: Partner/in im öffentlichen Dienst. kgBeiMir: ich erhalte das Kindergeld.
+  function stufe1(verheiratet, partner) {
+    if (!verheiratet) return 0;
+    return Math.round(FZ.verheiratet * (partner ? FZ.anteilStufe1BeiPartnerImOeD : 1) * 100) / 100;
+  }
+  function familienzuschlag(bg, verheiratet, kinder, partner, kgBeiMir) {
+    var b = stufe1(verheiratet, partner);
+    if (partner && !kgBeiMir) kinder = 0;
     for (var k = 1; k <= kinder; k++) {
       b += k === 1 ? FZ.erstesKind : k === 2 ? FZ.zweitesKind : FZ.jedesWeitereKind;
       b += plusFuer(k === 1 ? FZ.plusErstesKind : FZ.plusWeiteresKind, bg);
@@ -729,6 +749,8 @@
     stufe: 3,
     verheiratet: false,
     kinder: 0,
+    partner: false,
+    kgBei: 'ich',
     stelle: 'keine',
     dauer: 0,
     gebiet: 'keine',
@@ -884,8 +906,7 @@
     return '<option value="' + g.id + '">' + g.name + '</option>';
   }).join('');
 
-  $('amt-verheiratet').textContent = '+' + eur.format(FZ.verheiratet);
-  $('hint-kind').textContent = '1. und 2. Kind je ' + eur.format(FZ.kind1) + ', ab dem 3. Kind je ' + eur.format(FZ.kindWeitere) + ', in A 3 bis A 5 etwas mehr';
+  $('hint-kind').textContent = 'Familienzuschlag: 1. und 2. Kind je ' + eur.format(FZ.erstesKind) + ', ab dem 3. Kind je ' + eur.format(FZ.jedesWeitereKind) + ', in A 3 bis A 5 etwas mehr';
 
   function fuelleDienstgrade() {
     $('dienstgrad').innerHTML = DIENSTGRADE
@@ -1103,6 +1124,20 @@
     }
 
     $('verheiratet').checked = state.verheiratet;
+    $('partner-oed').checked = state.partner;
+    $('amt-verheiratet').textContent = '+' + eur.format(stufe1(true, state.partner));
+    $('kg-wrap').hidden = !(state.partner && state.kinder > 0);
+    document.querySelector('input[name="kg-bei"][value="' + state.kgBei + '"]').checked = true;
+    var famInfo = [];
+    if (state.partner && state.verheiratet) famInfo.push('Stufe 1 wird geteilt: Du erhältst ' + eur.format(stufe1(true, true)) + ' statt ' + eur.format(FZ.verheiratet) + ', den Rest erhält dein Partner oder deine Partnerin (§ 40 Abs. 4 BBesG).');
+    if (state.partner && state.kinder > 0) famInfo.push(state.kgBei === 'ich'
+      ? 'Die Kinderbeträge erhältst du, weil du das Kindergeld bekommst (§ 40 Abs. 5 BBesG).'
+      : 'Die Kinderbeträge erhält dein Partner oder deine Partnerin, weil er oder sie das Kindergeld bekommt (§ 40 Abs. 5 BBesG).');
+    $('fam-info').hidden = !famInfo.length;
+    $('fam-info').textContent = famInfo.join(' ');
+    var kg = state.kinder && (!state.partner || state.kgBei === 'ich') ? state.kinder * D.kindergeld.jeKind : 0;
+    $('kg-info').hidden = !kg;
+    $('kg-info').textContent = kg ? 'Dazu kommt Kindergeld von ' + eur.format(kg) + ' im Monat (' + eur.format(D.kindergeld.jeKind) + ' je Kind, ' + D.kindergeld.fundstelle + '). Es zahlt die Familienkasse, deshalb ist es nicht in der Bruttobesoldung enthalten.' : '';
     $('kinder').textContent = String(state.kinder);
     $('kind-minus').disabled = state.kinder <= 0;
     $('kind-plus').disabled = state.kinder >= 6;
@@ -1143,7 +1178,8 @@
 
     var plus = erhoehung(d);
     var grund = (a ? TAB_A[d.bg][state.stufe - STUFE_MIN] : TAB_B[d.bg]) + plus;
-    var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder);
+    var kgBeiMir = state.kgBei === 'ich';
+    var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder, state.partner, kgBeiMir);
     var brutto = Math.round((grund + fam + stelleBetrag + avz) * 100) / 100;
 
     $('brutto').textContent = eur.format(brutto);
@@ -1207,6 +1243,14 @@
   });
   $('verheiratet').addEventListener('change', function (e) {
     state.verheiratet = e.target.checked;
+    render();
+  });
+  $('partner-oed').addEventListener('change', function (e) {
+    state.partner = e.target.checked;
+    render();
+  });
+  $('kg-bei').addEventListener('change', function (e) {
+    state.kgBei = e.target.value;
     render();
   });
   $('kind-minus').addEventListener('click', function () {

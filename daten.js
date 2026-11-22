@@ -61,7 +61,17 @@ window.MK_DATEN = {
     jedesWeitereKind: 456.06,
     // Zusätzliche Beträge in den unteren Besoldungsgruppen
     plusErstesKind: { "A3-A5": 5.37 },
-    plusWeiteresKind: { "A3": 26.84, "A4": 21.47, "A5": 16.10 }
+    plusWeiteresKind: { "A3": 26.84, "A4": 21.47, "A5": 16.10 },
+    // Partner/in ebenfalls im öffentlichen Dienst (§ 40 Abs. 4 und 5 BBesG):
+    // Stufe 1 gibt es dann nur anteilig, die Kinderbeträge bekommt, wer das Kindergeld erhält.
+    anteilStufe1BeiPartnerImOeD: 0.5
+  },
+
+  /* ---------- Kindergeld (Familienkasse, nicht Teil der Besoldung) ---------- */
+  kindergeld: {
+    jeKind: 259,
+    gueltigAb: "1. Januar 2026",
+    fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
   /* ---------- Anlage IX: Stellenzulagen ---------- */
