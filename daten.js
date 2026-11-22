@@ -98,6 +98,9 @@ window.MK_DATEN = {
     // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn in der
     // Urlaubskartei anpassen. Maßgeblich ist der eigene Urlaubsbescheid.
     standardAnspruch: 30,
+    // Stunden, die ein Tag Dienstzeitausgleich vom Überstundenkonto abzieht (Vorschlag:
+    // 41-Stunden-Woche geteilt durch 5 Tage). Jeder Nutzer kann den Wert in der Urlaubskartei ändern.
+    stundenJeAusgleichstag: 8.2,
     hinweis: "Grundlage ist die Soldatinnen- und Soldatenurlaubsverordnung. Anspruch, Resturlaub und Fristen bitte mit dem eigenen Urlaubsbescheid abgleichen.",
     bundeslaender: {
       BW: "Baden-Württemberg", BY: "Bayern", BE: "Berlin", BB: "Brandenburg", HB: "Bremen", HH: "Hamburg",

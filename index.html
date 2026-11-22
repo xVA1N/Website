@@ -439,6 +439,7 @@
   .u-konto .felder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
   .u-konto .felder label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 4px; }
   .u-konto .felder input { width: 100%; min-width: 0; text-align: center; }
+  .u-konto .felder.einzeln { grid-template-columns: 1fr 1fr; }
   .u-konto .stand { margin-top: 8px; font-size: .82rem; color: var(--muted); }
   .u-arten input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
   .u-arten input:checked + span::after { border: 6px solid var(--accent); }
@@ -2727,8 +2728,8 @@
   // Konten der Übersicht: jedes zählt die Einträge einer Art
   var KONTEN = [
     { art: 'urlaub', name: 'Erholungsurlaub', info: 'Jahresurlaub inklusive Zusatzurlaub', farbe: 'var(--accent)' },
-    { art: 'dza', name: 'Überstunden', info: 'Abbau als Dienstzeitausgleich', farbe: 'var(--warn-bg)', rand: 'var(--warn-line)' },
-    { art: 'atb', name: 'ATB', info: '', farbe: 'var(--atb)' },
+    { art: 'dza', name: 'Überstunden', info: 'Abbau als Dienstzeitausgleich', farbe: 'var(--warn-bg)', rand: 'var(--warn-line)', stunden: true },
+    { art: 'atb', name: 'ATB', info: 'Ausnahmetatbestand', farbe: 'var(--atb)' },
     { art: 'sonder', name: 'Sonderurlaub', info: 'Zum Beispiel Kindkranktage', farbe: 'var(--fg)' }
   ];
   var heute = new Date();
@@ -2742,6 +2743,7 @@
       if (j && typeof j === 'object') {
         if (UD.bundeslaender[j.land]) u.land = j.land;
         u.diensteZeigen = !!j.diensteZeigen;
+        if (typeof j.stundenJeTag === 'number') u.stundenJeTag = j.stundenJeTag;
         ['anspruch', 'rest', 'zusatz', 'konten'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
         if (Array.isArray(j.tags)) u.tags = j.tags.filter(function (t) { return t && t.id && typeof t.name === 'string' && RX_FARBE.test(t.farbe); });
         if (Array.isArray(j.markierungen)) u.markierungen = j.markierungen.filter(function (m) { return m && /^\d{4}-\d{2}-\d{2}$/.test(m.von) && /^\d{4}-\d{2}-\d{2}$/.test(m.bis); });
@@ -2836,6 +2838,12 @@
     return { cls: c.join(' '), e: e, di: di, mk: mk };
   }
 
+  function stundenJeTag() {
+    var v = UZ.stundenJeTag;
+    if (typeof v === 'number' && v > 0 && v <= 24) return v;
+    v = UD.stundenJeAusgleichstag;
+    return typeof v === 'number' && v > 0 ? v : 8;
+  }
   function renderKonten(j) {
     var summe = {};
     KONTEN.forEach(function (k) { summe[k.art] = { gen: 0, gepl: 0 }; });
@@ -2844,16 +2852,21 @@
       if (n && summe[e.art]) summe[e.art][e.status === 'genehmigt' ? 'gen' : 'gepl'] += n;
     });
     $('u-konten-titel').textContent = 'Übersicht ' + j;
+    var hTag = stundenJeTag();
     $('u-konten').innerHTML = KONTEN.map(function (k) {
       var neu = kontoWert(k.art, 'neu', j), alt = kontoWert(k.art, 'alt', j), s = summe[k.art];
-      var uebrig = neu + alt - s.gen - s.gepl, id = 'u-k-' + k.art;
+      var f = k.stunden ? hTag : 1, id = 'u-k-' + k.art, eh = k.stunden ? ' Std.' : '', ehL = k.stunden ? ' (Std.)' : '';
+      var uebrig = neu + alt - (s.gen + s.gepl) * f;
+      var stand = 'Genehmigt ' + zahl(s.gen * f) + eh + ' · geplant ' + zahl(s.gepl * f) + eh;
+      if (k.stunden) stand += (s.gen + s.gepl ? ' (' + tageText(s.gen + s.gepl) + ')' : '') +
+        '</div><div class="felder einzeln"><div><label for="u-k-htag">Stunden je Ausgleichstag</label><input type="number" id="u-k-htag" data-htag="1" min="1" max="24" step="0.1" inputmode="decimal" value="' + hTag + '"></div>';
       return '<div class="u-konto" style="--kfarbe:' + k.farbe + (k.rand ? ';--krand:' + k.rand : '') + '">' +
         '<div class="kopf"><b>' + k.name + '</b>' + (k.info ? '<small>' + k.info + '</small>' : '') +
-        '<div class="uebrig' + (uebrig < 0 ? ' minus' : '') + '">' + zahl(uebrig) + '<span>übrig</span></div></div>' +
+        '<div class="uebrig' + (uebrig < 0 ? ' minus' : '') + '">' + zahl(uebrig) + '<span>' + (k.stunden ? 'Std. übrig' : 'übrig') + '</span></div></div>' +
         '<div class="felder">' +
-        '<div><label for="' + id + '-neu">' + j + '</label><input type="number" id="' + id + '-neu" data-konto="' + k.art + '" data-feld="neu" min="0" max="366" step="0.5" inputmode="decimal" value="' + neu + '"></div>' +
-        '<div><label for="' + id + '-alt">Aus ' + (j - 1) + '</label><input type="number" id="' + id + '-alt" data-konto="' + k.art + '" data-feld="alt" min="0" max="366" step="0.5" inputmode="decimal" value="' + alt + '"></div>' +
-        '</div><div class="stand">Genehmigt ' + zahl(s.gen) + ' · geplant ' + zahl(s.gepl) + '</div></div>';
+        '<div><label for="' + id + '-neu">' + j + ehL + '</label><input type="number" id="' + id + '-neu" data-konto="' + k.art + '" data-feld="neu" min="0" max="' + (k.stunden ? 2000 : 366) + '" step="0.5" inputmode="decimal" value="' + neu + '"></div>' +
+        '<div><label for="' + id + '-alt">Aus ' + (j - 1) + ehL + '</label><input type="number" id="' + id + '-alt" data-konto="' + k.art + '" data-feld="alt" min="0" max="' + (k.stunden ? 2000 : 366) + '" step="0.5" inputmode="decimal" value="' + alt + '"></div>' +
+        '</div><div class="stand">' + stand + '</div></div>';
     }).join('');
   }
 
@@ -3043,11 +3056,16 @@
   $('u-jahr-zurueck').addEventListener('click', function () { jahrWechsel(-1); });
   $('u-jahr-vor').addEventListener('click', function () { jahrWechsel(1); });
   $('u-konten').addEventListener('change', function (e) {
+    if (e.target.getAttribute('data-htag')) {
+      var h = parseFloat(String(e.target.value).replace(',', '.'));
+      if (isNaN(h) || h <= 0) delete UZ.stundenJeTag; else UZ.stundenJeTag = Math.min(h, 24);
+      uSpeichern(); renderUrlaub(); return;
+    }
     var art = e.target.getAttribute('data-konto'), feld = e.target.getAttribute('data-feld');
     if (!art || !feld) return;
     var j = uAnsicht.jahr, v = parseFloat(String(e.target.value).replace(',', '.'));
     var k = UZ.konten[j] || (UZ.konten[j] = {}), w = k[art] || (k[art] = {});
-    if (isNaN(v) || v < 0) delete w[feld]; else w[feld] = Math.min(v, 366);
+    if (isNaN(v) || v < 0) delete w[feld]; else w[feld] = Math.min(v, art === 'dza' ? 2000 : 366);
     uSpeichern(); renderUrlaub();
   });
   function monatWechsel(n) {
