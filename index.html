@@ -405,6 +405,14 @@
   .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
   .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .u-kopfzeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .u-kopfzeile h2 { margin: 0; }
+  .u-plus { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .u-plus svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; transition: transform .15s ease; }
+  .u-plus[aria-expanded="true"] { background: var(--surface); color: var(--accent); }
+  .u-plus[aria-expanded="true"] svg { transform: rotate(45deg); }
+  #u-tag-meldung:empty, #u-tag-liste:empty { display: none; }
+  .u-tag-neu { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--soft); margin-top: 10px; }
   .panel > .u-kal-hint { margin: 0 0 10px; text-align: center; }
   .u-arten { display: grid; gap: 6px; }
   .u-arten label { position: relative; display: block; }
@@ -949,7 +957,7 @@
           <div class="label">Oder als eigene Markierung eintragen</div>
           <div class="u-felder"><div><label class="label" for="u-mark-tag" style="display:block">Markierung</label><select id="u-mark-tag"></select></div></div>
           <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="u-mark-add">Markierung eintragen</button></div>
-          <p class="hint" style="margin-top:0">Markierungen zählen nicht als Urlaub. Eigene Markierungen legst du weiter unten unter „Eigene Markierungen“ an.</p>
+          <p class="hint" style="margin-top:0">Markierungen zählen nicht als Urlaub. Neue legst du weiter unten unter „Eigene Markierungen“ mit dem Plus an.</p>
         </div>
       </form>
     </section>
@@ -961,11 +969,16 @@
     </section>
 
     <section class="panel">
-      <h2>Eigene Markierungen</h2>
-      <p class="hint">Lege eigene Markierungen mit Farbe an, zum Beispiel „Lehrgang“, „Wache“ oder „Übung“. Danach kannst du sie oben bei „Zeitraum eintragen“ für ausgewählte Tage setzen. Im Kalender erscheinen sie als farbiger Balken unten im Tag.</p>
-      <div class="u-felder"><div><label class="label" for="u-tag-name" style="display:block">Name</label><input type="text" id="u-tag-name" maxlength="30" autocomplete="off"></div></div>
-      <fieldset><legend>Farbe</legend><div class="u-farben" id="u-tag-farben"></div></fieldset>
-      <div class="dg-aktionen"><button type="button" class="knopf primaer" id="u-tag-add">Markierung anlegen</button></div>
+      <div class="u-kopfzeile">
+        <h2>Eigene Markierungen</h2>
+        <button type="button" class="u-plus" id="u-tag-auf" aria-expanded="false" aria-controls="u-tag-neu" aria-label="Neue Markierung anlegen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="u-tag-neu stack" id="u-tag-neu" hidden>
+        <p class="hint" style="margin-top:0">Zum Beispiel „Lehrgang“, „Wache“ oder „Übung“. Setzen kannst du sie danach oben bei „Zeitraum eintragen“. Im Kalender erscheinen sie als farbiger Balken unten im Tag.</p>
+        <div class="u-felder einspaltig"><div><label class="label" for="u-tag-name" style="display:block">Name</label><input type="text" id="u-tag-name" maxlength="30" autocomplete="off"></div></div>
+        <fieldset><legend>Farbe</legend><div class="u-farben" id="u-tag-farben"></div></fieldset>
+        <div class="dg-aktionen"><button type="button" class="knopf primaer" id="u-tag-add">Markierung anlegen</button><button type="button" class="knopf sekundaer" id="u-tag-zu">Abbrechen</button></div>
+      </div>
       <p class="u-meldung" id="u-tag-meldung" aria-live="polite"></p>
       <div class="liste" id="u-tag-liste"></div>
       <h2 style="margin-top:6px">Markierte Zeiträume <span id="u-mark-jahr"></span></h2>
@@ -3185,6 +3198,14 @@
   $('u-tag-farben').addEventListener('input', function (e) {
     if (e.target.id === 'u-tag-farbe-eigen') document.querySelector('input[name="u-tag-farbe"][value="eigen"]').checked = true;
   });
+  function tagFormular(auf) {
+    $('u-tag-neu').hidden = !auf;
+    $('u-tag-auf').setAttribute('aria-expanded', auf ? 'true' : 'false');
+    $('u-tag-auf').setAttribute('aria-label', auf ? 'Neue Markierung schließen' : 'Neue Markierung anlegen');
+    if (auf) { tagMeldung(''); $('u-tag-name').focus(); }
+  }
+  $('u-tag-auf').addEventListener('click', function () { tagFormular($('u-tag-neu').hidden); });
+  $('u-tag-zu').addEventListener('click', function () { $('u-tag-name').value = ''; tagFormular(false); $('u-tag-auf').focus(); });
   $('u-tag-add').addEventListener('click', function () {
     var name = $('u-tag-name').value.trim().slice(0, 30);
     if (!name) { tagMeldung('Bitte einen Namen eingeben.', true); $('u-tag-name').focus(); return; }
@@ -3196,6 +3217,7 @@
     UZ.tags.push(t);
     uSpeichern();
     $('u-tag-name').value = '';
+    tagFormular(false);
     renderUrlaub();
     $('u-mark-tag').value = t.id;
     tagMeldung('Markierung „' + name + '“ angelegt. Wähle oben im Kalender Tage aus und tippe auf „Markierung eintragen“.');
@@ -3219,7 +3241,7 @@
   });
   $('u-mark-add').addEventListener('click', function () {
     var tagId = $('u-mark-tag').value, von = $('u-von').value, bis = $('u-bis').value || von;
-    if (!tagById(tagId)) { uMeldung('Bitte zuerst unter „Eigene Markierungen“ eine Markierung anlegen.', true); return; }
+    if (!tagById(tagId)) { uMeldung('Bitte zuerst unter „Eigene Markierungen“ eine Markierung anlegen.', true); tagFormular(true); $('u-tag-neu').scrollIntoView({ block: 'center' }); return; }
     if (!von) { uMeldung('Bitte im Kalender oder oben einen Zeitraum wählen.', true); return; }
     if (bis < von) { uMeldung('Das Ende liegt vor dem Beginn.', true); return; }
     var dopp = UZ.markierungen.filter(function (m) { return m.tag === tagId && m.von <= bis && von <= m.bis; })[0];
