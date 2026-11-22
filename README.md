@@ -36,5 +36,6 @@ Wenn die Zuordnung der Einsatzgebiete zu Stufen geprüft ist, `gebieteBeispiel: 
 - Grundgehalt (Anlage IV), Familienzuschlag (Anlage V) und Stellenzulagen (Anlage IX) des Bundesbesoldungsgesetzes, gültig ab 1. März 2024, BGBl. 2023 I Nr. 414.
 - Stellenzulage Combat Controller (Nr. 5b): BGBl. 2025 I Nr. 72.
 - Zulagen für Führungsfunktionen (Nr. 4 und 4a, Kompaniechef bis Kompaniefeldwebel): Anlage IX, gültig ab 1. März 2024, BGBl. 2023 I Nr. 414.
+- Amtszulagen, Voraussetzungen der Zulagen und Regeln für ihr Zusammentreffen: Anlage I BBesG (Vorbemerkungen und Fußnoten), Stand 22. November 2026.
 - Auslandsverwendungszuschlag: Tagessätze nach § 3 AuslVZV, gültig ab 6. März 2025, BGBl. 2025 I Nr. 78. Die Zuordnung der Einsatzgebiete zu Stufen ist ein Beispiel.
 - Kindergeld: § 6 BKGG, gültig ab 1. Januar 2026, BGBl. 2024 I Nr. 449.

@@ -74,13 +74,39 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
+  /* ---------- Amtszulagen (Anlage I mit Fußnoten, Beträge aus Anlage IX) ---------- */
+  // Schlüssel ist der Dienstgrad. art: "immer" = wird immer gezahlt,
+  // "moeglich" = nur bei Funktionen, die sich abheben (im Rechner per Häkchen).
+  amtszulagen: {
+    gefr:       { betrag: 46.31,  art: "immer",    fussnote: "A 3 Fußnote 3" },
+    gefr_ua:    { betrag: 46.31,  art: "immer",    fussnote: "A 3 Fußnote 3" },
+    gefr_fa:    { betrag: 46.31,  art: "immer",    fussnote: "A 3 Fußnote 3" },
+    hgefr:      { betrag: 9.99,   art: "immer",    fussnote: "A 4 Fußnote 4" },
+    hgefr_ua:   { betrag: 9.99,   art: "immer",    fussnote: "A 4 Fußnote 4" },
+    ostgefr:    { betrag: 49.73,  art: "immer",    fussnote: "A 5 Fußnote 1" },
+    ofw:        { betrag: 61.76,  art: "immer",    fussnote: "A 7 Fußnote 5" },
+    hfw:        { betrag: 79.56,  art: "immer",    fussnote: "A 8 Fußnote 1" },
+    ofaehnrich: { betrag: 79.56,  art: "immer",    fussnote: "A 8 Fußnote 1" },
+    ostfw:      { betrag: 370.22, art: "moeglich", fussnote: "A 9 Fußnote 1" },
+    sthptm:     { betrag: 376.24, art: "moeglich", fussnote: "A 13 Fußnote 1" }
+  },
+
   /* ---------- Anlage IX: Zulagen für Führungsfunktionen ---------- */
   // Eigene Liste, im Rechner und im Reiter „Zulagen“ getrennt von den übrigen Stellenzulagen.
-  // "gruppen" ist optional und begrenzt die Zulage auf diese Besoldungsgruppen.
+  // "gruppen": nur für diese Besoldungsgruppen.
+  // "nebenAnderen": "differenz" = neben einer anderen Stellenzulage nur, soweit sie diese übersteigt.
+  // "nichtNebenAmtszulageIn": wird neben einer Amtszulage in dieser Besoldungsgruppe nicht gezahlt.
   fuehrungszulagen: [
-    { id: "chef", name: "Kompaniechef, Einheitsführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 1", betrag: 150 },
-    { id: "zugfuehrer", name: "Zugführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 2", betrag: 130 },
-    { id: "gruppenfuehrer", name: "Gruppenführer, Truppführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 3 bis 5", betrag: 100 },
+    { id: "chef", name: "Kompaniechef oder vergleichbare Führungs- oder Ausbildungsfunktion", nr: "4 Abs. 1 Nr. 1",
+      betrag: 150, gruppen: "A3-A14", nebenAnderen: "differenz", nichtNebenAmtszulageIn: "A13" },
+    { id: "zugfuehrer", name: "Zugführer oder vergleichbare Führungs- oder Ausbildungsfunktion", nr: "4 Abs. 1 Nr. 2",
+      betrag: 130, gruppen: "A3-A14", nebenAnderen: "differenz", nichtNebenAmtszulageIn: "A13" },
+    { id: "gruppenfuehrer", name: "Gruppenführer oder vergleichbare Führungs- oder Ausbildungsfunktion", nr: "4 Abs. 1 Nr. 3",
+      betrag: 100, gruppen: "A3-A14", nebenAnderen: "differenz", nichtNebenAmtszulageIn: "A13" },
+    { id: "truppfuehrer", name: "Truppführer oder vergleichbare Führungs- oder Ausbildungsfunktion", nr: "4 Abs. 1 Nr. 4",
+      betrag: 100, gruppen: "A3-A14", nebenAnderen: "differenz", nichtNebenAmtszulageIn: "A13" },
+    { id: "weisung", name: "Weisungsrecht gegenüber Zivilpersonen als Vertreter des Bundes als Arbeitgeber", nr: "4 Abs. 1 Nr. 5",
+      betrag: 100, gruppen: "A3-A14", nebenAnderen: "differenz", nichtNebenAmtszulageIn: "A13" },
     { id: "kpfw", name: "Kompaniefeldwebel", nr: "4a", betrag: 135, gruppen: "A7-A9" }
   ],
 
@@ -88,12 +114,15 @@ window.MK_DATEN = {
   // Jede Zulage hat entweder "staffel" (Betrag je Besoldungsgruppe, optional je Laufbahn)
   // oder "dauer" (Auswahlliste, z. B. nach Dauer in der Verwendung; die Überschrift der
   // Auswahl steht in "auswahlLabel"). "quelle" ist optional, sonst gilt Anlage IX mit Stand oben.
+  // Regeln aus Anlage I: "nurGruppen" (nur diese Besoldungsgruppen), "nebenAnderen": "differenz"
+  // (neben anderen Stellenzulagen nur, soweit sie diese übersteigt), "differenzNeben": ["4"]
+  // (nur neben diesen Nummern), "nichtNebenAVZ": true (nicht neben Auslandsverwendungszuschlag).
   stellenzulagen: [
-    { id: "polizei", name: "Vollzugspolizeiliche Aufgaben (z. B. Feldjäger)", nr: "9",
+    { id: "polizei", name: "Vollzugspolizeiliche Aufgaben (z. B. Feldjäger)", nr: "9", nurGruppen: "A3-A16",
       dauer: [ { label: "nach 1 Jahr", betrag: 95 }, { label: "nach 2 Jahren", betrag: 228 } ] },
-    { id: "cyber", name: "Cyberverteidigung", nr: "16",
+    { id: "cyber", name: "Cyberverteidigung", nr: "16", nurGruppen: "A3-A16", nebenAnderen: "differenz",
       staffel: [ { gruppen: "A3-A5", betrag: 150 }, { gruppen: "A6-A9", betrag: 200 },
-                 { gruppen: "A10-A13", betrag: 250 }, { gruppen: "A14-A16, B1-B11", betrag: 300 } ] },
+                 { gruppen: "A10-A13", betrag: 250 }, { gruppen: "A14-A16", betrag: 300 } ] },
     { id: "aufklaerung", name: "Fernmelde- und elektronische Aufklärung", nr: "8a",
       staffel: [ { gruppen: "A3-A5", betrag: 103 }, { gruppen: "A6-A9", betrag: 141 },
                  { gruppen: "A10-A13", betrag: 174 }, { gruppen: "A14-A16, B1-B11", betrag: 206 } ] },
@@ -103,7 +132,7 @@ window.MK_DATEN = {
     { id: "nachrichten", name: "Nachrichtendienste (z. B. MAD)", nr: "8",
       staffel: [ { gruppen: "A3-A5", betrag: 150 }, { gruppen: "A6-A9", betrag: 200 },
                  { gruppen: "A10-A13", betrag: 250 }, { gruppen: "A14-A16, B1-B11", betrag: 300 } ] },
-    { id: "oberste", name: "Oberste Bundesbehörde (z. B. BMVg)", nr: "7",
+    { id: "oberste", name: "Oberste Bundesbehörde (z. B. BMVg)", nr: "7", nichtNebenAVZ: true,
       staffel: [ { gruppen: "A3-A5", betrag: 165 }, { gruppen: "A6-A9", betrag: 220 },
                  { gruppen: "A10-A13", betrag: 275 }, { gruppen: "A14, A15, B1", betrag: 330 },
                  { gruppen: "A16, B2-B4", betrag: 400 }, { gruppen: "B5-B7", betrag: 470 },
@@ -114,7 +143,7 @@ window.MK_DATEN = {
       dauer: [ { label: "bis zur Basisqualifikation Stufe B", betrag: 150 },
                { label: "nach Basisqualifikation Stufe B", betrag: 300 },
                { label: "nach Basisqualifikation Stufe C", betrag: 350 } ] },
-    { id: "flugtechnik", name: "Flugzeugtechnisches Personal", nr: "5",
+    { id: "flugtechnik", name: "Flugzeugtechnisches Personal", nr: "5", differenzNeben: ["4"],
       staffel: [ { laufbahn: "Mannschaften", betrag: 53 },
                  { laufbahn: "Unteroffiziere", gruppen: "A3-A6", betrag: 53 },
                  { laufbahn: "Unteroffiziere", gruppen: "A7-A9", betrag: 75 },
