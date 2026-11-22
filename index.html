@@ -338,6 +338,7 @@
   .frage-inhalt { margin-top: 12px; }
   .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
   .u-felder > div { min-width: 0; }
+  .u-felder.einspaltig { grid-template-columns: 1fr; }
   .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] {
     -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; box-sizing: border-box; text-align: center;
   }
@@ -779,9 +780,10 @@
     </section>
     <section class="panel">
       <h2>Monat und Feiertage</h2>
-        <div class="u-felder">
+        <div class="u-felder einspaltig">
           <div><label class="label" for="duz-monat" style="display:block">Monat</label><input type="month" id="duz-monat"></div>
-          <div><label class="label" for="duz-land" style="display:block">Bundesland (Feiertage)</label><select id="duz-land"></select></div>
+          <div><label class="label" for="duz-land" style="display:block">Bundesland</label><select id="duz-land" aria-describedby="duz-land-hint"></select>
+            <p class="hint" id="duz-land-hint" style="margin-top:6px">Für die gesetzlichen Feiertage deines Standorts.</p></div>
         </div>
     </section>
     <section class="panel">
@@ -834,10 +836,11 @@
   <!-- URLAUB -->
   <section class="view" id="view-urlaub" aria-label="Urlaubsplaner" hidden>
     <section class="panel">
-      <div class="u-felder">
+      <div class="u-felder einspaltig">
         <div>
-          <label class="label" for="u-land" style="display:block">Bundesland des Standorts</label>
-          <select id="u-land"></select>
+          <label class="label" for="u-land" style="display:block">Bundesland</label>
+          <select id="u-land" aria-describedby="u-land-hint"></select>
+          <p class="hint" id="u-land-hint" style="margin-top:6px">Für die gesetzlichen Feiertage deines Standorts.</p>
         </div>
         <div>
           <span class="label" style="display:block">Jahr</span>
