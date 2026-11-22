@@ -53,6 +53,10 @@ dienstgradInfos: {
 
 Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber in `daten.js`.
 
+## Mein Profil
+
+Unter „Mein Profil“ (Startseite oder Mehr) trägt jeder Nutzer einmal Dienstgrad, Besoldungsgruppe, Stufe, Familie, Bundesland und Dienstzeiten ein. Rechner, DuZ-Rechner und Urlaubskartei übernehmen die Werte. Gespeichert wird nur im Browser, es gibt keinen Login und keinen Server. Mit „Daten sichern“ und „Daten laden“ lassen sich alle Einträge als Datei auf ein anderes Gerät übertragen.
+
 ## Urlaubskartei
 
 Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Übersicht führt vier Konten (Erholungsurlaub, Überstunden, ATB = Ausnahmetatbestand, Sonderurlaub), jeweils mit dem Anspruch dieses Jahres und dem Rest aus dem Vorjahr. Überstunden werden in Stunden geführt. Ein Tag Dienstzeitausgleich zieht die Stunden dieses Wochentags ab. Der Vorschlag für die Dienstzeiten (Beginn, Ende, Pause je Wochentag) steht in `daten.js` unter `urlaub.dienstzeiten`, jeder Nutzer kann ihn in der Urlaubskartei ändern. Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer in der Urlaubskartei über das Plus selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
