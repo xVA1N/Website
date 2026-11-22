@@ -417,11 +417,10 @@
   .u-arten { display: grid; gap: 6px; }
   .u-arten label { position: relative; display: block; }
   .u-arten input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-  .u-arten span { display: grid; grid-template-columns: 14px 1fr 20px; column-gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
-  .u-arten span::before { content: ""; grid-row: 1 / 3; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
-  .u-arten span::after { content: ""; grid-column: 3; grid-row: 1 / 3; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
+  .u-arten span { display: grid; grid-template-columns: 14px 1fr 20px; column-gap: 12px; align-items: center; min-height: 46px; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
+  .u-arten span::before { content: ""; grid-row: 1; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
+  .u-arten span::after { content: ""; grid-column: 3; grid-row: 1; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
   .u-arten b { font-weight: 600; grid-column: 2; }
-  .u-arten small { grid-column: 2; font-size: .8rem; color: var(--muted); }
   .u-arten .a-ug span::before { background: var(--accent); border-color: var(--accent); }
   .u-arten .a-dza span::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-arten .a-so span::before { background: var(--fg); border-color: var(--fg); }
@@ -938,10 +937,10 @@
           <div><label class="label" for="u-bis" style="display:block">Bis</label><input type="date" id="u-bis" required></div>
         </div>
         <fieldset><legend>Art</legend><div class="u-arten" id="u-art">
-          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b><small>Zählt vom Urlaubskonto</small></span></label>
-          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b><small>Zählt vom Überstundenkonto</small></span></label>
-          <label class="a-atb"><input type="radio" name="u-art" value="atb"><span><b>ATB</b><small>Zählt vom ATB-Konto</small></span></label>
-          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b><small>Zum Beispiel Kindkranktage</small></span></label>
+          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b></span></label>
+          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b></span></label>
+          <label class="a-atb"><input type="radio" name="u-art" value="atb"><span><b>ATB</b></span></label>
+          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b></span></label>
         </div></fieldset>
         <fieldset><legend>Status</legend><div class="seg" id="u-status">
           <label><input type="radio" name="u-status" value="geplant" checked><span>Geplant</span></label>
