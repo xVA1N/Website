@@ -9,7 +9,8 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-start`. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-start`. |
+| `vendor/` | Fremde Bibliothek milsymbol 3.0.4 (MIT-Lizenz) für die taktischen Zeichen, wird nur auf dieser Seite geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
 Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
@@ -67,6 +68,10 @@ Unter „Mein Profil“ (Personen-Symbol oben rechts) trägt jeder Nutzer einmal
 Der Rechner zeigt unter dem Brutto eine Netto-Näherung: Lohnsteuer, Solidaritätszuschlag und Kirchensteuer nach dem Tarif 2026 für die Steuerklassen I bis IV. Soldaten zahlen keine Renten-, Arbeitslosen- und Krankenversicherung, berücksichtigt wird der selbst gezahlte Beitrag zur privaten Pflegeversicherung aus dem Profil. Auslandsverwendungszuschlag (§ 3 Nr. 64 EStG) und DuZ (§ 3b EStG) gelten als steuerfrei. Die Steuerwerte stehen in `daten.js` unter `steuer` und müssen jedes Jahr angepasst werden.
 
 Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten nach § 27 BBesG, in `daten.js` unter `stufenlaufzeit`) und, bei Mannschaften, ab wann frühestens die nächste Beförderung möglich ist.
+
+## Taktische Zeichen
+
+Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (Landeinheiten) zusammen: Zugehörigkeit, Truppengattung, Größe, Status, Stab oder Einsatzverband, Stärke und Beschriftungen. Die Zeichen lassen sich als SVG oder PNG herunterladen. Weitere Truppengattungen trägt man in `js/12-symbole.js` in der Liste `MS_ARTEN` ein (Code aus APP-6D, Symbolsatz 10).
 
 ## Urlaubskartei
 

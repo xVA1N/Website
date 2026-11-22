@@ -39,6 +39,7 @@
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8-4.3-4.1 5.9-.8z"/></symbol>
   <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="1"/><path d="M3.5 6l17 12M20.5 6l-17 12"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-4 3.8-6.2 7.5-6.2s6.7 2.2 7.5 6.2"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
 </svg>
@@ -93,6 +94,10 @@
       <a class="tile" href="#urlaub">
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
         <span><span class="tt">Urlaubskartei</span><span class="td">Urlaub, Überstunden und ATB, Feiertage, Brückentage und Kalender-Export</span></span>
+      </a>
+      <a class="tile" href="#symbole">
+        <span class="box"><svg class="ic"><use href="#i-flag"/></svg></span>
+        <span><span class="tt">Taktische Zeichen</span><span class="td">Militärische Symbole nach NATO APP-6 zusammenstellen und herunterladen</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -556,6 +561,50 @@
   </section>
 
   <!-- MEHR -->
+  <!-- TAKTISCHE ZEICHEN -->
+  <section class="view" id="view-symbole" aria-label="Taktische Zeichen" hidden>
+    <section class="panel ms-vorschau-panel">
+      <div class="ms-vorschau" id="ms-vorschau" aria-live="polite"><p class="hint">Zeichen wird geladen …</p></div>
+      <p class="ms-code">Code (APP-6D): <span id="ms-code"></span></p>
+      <div class="dg-aktionen" id="ms-knoepfe">
+        <button type="button" class="knopf primaer" id="ms-svg">Als SVG laden</button>
+        <button type="button" class="knopf sekundaer" id="ms-png">Als PNG laden</button>
+      </div>
+      <p class="hint" id="ms-download-hinweis" hidden>In dieser Vorschau sind Downloads gesperrt. Auf der Website funktionieren sie.</p>
+    </section>
+    <section class="panel">
+      <h2>Zeichen zusammenstellen</h2>
+      <div class="stack">
+        <fieldset><legend>Zugehörigkeit</legend><div class="seg" id="ms-zug">
+          <label><input type="radio" name="ms-zug" value="3" checked><span>Eigene</span></label>
+          <label><input type="radio" name="ms-zug" value="6"><span>Feind</span></label>
+          <label><input type="radio" name="ms-zug" value="4"><span>Neutral</span></label>
+          <label><input type="radio" name="ms-zug" value="1"><span>Unbekannt</span></label>
+        </div></fieldset>
+        <div class="u-felder einspaltig p-felder">
+          <div><label class="label" for="ms-art" style="display:block">Truppengattung</label><select id="ms-art"></select></div>
+          <div><label class="label" for="ms-groesse" style="display:block">Größe</label><select id="ms-groesse"></select></div>
+        </div>
+        <fieldset><legend>Status</legend><div class="seg" id="ms-status">
+          <label><input type="radio" name="ms-status" value="0" checked><span>Vorhanden</span></label>
+          <label><input type="radio" name="ms-status" value="1"><span>Geplant</span></label>
+        </div></fieldset>
+        <label class="check" for="ms-stab"><input type="checkbox" id="ms-stab"><span class="t">Stab (Führungselement)</span></label>
+        <label class="check" for="ms-tf"><input type="checkbox" id="ms-tf"><span class="t">Einsatzverband (Task Force)</span></label>
+        <div class="u-felder p-felder">
+          <div><label class="label" for="ms-staerke" style="display:block">Stärke</label><select id="ms-staerke"><option value="">normal</option><option value="(+)">verstärkt (+)</option><option value="(-)">vermindert (−)</option><option value="(±)">verstärkt und vermindert (±)</option></select></div>
+          <div><label class="label" for="ms-farbe" style="display:block">Füllfarbe</label><select id="ms-farbe"><option value="Light">hell</option><option value="Medium" selected>mittel</option><option value="Dark">dunkel</option><option value="ohne">ohne Füllung</option></select></div>
+        </div>
+        <div class="u-felder einspaltig p-felder">
+          <div><label class="label" for="ms-bez" style="display:block">Bezeichnung</label><input type="text" id="ms-bez" maxlength="30" autocomplete="off" placeholder="z. B. 2./371"></div>
+          <div><label class="label" for="ms-hoeher" style="display:block">Übergeordnete Einheit</label><input type="text" id="ms-hoeher" maxlength="30" autocomplete="off" placeholder="z. B. PzGrenBrig 37"></div>
+          <div><label class="label" for="ms-info" style="display:block">Zusatzinformation</label><input type="text" id="ms-info" maxlength="30" autocomplete="off"></div>
+        </div>
+      </div>
+    </section>
+    <p class="hint">Zeichen nach NATO-Standard APP-6, erzeugt mit der freien Bibliothek milsymbol (MIT-Lizenz). Die Auswahl umfasst die gängigen Landeinheiten, deutsche Bezeichnungen frei übersetzt. Nicht amtlich.</p>
+  </section>
+
   <!-- PROFIL -->
   <section class="view" id="view-profil" aria-label="Mein Profil" hidden>
     <p class="lede">Einmal eintragen, Rechner, DuZ-Rechner und Urlaubskartei übernehmen es. Gespeichert wird nur in diesem Browser, nicht auf einem Server.</p>
@@ -694,6 +743,7 @@
 <script src="js/09-urlaubskartei.js"></script>
 <script src="js/10-profil.js"></script>
 <script src="js/11-zeitstrahl.js"></script>
-<script src="js/12-start.js"></script>
+<script src="js/12-symbole.js"></script>
+<script src="js/13-start.js"></script>
 </body>
 </html>

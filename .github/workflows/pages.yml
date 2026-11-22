@@ -29,7 +29,7 @@ jobs:
       - name: Skripte auf Syntaxfehler prüfen
         run: for f in js/*.js sw.js; do node --check "$f" || exit 1; done
       - name: Website-Dateien zusammenstellen
-        run: mkdir _site && cp -r index.html style.css daten.js js icons manifest.webmanifest sw.js _site/
+        run: mkdir _site && cp -r index.html style.css daten.js js vendor icons manifest.webmanifest sw.js _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

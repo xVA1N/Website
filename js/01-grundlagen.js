@@ -332,7 +332,7 @@ function zeigeGruppe(slug) {
 }
 
 /* ===== Reiter ===== */
-var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner', profil: 'Mein Profil' };
+var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner', profil: 'Mein Profil', symbole: 'Taktische Zeichen' };
 
 function show(v) {
   var titel = null, tab = v;
@@ -343,9 +343,9 @@ function show(v) {
   }
   if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
   // Werkzeuge erreicht man über Start, deshalb ist dort der Reiter Start aktiv
-  if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz'].indexOf(v) >= 0) tab = 'start';
+  if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz', 'symbole'].indexOf(v) >= 0) tab = 'start';
   if (v === 'profil') tab = '';
-  ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz', 'profil'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
+  ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz', 'profil', 'symbole'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
   document.querySelector('.wrap').setAttribute('data-view', v);
   aktuelleAnsicht = v;
   renderLeiste();
@@ -354,6 +354,7 @@ function show(v) {
   if (v === 'urlaub') renderUrlaub();
   if (v === 'duz') render();
   if (v === 'profil') renderProfil();
+  if (v === 'symbole') zeigeSymbole();
   if (v === 'profil') $('profil-btn').setAttribute('aria-current', 'page'); else $('profil-btn').removeAttribute('aria-current');
   if (v === 'rechner') renderProfilHinweis();
   $('titel').textContent = titel || VIEWS[v];
