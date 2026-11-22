@@ -392,6 +392,9 @@
   .u-farben input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 3px; }
   .u-farben input[type="color"] { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 2px; }
   .u-markieren { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
+  .u-kal { touch-action: none; -webkit-user-select: none; user-select: none; }
+  .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
+  .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
@@ -887,7 +890,7 @@
 
     <section class="panel">
       <h2>Zeitraum eintragen</h2>
-      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag oder wähle die Daten hier.</p>
+      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag, oder tippe auf den ersten Tag und ziehe bis zum letzten. Der Zeitraum wird im Kalender hervorgehoben. Du kannst die Daten auch hier eingeben.</p>
       <form id="u-form" class="stack" novalidate>
         <div class="u-felder">
           <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
@@ -2729,7 +2732,10 @@
     if (ftName(d)) c.push('ft');
     if (s === iso(heute)) c.push('heute');
     if (e) c.push('art-' + e.art, e.status);
-    if (uAnsicht.auswahlStart === s) c.push('auswahl');
+    var sv = $('u-von').value, sb = $('u-bis').value || sv;
+    if (sv && sv <= s && s <= sb) c.push('sel');
+    if (sv && s === sv) c.push('sel-a');
+    if (sv && s === sb) c.push('sel-b');
     var di = UZ.diensteZeigen ? diensteAm(s) : [];
     if (di.length) c.push('dienst');
     var mk = markierungenAm(s);
@@ -2772,7 +2778,7 @@
     for (var t = 1; t <= tageImMonat; t++) {
       var d = new Date(j, m, t), k = tagKlassen(d), ft = ftName(d);
       var label = WT_LANG[d.getDay()] + ', ' + t + '. ' + MONATE[m] + (ft ? ', Feiertag ' + ft : '') +
-        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '') +
+        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (k.cls.indexOf('sel') >= 0 ? ', ausgewählt' : '') +
         (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '') +
         (k.mk.length ? ', ' + k.mk.map(function (x) { return x.t.name; }).join(', ') : '');
       var titel = [ft].concat(k.mk.map(function (x) { return x.t.name; })).filter(Boolean).join(', ');
@@ -2896,10 +2902,11 @@
   function uVorschau() {
     var von = $('u-von').value, bis = $('u-bis').value, el = $('u-vorschau');
     el.className = 'u-meldung';
-    if (!von || !bis) { el.textContent = uAnsicht.auswahlStart ? 'Beginn gewählt: ' + datumKurz(uAnsicht.auswahlStart) + '. Jetzt den letzten Tag antippen.' : ''; return; }
+    if (!von || !bis) { el.textContent = ''; return; }
     if (bis < von) { el.className = 'u-meldung fehler'; el.textContent = 'Das Ende liegt vor dem Beginn.'; return; }
     var n = arbeitstage(von, bis);
-    el.textContent = datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + ': ' + n + ' ' + (n === 1 ? 'Arbeitstag' : 'Arbeitstage') + ' (ohne Wochenenden und Feiertage).';
+    el.textContent = 'Ausgewählt: ' + datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + ', ' + n + ' ' + (n === 1 ? 'Arbeitstag' : 'Arbeitstage') + ' (ohne Wochenenden und Feiertage).' +
+      (uAnsicht.auswahlStart ? ' Tippe auf den letzten Tag, um den Zeitraum zu verlängern.' : '');
   }
   function uMeldung(t, fehler) { var el = $('u-vorschau'); el.className = 'u-meldung' + (fehler ? ' fehler' : ''); el.textContent = t; }
 
@@ -2954,24 +2961,75 @@
   }
   $('u-monat-zurueck').addEventListener('click', function () { monatWechsel(-1); });
   $('u-monat-vor').addEventListener('click', function () { monatWechsel(1); });
+  // Auswahl im Kalender: Anfang und Ende antippen oder tippen und ziehen
+  function auswahlSetzen(a, b) {
+    $('u-von').value = a < b ? a : b;
+    $('u-bis').value = a < b ? b : a;
+  }
+  function auswahlTippen(s) {
+    if (uAnsicht.auswahlStart && uAnsicht.auswahlStart !== s) {
+      auswahlSetzen(uAnsicht.auswahlStart, s);
+      uAnsicht.auswahlStart = '';
+    } else {
+      uAnsicht.auswahlStart = s;
+      auswahlSetzen(s, s);
+    }
+  }
+  // Nur die Markierung der Tage neu setzen (schnell, für das Ziehen)
+  function auswahlZeigen() {
+    var sv = $('u-von').value, sb = $('u-bis').value || sv;
+    Array.prototype.forEach.call(document.querySelectorAll('#u-kal button[data-tag]'), function (b) {
+      var t = b.getAttribute('data-tag');
+      b.classList.toggle('sel', !!sv && sv <= t && t <= sb);
+      b.classList.toggle('sel-a', !!sv && t === sv);
+      b.classList.toggle('sel-b', !!sv && t === sb);
+    });
+    uVorschau();
+  }
+  var zug = null, klickIgnorieren = 0;
+  function tagUnter(x, y) {
+    var el = document.elementFromPoint(x, y);
+    var b = el && el.closest ? el.closest('#u-kal button[data-tag]') : null;
+    return b ? b.getAttribute('data-tag') : '';
+  }
+  $('u-kal').addEventListener('pointerdown', function (e) {
+    var b = e.target.closest('button[data-tag]');
+    if (!b || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    zug = { start: b.getAttribute('data-tag'), ende: b.getAttribute('data-tag'), bewegt: false, id: e.pointerId };
+    try { $('u-kal').setPointerCapture(e.pointerId); } catch (x) { /* nicht nötig */ }
+  });
+  $('u-kal').addEventListener('pointermove', function (e) {
+    if (!zug || e.pointerId !== zug.id) return;
+    var t = tagUnter(e.clientX, e.clientY);
+    if (!t || t === zug.ende) return;
+    zug.ende = t;
+    if (t !== zug.start) zug.bewegt = true;
+    if (zug.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(zug.start, t); auswahlZeigen(); }
+  });
+  function zugEnde(e) {
+    if (!zug || e.pointerId !== zug.id) return;
+    var z = zug; zug = null;
+    klickIgnorieren = Date.now();
+    if (z.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(z.start, z.ende); }
+    else auswahlTippen(z.start);
+    renderUrlaub();
+    var neu = document.querySelector('#u-kal button[data-tag="' + z.ende + '"]');
+    if (neu) neu.focus({ preventScroll: true });
+  }
+  $('u-kal').addEventListener('pointerup', zugEnde);
+  $('u-kal').addEventListener('pointercancel', function (e) { if (zug && e.pointerId === zug.id) { zug = null; renderUrlaub(); } });
+  // Tastatur (Enter/Leertaste) löst nur einen Klick aus
   $('u-kal').addEventListener('click', function (e) {
+    if (Date.now() - klickIgnorieren < 600) return;
     var b = e.target.closest('button[data-tag]');
     if (!b) return;
-    var s = b.getAttribute('data-tag');
-    if (!uAnsicht.auswahlStart) {
-      uAnsicht.auswahlStart = s;
-      $('u-von').value = s; $('u-bis').value = '';
-    } else {
-      var a = uAnsicht.auswahlStart;
-      $('u-von').value = s < a ? s : a; $('u-bis').value = s < a ? a : s;
-      uAnsicht.auswahlStart = '';
-    }
+    auswahlTippen(b.getAttribute('data-tag'));
     renderUrlaub();
-    var neu = document.querySelector('#u-kal button[data-tag="' + s + '"]');
+    var neu = document.querySelector('#u-kal button[data-tag="' + b.getAttribute('data-tag') + '"]');
     if (neu) neu.focus();
   });
-  $('u-von').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
-  $('u-bis').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
+  $('u-von').addEventListener('input', function () { uAnsicht.auswahlStart = ''; auswahlZeigen(); });
+  $('u-bis').addEventListener('input', function () { uAnsicht.auswahlStart = ''; auswahlZeigen(); });
   $('u-auswahl-weg').addEventListener('click', function () { uAnsicht.auswahlStart = ''; $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = ''; renderUrlaub(); });
   $('u-form').addEventListener('submit', function (e) {
     e.preventDefault();
