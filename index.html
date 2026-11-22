@@ -22,6 +22,7 @@
     --warn-bg: #FFF0CC;
     --warn-fg: #5E4200;
     --warn-line: #E8C86A;
+    --rot: #C62828;
     --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -38,6 +39,7 @@
       --warn-bg: #3A2F10;
       --warn-fg: #F1D88F;
       --warn-line: #6B5517;
+      --rot: #FF7A6E;
       color-scheme: dark;
     }
   }
@@ -53,6 +55,7 @@
     --warn-bg: #3A2F10;
     --warn-fg: #F1D88F;
     --warn-line: #6B5517;
+    --rot: #FF7A6E;
     color-scheme: dark;
   }
 
@@ -88,7 +91,7 @@
   .notice strong { font-weight: 600; }
   .wrap[data-view="start"] .short { display: none; }
   .wrap:not([data-view="start"]) .full { display: none; }
-  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox { display: none; }
+  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox { display: none; }
   .tskbox .label { display: block; }
   .tskbox .hint { margin-top: 6px; }
 
@@ -321,6 +324,61 @@
   .vgl .plus { color: var(--accent); }
   .vgl .klein { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; font-family: var(--font-text); }
   .vgl .knopf { min-height: 36px; padding: 0 10px; font-size: .85rem; flex: none; }
+  /* Urlaubsplaner */
+  .u-zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .u-zahl { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); min-width: 0; }
+  .u-zahl .w { font-family: var(--font-mono); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .u-zahl .t { font-size: .82rem; color: var(--muted); }
+  .u-zahl.haupt { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .u-zahl.haupt .t { color: inherit; }
+  .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .u-felder input[type="date"], .u-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
+  .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
+  .u-nav .m { font-weight: 600; }
+  .u-kal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .u-kal .wt { text-align: center; font-size: .75rem; color: var(--muted); font-weight: 600; padding: 2px 0; }
+  .u-tag { position: relative; min-height: 44px; border: 1px solid transparent; border-radius: 8px; background: var(--surface); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; padding: 0; }
+  .u-tag.leer { visibility: hidden; }
+  .u-tag.we { color: var(--muted); background: transparent; }
+  .u-tag.ft::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--rot); box-shadow: 0 0 0 1.5px var(--surface); }
+  .u-tag.heute { border-color: var(--fg); }
+  /* Genehmigt: gefüllt in der Farbe der Art. Geplant: immer heller Grund mit gestrichelter Linie in der Farbe der Art. */
+  .u-tag.art-urlaub.genehmigt { background: var(--accent); color: var(--accent-ink); }
+  .u-tag.art-dza.genehmigt { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-line); }
+  .u-tag.art-sonder.genehmigt { background: var(--fg); color: var(--bg); }
+  .u-tag.geplant { background: var(--soft); border: 2px dashed; }
+  .u-tag.art-urlaub.geplant { border-color: var(--accent); }
+  .u-tag.art-dza.geplant { border-color: var(--warn-fg); }
+  .u-tag.art-sonder.geplant { border-color: var(--fg); }
+  .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
+  .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
+  .u-legende .l-ug::before { background: var(--accent); border-color: var(--accent); }
+  .u-legende .l-dza::before { background: var(--warn-bg); border-color: var(--warn-line); }
+  .u-legende .l-so::before { background: var(--fg); border-color: var(--fg); }
+  .u-legende .l-gepl::before { background: var(--soft); border: 2px dashed var(--muted); }
+  .u-legende .l-ft::before { width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--rot); vertical-align: 1px; margin-left: 3px; margin-right: 9px; }
+  .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .u-mini { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+  .u-mini .mn { font-weight: 600; font-size: .85rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .u-mini .mn small { color: var(--muted); font-weight: 400; }
+  .u-mini .g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .u-mini .g i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--soft); }
+  .u-mini .g i.x { visibility: hidden; }
+  .u-mini .g i.we { background: transparent; }
+  .u-mini .g i.ft { background: var(--rot); opacity: .75; }
+  .u-mini .g i.art-urlaub { background: var(--accent); }
+  .u-mini .g i.art-dza { background: var(--warn-line); }
+  .u-mini .g i.art-sonder { background: var(--fg); }
+  .u-mini .g i.geplant { background: var(--soft); box-shadow: inset 0 0 0 1.5px var(--muted); }
+  .u-mini .g i.art-urlaub.geplant { box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .u-mini .g i.art-dza.geplant { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
+  .u-mini .g i.art-sonder.geplant { box-shadow: inset 0 0 0 1.5px var(--fg); }
+  .u-meldung { font-size: .9rem; }
+  .u-meldung.fehler { color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 8px 12px; }
+  .u-eintrag-akt { display: flex; gap: 6px; align-items: center; padding-right: 8px; }
+  .u-eintrag-akt button { min-height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .82rem; padding: 0 10px; cursor: pointer; white-space: nowrap; }
   .dg-info .eigen { border-top: 1px solid var(--line); padding-top: 10px; white-space: pre-line; }
   .zeile .n { font-weight: 500; min-width: 0; }
   .zeile .abk { font-family: var(--font-mono); font-weight: 400; font-size: .85rem; color: var(--muted); margin-left: 6px; white-space: nowrap; }
@@ -421,6 +479,7 @@
   <symbol id="i-rank" viewBox="0 0 24 24"><path d="M5 8l7-5 7 5M5 14l7-5 7 5M5 20l7-5 7 5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
   <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8-4.3-4.1 5.9-.8z"/></symbol>
   <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
@@ -465,6 +524,10 @@
       <a class="tile" href="#vergleich">
         <span class="box"><svg class="ic"><use href="#i-vgl"/></svg></span>
         <span><span class="tt">Vergleich</span><span class="td">Zwei oder mehr Dienstgrade nebeneinander vergleichen</span></span>
+      </a>
+      <a class="tile" href="#urlaub">
+        <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
+        <span><span class="tt">Urlaubsplaner</span><span class="td">Urlaub planen, Resttage, Feiertage, Brückentage und Kalender-Export</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -615,6 +678,106 @@
   <section class="view" id="view-dienstgrade" aria-label="Dienstgrade" hidden>
     <p class="hint">Klappe eine Gruppe auf und tippe auf einen Dienstgrad. Darunter kannst du ihn im Rechner öffnen oder weitere Infos anzeigen. Das i-Symbol erklärt, woher der Name der Gruppe kommt. Die Besoldungsgruppen stammen aus Anlage I, das Grundgehalt aus Anlage IV des Bundesbesoldungsgesetzes (niedrigste Stufe, gültig ab <span data-mk="gueltigAb"></span>). Gezeigt werden die Dienstgrade der oben gewählten Teilstreitkraft. Die Abzeichen sind eigene Zeichnungen nach dem Vorbild der Schulterklappen von Heer und Luftwaffe, ohne Waffenfarben, und keine amtlichen Abbildungen. Bei der Marine sind die Symbole noch stilisiert.</p>
     <div id="dg-liste" class="view"></div>
+  </section>
+
+  <!-- URLAUB -->
+  <section class="view" id="view-urlaub" aria-label="Urlaubsplaner" hidden>
+    <section class="panel">
+      <div class="u-felder">
+        <div>
+          <label class="label" for="u-land" style="display:block">Bundesland des Standorts</label>
+          <select id="u-land"></select>
+        </div>
+        <div>
+          <span class="label" style="display:block">Jahr</span>
+          <div class="u-nav">
+            <button type="button" id="u-jahr-zurueck" aria-label="Vorheriges Jahr">‹</button>
+            <span class="m" id="u-jahr" aria-live="polite"></span>
+            <button type="button" id="u-jahr-vor" aria-label="Nächstes Jahr">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="u-felder">
+        <div><label class="label" for="u-anspruch" style="display:block">Jahresurlaub (Tage)</label><input type="number" id="u-anspruch" min="0" max="60" step="0.5" inputmode="decimal"></div>
+        <div><label class="label" for="u-rest" style="display:block">Rest aus Vorjahr</label><input type="number" id="u-rest" min="0" max="60" step="0.5" inputmode="decimal"></div>
+        <div><label class="label" for="u-zusatz" style="display:block">Zusatzurlaub</label><input type="number" id="u-zusatz" min="0" max="60" step="0.5" inputmode="decimal"></div>
+      </div>
+      <p class="hint" id="u-hinweis"></p>
+    </section>
+
+    <section class="u-zahlen" aria-label="Übersicht" aria-live="polite">
+      <div class="u-zahl haupt"><div class="w" id="u-z-rest"></div><div class="t">Urlaubstage übrig</div></div>
+      <div class="u-zahl"><div class="w" id="u-z-gesamt"></div><div class="t">Anspruch gesamt</div></div>
+      <div class="u-zahl"><div class="w" id="u-z-gen"></div><div class="t">genehmigt</div></div>
+      <div class="u-zahl"><div class="w" id="u-z-gepl"></div><div class="t">geplant</div></div>
+      <div class="u-zahl"><div class="w" id="u-z-dza"></div><div class="t">Dienstzeitausgleich</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="u-nav">
+        <button type="button" id="u-monat-zurueck" aria-label="Vorheriger Monat">‹</button>
+        <h2 class="m" id="u-monat" aria-live="polite"></h2>
+        <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
+      </div>
+      <div class="u-kal" id="u-kal" role="grid"></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span></div>
+      <p class="hint" style="margin-top:0">Gefüllt heißt genehmigt, gestrichelt heißt geplant, jeweils in der Farbe der Art.</p>
+      <p class="hint" id="u-feiertage-monat"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Zeitraum eintragen</h2>
+      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag oder wähle die Daten hier.</p>
+      <form id="u-form" class="stack" novalidate>
+        <div class="u-felder">
+          <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
+          <div><label class="label" for="u-bis" style="display:block">Bis</label><input type="date" id="u-bis" required></div>
+        </div>
+        <fieldset><legend>Art</legend><div class="seg" id="u-art">
+          <label><input type="radio" name="u-art" value="urlaub" checked><span>Erholungsurlaub</span></label>
+          <label><input type="radio" name="u-art" value="dza"><span>Dienstzeitausgleich</span></label>
+          <label><input type="radio" name="u-art" value="sonder"><span>Sonderurlaub</span></label>
+        </div></fieldset>
+        <fieldset><legend>Status</legend><div class="seg" id="u-status">
+          <label><input type="radio" name="u-status" value="geplant" checked><span>Geplant</span></label>
+          <label><input type="radio" name="u-status" value="genehmigt"><span>Genehmigt</span></label>
+        </div></fieldset>
+        <div class="u-felder"><div><label class="label" for="u-notiz" style="display:block">Notiz (optional)</label><input type="text" id="u-notiz" maxlength="80" autocomplete="off"></div></div>
+        <p class="u-meldung" id="u-vorschau" aria-live="polite"></p>
+        <div class="dg-aktionen">
+          <button type="submit" class="knopf primaer">Eintragen</button>
+          <button type="button" class="knopf sekundaer" id="u-auswahl-weg">Auswahl leeren</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Einträge <span id="u-eintraege-jahr"></span></h2>
+      <div class="liste" id="u-liste"></div>
+      <p class="hint" id="u-liste-leer">Noch keine Einträge in diesem Jahr.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Brückentage <span id="u-bruecken-jahr"></span></h2>
+      <p class="hint">Wenige Urlaubstage zwischen Feiertagen und Wochenenden ergeben viele freie Tage am Stück. Tippe auf einen Vorschlag, um ihn ins Formular zu übernehmen.</p>
+      <div class="liste" id="u-bruecken"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Jahresübersicht</h2>
+      <div class="u-jahr" id="u-jahresansicht"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Kalender-Export</h2>
+      <p class="hint">Lädt alle Einträge als .ics-Datei herunter. Die Datei lässt sich in Kalender-Apps auf Handy und Computer importieren.</p>
+      <p class="hint" id="u-export-hinweis" hidden>In dieser Vorschau sind Downloads nicht möglich. Der Export funktioniert auf der Website unter xva1n.github.io/Website.</p>
+      <div class="dg-aktionen" id="u-export-knoepfe">
+        <button type="button" class="knopf primaer" id="u-export-jahr"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Dieses Jahr exportieren</button>
+        <button type="button" class="knopf sekundaer" id="u-export-alle">Alle Jahre exportieren</button>
+      </div>
+      <p class="hint">Deine Einträge werden nur in diesem Browser auf diesem Gerät gespeichert.</p>
+    </section>
   </section>
 
   <!-- FAVORITEN -->
@@ -1044,7 +1207,7 @@
   }
 
   /* ===== Reiter ===== */
-  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten' };
+  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubsplaner' };
 
   function show(v) {
     var titel = null, tab = v;
@@ -1055,13 +1218,14 @@
     }
     if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
     // Werkzeuge erreicht man über Start, deshalb ist dort der Reiter Start aktiv
-    if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe'].indexOf(v) >= 0) tab = 'start';
-    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
+    if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub'].indexOf(v) >= 0) tab = 'start';
+    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelector('.wrap').setAttribute('data-view', v);
     aktuelleAnsicht = v;
     renderLeiste();
     renderSeitenStern();
     if (v === 'favoriten') renderFavoriten();
+    if (v === 'urlaub') renderUrlaub();
     $('titel').textContent = titel || VIEWS[v];
     var tabs = document.querySelectorAll('.tabbar a');
     for (var i = 0; i < tabs.length; i++) {
@@ -1266,7 +1430,8 @@
   var SEITEN_FAV = { rechner: ['Rechner', 'i-calc', 'Dienstgrad, Stufe, Familie und Zulagen zum Bruttobetrag'],
     dienstgrade: ['Dienstgrade', 'i-rank', 'Alle Dienstgrade mit Besoldungsgruppe'],
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
-    vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'] };
+    vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
+    urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'] };
   var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
   function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
@@ -2011,6 +2176,318 @@
     render();
     go('rechner');
   });
+
+  /* ===== Urlaubsplaner (Einträge nur im Browser) ===== */
+  var UD = D.urlaub;
+  var U_KEY = 'meinkamerad-urlaub';
+  var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  var WT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  var WT_LANG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', sonder: 'Sonderurlaub' };
+  var heute = new Date();
+  function uLaden() {
+    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, eintraege: [] };
+    try {
+      var j = JSON.parse(localStorage.getItem(U_KEY) || 'null');
+      if (j && typeof j === 'object') {
+        if (UD.bundeslaender[j.land]) u.land = j.land;
+        ['anspruch', 'rest', 'zusatz'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
+        if (Array.isArray(j.eintraege)) u.eintraege = j.eintraege.filter(function (e) { return e && /^\d{4}-\d{2}-\d{2}$/.test(e.von) && /^\d{4}-\d{2}-\d{2}$/.test(e.bis) && ARTEN[e.art]; });
+      }
+    } catch (e) { /* ohne Speicher mit leerem Planer weiter */ }
+    return u;
+  }
+  var UZ = uLaden();
+  var uAnsicht = { jahr: heute.getFullYear(), monat: heute.getMonth(), auswahlStart: '' };
+  function uSpeichern() { try { localStorage.setItem(U_KEY, JSON.stringify(UZ)); } catch (e) { /* nicht speicherbar */ } }
+
+  function p2(n) { return (n < 10 ? '0' : '') + n; }
+  function iso(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function vonIso(s) { var t = s.split('-'); return new Date(+t[0], +t[1] - 1, +t[2]); }
+  function plusTage(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  function datumKurz(s) { var d = vonIso(s); return WT[(d.getDay() + 6) % 7] + ' ' + p2(d.getDate()) + '.' + p2(d.getMonth() + 1) + '.' + d.getFullYear(); }
+  function tageText(n) { var t = String(n).replace('.', ','); return t + (n === 1 ? ' Tag' : ' Tage'); }
+  function ostersonntag(j) {
+    var a = j % 19, b = Math.floor(j / 100), c = j % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25),
+      g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4,
+      l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+      mon = Math.floor((h + l - 7 * m + 114) / 31), tag = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(j, mon - 1, tag);
+  }
+  var ftCache = {};
+  function feiertage(j, land) {
+    var key = j + land;
+    if (ftCache[key]) return ftCache[key];
+    var m = {}, ostern = ostersonntag(j);
+    UD.feiertage.forEach(function (f) {
+      if (f.laender !== 'alle' && f.laender.split(',').indexOf(land) < 0) return;
+      var d;
+      if (f.regel === 'fest') { var t = f.datum.split('-'); d = new Date(j, +t[0] - 1, +t[1]); }
+      else if (f.regel === 'ostern') d = plusTage(ostern, f.tage);
+      else if (f.regel === 'bussbettag') { d = new Date(j, 10, 22); while (d.getDay() !== 3) d.setDate(d.getDate() - 1); }
+      if (d) m[iso(d)] = f.name;
+    });
+    ftCache[key] = m;
+    return m;
+  }
+  function ftName(d) { return feiertage(d.getFullYear(), UZ.land)[iso(d)] || ''; }
+  function istFrei(d) { var w = d.getDay(); return w === 0 || w === 6 || !!ftName(d); }
+  // Arbeitstage eines Zeitraums, optional nur innerhalb eines Jahres
+  function arbeitstage(von, bis, nurJahr) {
+    var n = 0, d = vonIso(von), ende = vonIso(bis);
+    for (; d <= ende; d = plusTage(d, 1)) {
+      if (nurJahr && d.getFullYear() !== nurJahr) continue;
+      if (!istFrei(d)) n++;
+    }
+    return n;
+  }
+  function eintragAm(s) {
+    return UZ.eintraege.filter(function (e) { return e.von <= s && s <= e.bis; })[0];
+  }
+  function jahrWert(k, j) { var v = UZ[k][j]; return typeof v === 'number' && v >= 0 ? v : (k === 'anspruch' ? UD.standardAnspruch : 0); }
+  function zahl(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+
+  function tagKlassen(d) {
+    var s = iso(d), c = ['u-tag'], e = eintragAm(s);
+    var w = d.getDay();
+    if (w === 0 || w === 6) c.push('we');
+    if (ftName(d)) c.push('ft');
+    if (s === iso(heute)) c.push('heute');
+    if (e) c.push('art-' + e.art, e.status);
+    if (uAnsicht.auswahlStart === s) c.push('auswahl');
+    return { cls: c.join(' '), e: e };
+  }
+
+  function renderUrlaub() {
+    var j = uAnsicht.jahr, land = UZ.land;
+    $('u-land').value = land;
+    $('u-jahr').textContent = j;
+    $('u-anspruch').value = jahrWert('anspruch', j);
+    $('u-rest').value = jahrWert('rest', j);
+    $('u-zusatz').value = jahrWert('zusatz', j);
+    $('u-hinweis').textContent = UD.hinweis;
+
+    // Zahlen für das gewählte Jahr
+    var gen = 0, gepl = 0, dza = 0;
+    UZ.eintraege.forEach(function (e) {
+      var n = arbeitstage(e.von, e.bis, j);
+      if (!n) return;
+      if (e.art === 'urlaub') { if (e.status === 'genehmigt') gen += n; else gepl += n; }
+      if (e.art === 'dza') dza += n;
+    });
+    var gesamt = jahrWert('anspruch', j) + jahrWert('rest', j) + jahrWert('zusatz', j);
+    var rest = gesamt - gen - gepl;
+    $('u-z-rest').textContent = zahl(rest);
+    $('u-z-gesamt').textContent = zahl(gesamt);
+    $('u-z-gen').textContent = zahl(gen);
+    $('u-z-gepl').textContent = zahl(gepl);
+    $('u-z-dza').textContent = zahl(dza);
+
+    // Monatskalender
+    var m = uAnsicht.monat, erster = new Date(j, m, 1), versatz = (erster.getDay() + 6) % 7;
+    var tageImMonat = new Date(j, m + 1, 0).getDate();
+    $('u-monat').textContent = MONATE[m] + ' ' + j;
+    var html = WT.map(function (t) { return '<div class="wt" aria-hidden="true">' + t + '</div>'; }).join('');
+    for (var i = 0; i < versatz; i++) html += '<span class="u-tag leer" aria-hidden="true"></span>';
+    for (var t = 1; t <= tageImMonat; t++) {
+      var d = new Date(j, m, t), k = tagKlassen(d), ft = ftName(d);
+      var label = WT_LANG[d.getDay()] + ', ' + t + '. ' + MONATE[m] + (ft ? ', Feiertag ' + ft : '') +
+        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '');
+      html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + label + '"' + (ft ? ' title="' + ft + '"' : '') + '>' + t + '</button>';
+    }
+    $('u-kal').innerHTML = html;
+    var ftMonat = Object.keys(feiertage(j, land)).filter(function (s) { return vonIso(s).getMonth() === m; }).sort();
+    $('u-feiertage-monat').textContent = ftMonat.length
+      ? 'Feiertage in ' + UD.bundeslaender[land] + ': ' + ftMonat.map(function (s) { return feiertage(j, land)[s] + ' (' + p2(vonIso(s).getDate()) + '.' + p2(m + 1) + '.)'; }).join(', ')
+      : 'Keine landesweiten Feiertage in ' + UD.bundeslaender[land] + ' in diesem Monat.';
+
+    // Einträge des Jahres
+    $('u-eintraege-jahr').textContent = j;
+    var liste = UZ.eintraege.filter(function (e) { return +e.von.slice(0, 4) <= j && +e.bis.slice(0, 4) >= j; })
+      .sort(function (a, b) { return a.von < b.von ? -1 : 1; });
+    $('u-liste-leer').hidden = liste.length > 0;
+    $('u-liste').hidden = !liste.length;
+    $('u-liste').innerHTML = liste.map(function (e) {
+      var n = arbeitstage(e.von, e.bis);
+      return '<div class="fav-item"><button type="button" class="zeile" data-u-zeige="' + e.id + '"><span class="n">' + ARTEN[e.art] + (e.status === 'genehmigt' ? ' ✓' : '') + '</span>' +
+        '<span class="r">' + tageText(n) + '</span><span class="s">' + datumKurz(e.von) + (e.bis !== e.von ? ' bis ' + datumKurz(e.bis) : '') +
+        ' · ' + (e.status === 'genehmigt' ? 'genehmigt' : 'geplant') + (e.notiz ? ' · ' + esc(e.notiz) : '') + '</span></button>' +
+        '<span class="u-eintrag-akt"><button type="button" data-u-status="' + e.id + '">' + (e.status === 'genehmigt' ? 'Auf geplant' : 'Genehmigt') + '</button>' +
+        '<button type="button" data-u-weg="' + e.id + '" aria-label="Eintrag löschen">Löschen</button></span></div>';
+    }).join('');
+
+    // Brückentage
+    $('u-bruecken-jahr').textContent = j;
+    var vorschlaege = brueckentage(j);
+    $('u-bruecken').innerHTML = vorschlaege.length ? vorschlaege.map(function (v) {
+      return '<button type="button" class="zeile" data-u-bruecke="' + v.von + '|' + v.bis + '"><span class="n">' + datumKurz(v.von) + (v.bis !== v.von ? ' bis ' + datumKurz(v.bis) : '') + '</span>' +
+        '<span class="r">' + tageText(v.frei) + ' frei</span><span class="s">' + tageText(v.urlaub) + ' Urlaub · ' + v.anlass + '</span></button>';
+    }).join('') : '<p class="hint" style="padding:12px">Keine Vorschläge für dieses Jahr.</p>';
+
+    // Jahresübersicht
+    $('u-jahresansicht').innerHTML = MONATE.map(function (name, mi) {
+      var ers = new Date(j, mi, 1), vs = (ers.getDay() + 6) % 7, n = new Date(j, mi + 1, 0).getDate(), g = '', ut = 0;
+      for (var x = 0; x < vs; x++) g += '<i class="x"></i>';
+      for (var tt = 1; tt <= n; tt++) {
+        var dd = new Date(j, mi, tt), e = eintragAm(iso(dd)), c = [];
+        if (dd.getDay() === 0 || dd.getDay() === 6) c.push('we');
+        if (ftName(dd)) c.push('ft');
+        if (e && !istFrei(dd)) { c.push('art-' + e.art, e.status); if (e.art === 'urlaub') ut++; }
+        g += '<i class="' + c.join(' ') + '"></i>';
+      }
+      return '<button type="button" class="u-mini" data-u-monat="' + mi + '" aria-label="' + name + ' ' + j + ' anzeigen' + (ut ? ', ' + tageText(ut) + ' Urlaub' : '') + '">' +
+        '<span class="mn">' + name + (ut ? '<small>' + tageText(ut) + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
+    }).join('');
+
+    uVorschau();
+    renderSeitenStern();
+  }
+
+  // Brückentage: kurze Arbeitstag-Folgen (bis 4 Tage) zwischen freien Tagen, an die ein Feiertag grenzt
+  function brueckentage(j) {
+    var erg = [], d = new Date(j, 0, 1), ende = new Date(j, 11, 31);
+    while (d <= ende) {
+      if (istFrei(d)) { d = plusTage(d, 1); continue; }
+      var start = d, n = 0;
+      while (!istFrei(d) && d <= ende) { n++; d = plusTage(d, 1); }
+      var vor = plusTage(start, -1), nach = d;
+      if (n > 4 || !istFrei(vor) || !istFrei(nach)) continue;
+      var a = vor, b = nach, namen = [];
+      while (istFrei(a)) { if (ftName(a)) namen.unshift(ftName(a)); a = plusTage(a, -1); }
+      while (istFrei(b)) { if (ftName(b)) namen.push(ftName(b)); b = plusTage(b, 1); }
+      if (!namen.length) continue;
+      var frei = Math.round((b - a) / 864e5) - 1;
+      if (frei / n < 2) continue;
+      erg.push({ von: iso(start), bis: iso(plusTage(nach, -1)), urlaub: n, frei: frei, anlass: namen.filter(function (x, i) { return namen.indexOf(x) === i; }).join(', ') });
+    }
+    return erg;
+  }
+
+  function uVorschau() {
+    var von = $('u-von').value, bis = $('u-bis').value, el = $('u-vorschau');
+    el.className = 'u-meldung';
+    if (!von || !bis) { el.textContent = uAnsicht.auswahlStart ? 'Beginn gewählt: ' + datumKurz(uAnsicht.auswahlStart) + '. Jetzt den letzten Tag antippen.' : ''; return; }
+    if (bis < von) { el.className = 'u-meldung fehler'; el.textContent = 'Das Ende liegt vor dem Beginn.'; return; }
+    var n = arbeitstage(von, bis);
+    el.textContent = datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + ': ' + n + ' ' + (n === 1 ? 'Arbeitstag' : 'Arbeitstage') + ' (ohne Wochenenden und Feiertage).';
+  }
+  function uMeldung(t, fehler) { var el = $('u-vorschau'); el.className = 'u-meldung' + (fehler ? ' fehler' : ''); el.textContent = t; }
+
+  function icsText(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+  function icsExport(nurJahr) {
+    var liste = UZ.eintraege.filter(function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); });
+    if (!liste.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
+    var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubsplaner//DE', 'CALSCALE:GREGORIAN'];
+    liste.forEach(function (e) {
+      z.push('BEGIN:VEVENT', 'UID:' + e.id + '@meinkamerad', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + e.von.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + iso(plusTage(vonIso(e.bis), 1)).replace(/-/g, ''),
+        'SUMMARY:' + icsText(ARTEN[e.art] + (e.status === 'genehmigt' ? '' : ' (geplant)')),
+        'DESCRIPTION:' + icsText(arbeitstage(e.von, e.bis) + ' Arbeitstag(e)' + (e.notiz ? '. ' + e.notiz : '')),
+        'TRANSP:OPAQUE', 'END:VEVENT');
+    });
+    z.push('END:VCALENDAR');
+    var blob = new Blob([z.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'urlaub' + (nurJahr ? '-' + nurJahr : '') + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    uMeldung(liste.length + (liste.length === 1 ? ' Eintrag' : ' Einträge') + ' exportiert.');
+  }
+
+  $('u-land').innerHTML = Object.keys(UD.bundeslaender).map(function (k) { return '<option value="' + k + '">' + UD.bundeslaender[k] + '</option>'; }).join('');
+  $('u-land').addEventListener('change', function (e) { UZ.land = e.target.value; uSpeichern(); renderUrlaub(); });
+  function jahrWechsel(n) { uAnsicht.jahr += n; renderUrlaub(); }
+  $('u-jahr-zurueck').addEventListener('click', function () { jahrWechsel(-1); });
+  $('u-jahr-vor').addEventListener('click', function () { jahrWechsel(1); });
+  ['anspruch', 'rest', 'zusatz'].forEach(function (k) {
+    $('u-' + k).addEventListener('change', function (e) {
+      var v = parseFloat(String(e.target.value).replace(',', '.'));
+      if (isNaN(v) || v < 0) delete UZ[k][uAnsicht.jahr]; else UZ[k][uAnsicht.jahr] = Math.min(v, 60);
+      uSpeichern(); renderUrlaub();
+    });
+  });
+  function monatWechsel(n) {
+    uAnsicht.monat += n;
+    if (uAnsicht.monat < 0) { uAnsicht.monat = 11; uAnsicht.jahr--; }
+    if (uAnsicht.monat > 11) { uAnsicht.monat = 0; uAnsicht.jahr++; }
+    renderUrlaub();
+  }
+  $('u-monat-zurueck').addEventListener('click', function () { monatWechsel(-1); });
+  $('u-monat-vor').addEventListener('click', function () { monatWechsel(1); });
+  $('u-kal').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tag]');
+    if (!b) return;
+    var s = b.getAttribute('data-tag');
+    if (!uAnsicht.auswahlStart) {
+      uAnsicht.auswahlStart = s;
+      $('u-von').value = s; $('u-bis').value = '';
+    } else {
+      var a = uAnsicht.auswahlStart;
+      $('u-von').value = s < a ? s : a; $('u-bis').value = s < a ? a : s;
+      uAnsicht.auswahlStart = '';
+    }
+    renderUrlaub();
+    var neu = document.querySelector('#u-kal button[data-tag="' + s + '"]');
+    if (neu) neu.focus();
+  });
+  $('u-von').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
+  $('u-bis').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
+  $('u-auswahl-weg').addEventListener('click', function () { uAnsicht.auswahlStart = ''; $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = ''; renderUrlaub(); });
+  $('u-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var von = $('u-von').value, bis = $('u-bis').value || von;
+    if (!von) { uMeldung('Bitte einen Beginn wählen.', true); return; }
+    if (bis < von) { uMeldung('Das Ende liegt vor dem Beginn.', true); return; }
+    var konflikt = UZ.eintraege.filter(function (x) { return x.von <= bis && von <= x.bis; })[0];
+    if (konflikt) { uMeldung('Der Zeitraum überschneidet sich mit ' + ARTEN[konflikt.art] + ' vom ' + datumKurz(konflikt.von) + '. Bitte zuerst diesen Eintrag löschen oder andere Tage wählen.', true); return; }
+    var art = document.querySelector('input[name="u-art"]:checked').value;
+    var n = arbeitstage(von, bis);
+    if (!n) { uMeldung('In diesem Zeitraum liegen keine Arbeitstage, es wird kein Urlaub verbraucht.', true); return; }
+    UZ.eintraege.push({ id: 'u' + Date.now(), von: von, bis: bis, art: art,
+      status: document.querySelector('input[name="u-status"]:checked').value, notiz: $('u-notiz').value.trim().slice(0, 80) });
+    uSpeichern();
+    uAnsicht.auswahlStart = '';
+    $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = '';
+    var dv = vonIso(von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth();
+    renderUrlaub();
+    uMeldung(ARTEN[art] + ' eingetragen: ' + tageText(n) + '.');
+  });
+  $('u-liste').addEventListener('click', function (e) {
+    var w = e.target.closest('button[data-u-weg]');
+    if (w) { UZ.eintraege = UZ.eintraege.filter(function (x) { return x.id !== w.getAttribute('data-u-weg'); }); uSpeichern(); renderUrlaub(); uMeldung('Eintrag gelöscht.'); return; }
+    var st = e.target.closest('button[data-u-status]');
+    if (st) { UZ.eintraege.forEach(function (x) { if (x.id === st.getAttribute('data-u-status')) x.status = x.status === 'genehmigt' ? 'geplant' : 'genehmigt'; }); uSpeichern(); renderUrlaub(); return; }
+    var z = e.target.closest('button[data-u-zeige]');
+    if (z) {
+      var ein = UZ.eintraege.filter(function (x) { return x.id === z.getAttribute('data-u-zeige'); })[0];
+      if (ein) { var dv = vonIso(ein.von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth(); renderUrlaub(); $('u-kal').scrollIntoView({ block: 'center' }); }
+    }
+  });
+  $('u-bruecken').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-u-bruecke]');
+    if (!b) return;
+    var t = b.getAttribute('data-u-bruecke').split('|');
+    $('u-von').value = t[0]; $('u-bis').value = t[1]; uAnsicht.auswahlStart = '';
+    var dv = vonIso(t[0]); uAnsicht.monat = dv.getMonth();
+    renderUrlaub();
+    $('u-form').scrollIntoView({ block: 'start' });
+  });
+  $('u-jahresansicht').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-u-monat]');
+    if (!b) return;
+    uAnsicht.monat = +b.getAttribute('data-u-monat');
+    renderUrlaub();
+    $('u-monat').scrollIntoView({ block: 'center' });
+  });
+  // In der Artefakt-Vorschau auf claude.ai sind .ics-Downloads nicht erlaubt: dort Hinweis statt Knöpfen
+  if (window.claude && typeof window.claude.use === 'function') {
+    $('u-export-knoepfe').hidden = true;
+    $('u-export-hinweis').hidden = false;
+  }
+  $('u-export-jahr').addEventListener('click', function () { icsExport(uAnsicht.jahr); });
+  $('u-export-alle').addEventListener('click', function () { icsExport(0); });
 
   window.addEventListener('hashchange', route);
 
