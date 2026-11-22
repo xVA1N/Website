@@ -24,6 +24,8 @@
     --warn-line: #E8C86A;
     --rot: #C62828;
     --dienst: #2F62A8;
+    --atb: #7A4FA8;
+    --atb-ink: #FFFFFF;
     --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -42,6 +44,8 @@
       --warn-line: #6B5517;
       --rot: #FF7A6E;
       --dienst: #8AB4F0;
+      --atb: #C3A6EB;
+      --atb-ink: #1A1424;
       color-scheme: dark;
     }
   }
@@ -59,6 +63,8 @@
     --warn-line: #6B5517;
     --rot: #FF7A6E;
     --dienst: #8AB4F0;
+    --atb: #C3A6EB;
+    --atb-ink: #1A1424;
     color-scheme: dark;
   }
 
@@ -98,7 +104,8 @@
   .tskbox .label { display: block; }
   .tskbox .hint { margin-top: 6px; }
 
-  .ic { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .ic { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; filter: url(#skizze); }
+  .rk .ic { filter: none; }
 
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
   .tile {
@@ -327,7 +334,7 @@
   .vgl .plus { color: var(--accent); }
   .vgl .klein { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; font-family: var(--font-text); }
   .vgl .knopf { min-height: 36px; padding: 0 10px; font-size: .85rem; flex: none; }
-  /* Urlaubsplaner */
+  /* Urlaubskartei */
   .u-zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
   .u-zahl { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); min-width: 0; }
   .u-zahl .w { font-family: var(--font-mono); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
@@ -336,7 +343,18 @@
   .u-zahl.haupt .t { color: inherit; }
   .frage-inhalt { margin-top: 12px; }
   .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
+  .u-felder > div { min-width: 0; }
+  .u-felder.einspaltig { grid-template-columns: 1fr; }
+  .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] {
+    -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%; box-sizing: border-box; text-align: center;
+  }
+  /* Safari (iPhone) zentriert den Wert nur über diese inneren Elemente */
+  .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] { text-align-last: center; }
+  .u-felder input::-webkit-date-and-time-value { text-align: center; width: 100%; margin: 0 auto; line-height: 44px; height: 44px; padding: 0; }
+  .u-felder input::-webkit-datetime-edit { display: inline-flex; justify-content: center; width: 100%; }
   .u-felder input[type="date"], .u-felder input[type="text"], .u-felder input[type="month"], .u-felder input[type="time"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
+  /* Senkrecht mittig: feste Höhe und gleiche Zeilenhöhe (Safari richtet den Wert sonst oben aus) */
+  .u-felder input[type="date"], .u-felder input[type="month"], .u-felder input[type="time"] { height: 46px; min-height: 46px; line-height: 44px; padding-top: 0; padding-bottom: 0; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
   .u-nav .m { font-weight: 600; }
@@ -351,10 +369,12 @@
   .u-tag.art-urlaub.genehmigt { background: var(--accent); color: var(--accent-ink); }
   .u-tag.art-dza.genehmigt { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-line); }
   .u-tag.art-sonder.genehmigt { background: var(--fg); color: var(--bg); }
+  .u-tag.art-atb.genehmigt { background: var(--atb); color: var(--atb-ink); }
   .u-tag.geplant { background: var(--soft); border: 2px dashed; }
   .u-tag.art-urlaub.geplant { border-color: var(--accent); }
   .u-tag.art-dza.geplant { border-color: var(--warn-fg); }
   .u-tag.art-sonder.geplant { border-color: var(--fg); }
+  .u-tag.art-atb.geplant { border-color: var(--atb); }
   .u-tag.dienst::before { content: ""; position: absolute; top: 4px; left: 50%; width: 16px; height: 3px; margin-left: -8px; border-radius: 2px; background: var(--dienst); }
   .u-legende .l-di::before { height: 4px; width: 16px; border: 0; border-radius: 2px; background: var(--dienst); vertical-align: 3px; }
   a.knopf { text-decoration: none; }
@@ -365,12 +385,81 @@
   .duz-tab thead th:first-child { text-align: left; }
   .duz-tab td.zahl { text-align: right; }
   .duz-tab tr.summe td, .duz-tab tr.summe th { font-weight: 700; }
+  .u-tag.mark { box-shadow: inset 0 -5px 0 var(--tagfarbe); }
+  .u-tag.mark.mark2 { box-shadow: none; background-image: linear-gradient(to right, var(--tagfarbe) 50%, var(--tagfarbe2) 50%); background-size: 100% 5px; background-repeat: no-repeat; background-position: bottom; }
+  .u-mini .g i.mark::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: 0; height: 3px; border-radius: 1px; background: var(--tagfarbe); }
+  #u-leg-tags { display: contents; }
+  #u-leg-tags::before { display: none; }
+  .u-legende .l-tag::before { height: 5px; width: 16px; border: 0; border-radius: 2px; background: var(--tagfarbe); vertical-align: 2px; }
+  .u-chip { display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: var(--tagfarbe); vertical-align: -2px; margin-right: 6px; }
+  .u-farben { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .u-farben label { position: relative; }
+  .u-farben input[type="radio"] { position: absolute; opacity: 0; inset: 0; }
+  .u-farben .sw { display: block; width: 36px; height: 36px; border-radius: 50%; background: var(--tagfarbe); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+  .u-farben input:checked + .sw { box-shadow: 0 0 0 3px var(--fg); }
+  .u-farben input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .u-farben input[type="color"] { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 2px; }
+  .u-markieren { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 10px; }
+  .u-kal { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .u-kal.ziehen { touch-action: none; }
+  .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
+  .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .u-kopfzeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .u-kopfzeile h2 { margin: 0; }
+  .u-plus { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .u-plus svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; transition: transform .15s ease; }
+  .u-plus[aria-expanded="true"] { background: var(--surface); color: var(--accent); }
+  .u-plus[aria-expanded="true"] svg { transform: rotate(45deg); }
+  #u-tag-meldung:empty, #u-tag-liste:empty { display: none; }
+  .u-tag-neu { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--soft); margin-top: 10px; }
+  .ueber-text p { margin: 0 0 10px; line-height: 1.55; }
+  .ueber-text p:last-child { margin-bottom: 0; }
+  .panel > .u-kal-hint { margin: 0 0 10px; text-align: center; }
+  .u-arten { display: grid; gap: 6px; }
+  .u-arten label { position: relative; display: block; }
+  .u-arten input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  .u-arten span { display: grid; grid-template-columns: 14px 1fr 20px; column-gap: 12px; align-items: center; min-height: 46px; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
+  .u-arten span::before { content: ""; grid-row: 1; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
+  .u-arten span::after { content: ""; grid-column: 3; grid-row: 1; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); box-sizing: border-box; }
+  .u-arten b { font-weight: 600; grid-column: 2; }
+  .u-arten .a-ug span::before { background: var(--accent); border-color: var(--accent); }
+  .u-arten .a-dza span::before { background: var(--warn-bg); border-color: var(--warn-line); }
+  .u-arten .a-so span::before { background: var(--fg); border-color: var(--fg); }
+  .u-arten .a-atb span::before { background: var(--atb); border-color: var(--atb); }
+  .u-konten { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .u-konto { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); min-width: 0; }
+  .u-konto .kopf { display: grid; grid-template-columns: 14px 1fr auto; column-gap: 10px; align-items: center; }
+  .u-konto .kopf::before { content: ""; grid-row: 1 / 3; width: 14px; height: 14px; border-radius: 4px; background: var(--kfarbe); border: 1px solid var(--krand, var(--kfarbe)); }
+  .u-konto .kopf b { font-weight: 600; grid-column: 2; }
+  .u-konto .kopf small { grid-column: 2; font-size: .8rem; color: var(--muted); }
+  .u-konto .uebrig { grid-column: 3; grid-row: 1 / 3; text-align: right; font-family: var(--font-mono); font-size: 1.5rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .u-konto .uebrig span { display: block; font-family: var(--font-text); font-size: .72rem; color: var(--muted); }
+  .u-konto .uebrig.minus { color: var(--rot); }
+  .u-konto .felder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .u-konto .felder label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 4px; }
+  .u-konto .felder input { width: 100%; min-width: 0; text-align: center; }
+  .u-dz { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .u-dz > summary { font-weight: 600; font-size: .9rem; display: flex; justify-content: space-between; align-items: center; min-height: 36px; }
+  .u-dz > summary span { font-weight: 400; color: var(--muted); font-size: .82rem; }
+  .u-dz-tab { display: grid; grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1fr) 52px 28px; gap: 6px; align-items: center; margin-top: 6px; }
+  .u-dz-tab .k { font-size: .7rem; color: var(--muted); text-align: center; }
+  .u-dz-tab .tg { font-weight: 600; font-size: .85rem; }
+  .u-dz-tab .h { font-family: var(--font-mono); font-size: .82rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .u-dz-tab input { -webkit-appearance: none; appearance: none; min-width: 0; width: 100%; height: 40px; min-height: 40px; line-height: 38px; padding: 0 2px; text-align: center; font: inherit; font-size: .92rem; font-variant-numeric: tabular-nums; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-sizing: border-box; }
+  .u-dz-tab input::-webkit-calendar-picker-indicator { display: none; }
+  .u-dz-tab input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .u-dz-tab input::-webkit-date-and-time-value { text-align: center; margin: 0 auto; }
+  .u-konto .stand { margin-top: 8px; font-size: .82rem; color: var(--muted); }
+  .u-arten input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--soft); }
+  .u-arten input:checked + span::after { border: 6px solid var(--accent); }
+  .u-arten input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
   .u-legende .l-ug::before { background: var(--accent); border-color: var(--accent); }
   .u-legende .l-dza::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-legende .l-so::before { background: var(--fg); border-color: var(--fg); }
+  .u-legende .l-atb::before { background: var(--atb); border-color: var(--atb); }
   .u-legende .l-gepl::before { background: var(--soft); border: 2px dashed var(--muted); }
   .u-legende .l-ft::before { width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--rot); vertical-align: 1px; margin-left: 3px; margin-right: 9px; }
   .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
@@ -388,13 +477,20 @@
   .u-mini .g i.art-urlaub { background: var(--accent); }
   .u-mini .g i.art-dza { background: var(--warn-line); }
   .u-mini .g i.art-sonder { background: var(--fg); }
+  .u-mini .g i.art-atb { background: var(--atb); }
   .u-mini .g i.geplant { background: var(--soft); box-shadow: inset 0 0 0 1.5px var(--muted); }
   .u-mini .g i.art-urlaub.geplant { box-shadow: inset 0 0 0 1.5px var(--accent); }
   .u-mini .g i.art-dza.geplant { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
   .u-mini .g i.art-sonder.geplant { box-shadow: inset 0 0 0 1.5px var(--fg); }
+  .u-mini .g i.art-atb.geplant { box-shadow: inset 0 0 0 1.5px var(--atb); }
   .u-meldung { font-size: .9rem; }
   .u-meldung.fehler { color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 8px 12px; }
   .u-eintrag-akt { display: flex; gap: 6px; align-items: center; padding-right: 8px; }
+  /* Listen mit Knöpfen: Knöpfe unter den Text, damit nichts überlappt */
+  #u-liste .fav-item, #u-mark-liste .fav-item, #u-tag-liste .fav-item, #duz-liste .fav-item { flex-wrap: wrap; }
+  #u-liste .fav-item > .zeile, #u-mark-liste .fav-item > .zeile, #u-tag-liste .fav-item > .zeile, #duz-liste .fav-item > .zeile { flex: 1 1 100%; padding-bottom: 6px; }
+  #u-liste .u-eintrag-akt, #u-mark-liste .u-eintrag-akt, #u-tag-liste .u-eintrag-akt, #duz-liste .u-eintrag-akt { padding: 0 12px 12px; }
+  .zeile .n { overflow-wrap: anywhere; }
   .u-eintrag-akt button { min-height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .82rem; padding: 0 10px; cursor: pointer; white-space: nowrap; }
   .dg-info .eigen { border-top: 1px solid var(--line); padding-top: 10px; white-space: pre-line; }
   .zeile .n { font-weight: 500; min-width: 0; }
@@ -447,6 +543,8 @@
   details.panel > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; min-height: 44px; padding: 0; }
   details.panel > summary::-webkit-details-marker { display: none; }
   details.panel > summary h2 { flex: 1; min-width: 0; }
+  details.panel > summary .u-anz { flex: none; font-size: .82rem; font-weight: 400; color: var(--muted); }
+  details.u-klapp > summary h2 { margin: 0; }
   details.panel > summary::after {
     content: ""; flex: none; width: 10px; height: 10px; margin: 0 6px 3px 2px;
     border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
@@ -491,7 +589,12 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <!-- Filter für einen leicht unregelmäßigen, handgezeichneten Strich -->
+  <filter id="skizze" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="7" result="rauschen"/>
+    <feDisplacementMap in="SourceGraphic" in2="rauschen" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M2.5 20.5h19M12 5L4.5 20.5M12 5l7.5 15.5M12 5L10 2.5M12 5l2-2.5M12 12.5l-3 8M12 12.5l3 8"/></symbol>
   <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></symbol>
   <symbol id="i-rank" viewBox="0 0 24 24"><path d="M5 8l7-5 7 5M5 14l7-5 7 5M5 20l7-5 7 5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
@@ -549,7 +652,7 @@
       </a>
       <a class="tile" href="#urlaub">
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
-        <span><span class="tt">Urlaubsplaner</span><span class="td">Urlaub planen, Resttage, Feiertage, Brückentage und Kalender-Export</span></span>
+        <span><span class="tt">Urlaubskartei</span><span class="td">Urlaub, Überstunden und ATB, Feiertage, Brückentage und Kalender-Export</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -738,12 +841,20 @@
 
   <!-- DUZ -->
   <section class="view" id="view-duz" aria-label="DuZ-Rechner" hidden>
-    <p class="hint" id="duz-fuer"></p>
+    <section class="panel">
+      <h2>Dein Dienstgrad</h2>
+      <div class="u-felder">
+        <div><label class="label" for="duz-dg" style="display:block">Dienstgrad</label><select id="duz-dg"></select></div>
+        <div id="duz-bg-wrap" hidden><label class="label" for="duz-bg" style="display:block">Besoldungsgruppe</label><select id="duz-bg"></select></div>
+      </div>
+      <p class="hint" id="duz-fuer"></p>
+    </section>
     <section class="panel">
       <h2>Monat und Feiertage</h2>
-        <div class="u-felder">
+        <div class="u-felder einspaltig">
           <div><label class="label" for="duz-monat" style="display:block">Monat</label><input type="month" id="duz-monat"></div>
-          <div><label class="label" for="duz-land" style="display:block">Bundesland (Feiertage)</label><select id="duz-land"></select></div>
+          <div><label class="label" for="duz-land" style="display:block">Bundesland</label><select id="duz-land" aria-describedby="duz-land-hint"></select>
+            <p class="hint" id="duz-land-hint" style="margin-top:6px">Für die gesetzlichen Feiertage deines Standorts.</p></div>
         </div>
     </section>
     <section class="panel">
@@ -781,7 +892,7 @@
       <h2>Kalender</h2>
       <label class="check" for="duz-kal-zeigen">
         <input type="checkbox" id="duz-kal-zeigen">
-        <span class="t">Dienste im Kalender des Urlaubsplaners anzeigen<span class="sub">Tage mit Dienst bekommen dort einen blauen Balken.</span></span>
+        <span class="t">Dienste im Kalender der Urlaubskartei anzeigen<span class="sub">Tage mit Dienst bekommen dort einen blauen Balken.</span></span>
       </label>
       <div class="dg-aktionen"><a class="knopf sekundaer" href="#urlaub"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Zum Kalender</a></div>
       <p class="hint" id="duz-export-hinweis" hidden>In dieser Vorschau sind Downloads nicht möglich. Der Export funktioniert auf der Website unter xva1n.github.io/Website.</p>
@@ -794,12 +905,13 @@
   </section>
 
   <!-- URLAUB -->
-  <section class="view" id="view-urlaub" aria-label="Urlaubsplaner" hidden>
+  <section class="view" id="view-urlaub" aria-label="Urlaubskartei" hidden>
     <section class="panel">
-      <div class="u-felder">
+      <div class="u-felder einspaltig">
         <div>
-          <label class="label" for="u-land" style="display:block">Bundesland des Standorts</label>
-          <select id="u-land"></select>
+          <label class="label" for="u-land" style="display:block">Bundesland</label>
+          <select id="u-land" aria-describedby="u-land-hint"></select>
+          <p class="hint" id="u-land-hint" style="margin-top:6px">Für die gesetzlichen Feiertage deines Standorts.</p>
         </div>
         <div>
           <span class="label" style="display:block">Jahr</span>
@@ -810,47 +922,40 @@
           </div>
         </div>
       </div>
-      <div class="u-felder">
-        <div><label class="label" for="u-anspruch" style="display:block">Jahresurlaub (Tage)</label><input type="number" id="u-anspruch" min="0" max="60" step="0.5" inputmode="decimal"></div>
-        <div><label class="label" for="u-rest" style="display:block">Rest aus Vorjahr</label><input type="number" id="u-rest" min="0" max="60" step="0.5" inputmode="decimal"></div>
-        <div><label class="label" for="u-zusatz" style="display:block">Zusatzurlaub</label><input type="number" id="u-zusatz" min="0" max="60" step="0.5" inputmode="decimal"></div>
-      </div>
-      <p class="hint" id="u-hinweis"></p>
-    </section>
-
-    <section class="u-zahlen" aria-label="Übersicht" aria-live="polite">
-      <div class="u-zahl haupt"><div class="w" id="u-z-rest"></div><div class="t">Urlaubstage übrig</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gesamt"></div><div class="t">Anspruch gesamt</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gen"></div><div class="t">genehmigt</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-gepl"></div><div class="t">geplant</div></div>
-      <div class="u-zahl"><div class="w" id="u-z-dza"></div><div class="t">Dienstzeitausgleich</div></div>
     </section>
 
     <section class="panel">
+      <h2 id="u-konten-titel">Übersicht</h2>
+      <p class="hint">Alle Angaben in Tagen. Trag ein, was dir in diesem Jahr zusteht und was aus dem Vorjahr übrig ist. Eingetragene Zeiträume werden automatisch abgezogen.</p>
+      <div class="u-konten" id="u-konten" aria-live="polite"></div>
+      <p class="hint" id="u-hinweis"></p>
+    </section>
+
+    <section class="panel">
+      <p class="hint u-kal-hint">Ersten und letzten Tag antippen oder gedrückt halten und ziehen.</p>
       <div class="u-nav">
         <button type="button" id="u-monat-zurueck" aria-label="Vorheriger Monat">‹</button>
         <h2 class="m" id="u-monat" aria-live="polite"></h2>
         <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
       </div>
       <div class="u-kal" id="u-kal" role="grid"></div>
-      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-atb">ATB</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span><span id="u-leg-tags"></span></div>
       <label class="check" for="u-dienste-zeigen"><input type="checkbox" id="u-dienste-zeigen"><span class="t">Dienste aus dem DuZ-Rechner anzeigen</span></label>
-      <p class="hint" style="margin-top:0">Gefüllt heißt genehmigt, gestrichelt heißt geplant, jeweils in der Farbe der Art.</p>
       <p class="hint" id="u-feiertage-monat"></p>
     </section>
 
     <section class="panel">
       <h2>Zeitraum eintragen</h2>
-      <p class="hint">Tippe im Kalender auf den ersten und dann auf den letzten Tag oder wähle die Daten hier.</p>
       <form id="u-form" class="stack" novalidate>
         <div class="u-felder">
           <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
           <div><label class="label" for="u-bis" style="display:block">Bis</label><input type="date" id="u-bis" required></div>
         </div>
-        <fieldset><legend>Art</legend><div class="seg" id="u-art">
-          <label><input type="radio" name="u-art" value="urlaub" checked><span>Erholungsurlaub</span></label>
-          <label><input type="radio" name="u-art" value="dza"><span>Dienstzeitausgleich</span></label>
-          <label><input type="radio" name="u-art" value="sonder"><span>Sonderurlaub</span></label>
+        <fieldset><legend>Art</legend><div class="u-arten" id="u-art">
+          <label class="a-ug"><input type="radio" name="u-art" value="urlaub" checked><span><b>Erholungsurlaub</b></span></label>
+          <label class="a-dza"><input type="radio" name="u-art" value="dza"><span><b>Dienstzeitausgleich</b></span></label>
+          <label class="a-atb"><input type="radio" name="u-art" value="atb"><span><b>ATB</b></span></label>
+          <label class="a-so"><input type="radio" name="u-art" value="sonder"><span><b>Sonderurlaub</b></span></label>
         </div></fieldset>
         <fieldset><legend>Status</legend><div class="seg" id="u-status">
           <label><input type="radio" name="u-status" value="geplant" checked><span>Geplant</span></label>
@@ -862,6 +967,12 @@
           <button type="submit" class="knopf primaer">Eintragen</button>
           <button type="button" class="knopf sekundaer" id="u-auswahl-weg">Auswahl leeren</button>
         </div>
+        <div class="u-markieren">
+          <div class="label">Oder als eigene Markierung eintragen</div>
+          <div class="u-felder"><div><label class="label" for="u-mark-tag" style="display:block">Markierung</label><select id="u-mark-tag"></select></div></div>
+          <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="u-mark-add">Markierung eintragen</button></div>
+          <p class="hint" style="margin-top:0">Markierungen zählen nicht als Urlaub. Neue legst du weiter unten unter „Eigene Markierungen“ mit dem Plus an.</p>
+        </div>
       </form>
     </section>
 
@@ -872,10 +983,28 @@
     </section>
 
     <section class="panel">
-      <h2>Brückentage <span id="u-bruecken-jahr"></span></h2>
-      <p class="hint">Wenige Urlaubstage zwischen Feiertagen und Wochenenden ergeben viele freie Tage am Stück. Tippe auf einen Vorschlag, um ihn ins Formular zu übernehmen.</p>
-      <div class="liste" id="u-bruecken"></div>
+      <div class="u-kopfzeile">
+        <h2>Eigene Markierungen</h2>
+        <button type="button" class="u-plus" id="u-tag-auf" aria-expanded="false" aria-controls="u-tag-neu" aria-label="Neue Markierung anlegen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="u-tag-neu stack" id="u-tag-neu" hidden>
+        <p class="hint" style="margin-top:0">Zum Beispiel „Lehrgang“, „Wache“ oder „Übung“. Setzen kannst du sie danach oben bei „Zeitraum eintragen“. Im Kalender erscheinen sie als farbiger Balken unten im Tag.</p>
+        <div class="u-felder einspaltig"><div><label class="label" for="u-tag-name" style="display:block">Name</label><input type="text" id="u-tag-name" maxlength="30" autocomplete="off"></div></div>
+        <fieldset><legend>Farbe</legend><div class="u-farben" id="u-tag-farben"></div></fieldset>
+        <div class="dg-aktionen"><button type="button" class="knopf primaer" id="u-tag-add">Markierung anlegen</button><button type="button" class="knopf sekundaer" id="u-tag-zu">Abbrechen</button></div>
+      </div>
+      <p class="u-meldung" id="u-tag-meldung" aria-live="polite"></p>
+      <div class="liste" id="u-tag-liste"></div>
+      <h2 style="margin-top:6px">Markierte Zeiträume <span id="u-mark-jahr"></span></h2>
+      <div class="liste" id="u-mark-liste"></div>
+      <p class="hint" id="u-mark-leer">Noch keine markierten Zeiträume in diesem Jahr.</p>
     </section>
+
+    <details class="panel u-klapp">
+      <summary><h2>Brückentage <span id="u-bruecken-jahr"></span></h2><span class="u-anz" id="u-bruecken-anz"></span></summary>
+      <p class="hint" style="margin-top:0">Wenige Urlaubstage zwischen Feiertagen und Wochenenden ergeben viele freie Tage am Stück. Tippe auf einen Vorschlag, um ihn ins Formular zu übernehmen.</p>
+      <div class="liste" id="u-bruecken"></div>
+    </details>
 
     <section class="panel">
       <h2>Jahresübersicht</h2>
@@ -972,6 +1101,11 @@
 
   <!-- MEHR -->
   <section class="view" id="view-mehr" aria-label="Mehr" hidden>
+    <section class="panel" aria-labelledby="ueber-titel">
+      <h2 id="ueber-titel">Über „MeinKamerad“</h2>
+      <div class="ueber-text" id="ueber-text"></div>
+    </section>
+
     <section class="panel" aria-label="Erklärungen">
       <h2>So setzt sich das zusammen</h2>
       <div>
@@ -1175,6 +1309,19 @@
     sdg('sb9', 'Generaloberstabsarzt', 'general', ['B9'], 'Marine: Admiraloberstabsarzt')
   ];
 
+  // NATO-Rangcode nach STANAG 2116 (OR = Mannschaften und Unteroffiziere, OF = Offiziere)
+  var NATO_RANG = {
+    soldat: 'OR-1', schuetze_ua: 'OR-1', gefr: 'OR-2', gefr_ua: 'OR-2', gefr_fa: 'OR-2',
+    ogefr: 'OR-3', ogefr_ua: 'OR-3', hgefr: 'OR-4', hgefr_ua: 'OR-4', stgefr: 'OR-4', ostgefr: 'OR-4',
+    korp: 'OR-4', stkorp: 'OR-4', uffz: 'OR-5', uffz_fa: 'OR-5', stuffz: 'OR-5', fj: 'OR-5',
+    fw: 'OR-6', ofw: 'OR-6', faehnrich: 'OR-6', hfw: 'OR-7', ofaehnrich: 'OR-7', stfw: 'OR-8', ostfw: 'OR-9',
+    lt: 'OF-1', olt: 'OF-1', hptm: 'OF-2', sthptm: 'OF-2', sa13: 'OF-2', maj: 'OF-3', sa14: 'OF-3',
+    oberstlt: 'OF-4', sa15: 'OF-4', oberst: 'OF-5', sa16: 'OF-5', bgen: 'OF-6', sb6: 'OF-6',
+    gmaj: 'OF-7', sb7: 'OF-7', glt: 'OF-8', sb9: 'OF-8', gen: 'OF-9'
+  };
+  // Frühester Beförderungszeitpunkt nach der Soldatenlaufbahnverordnung, gezählt ab Diensteintritt.
+  // Nur eingetragen, wo die Mindestdienstzeit eindeutig ist (Mannschaften).
+  var BEFOERDERUNG = { gefr: '3 Monaten', ogefr: '6 Monaten', hgefr: '12 Monaten', stgefr: '36 Monaten', ostgefr: '48 Monaten', korp: '7 Jahren', stkorp: '10 Jahren' };
   // Abkürzungen der Dienstgrade: [Heer, Marine, Luftwaffe, Sanitätsdienst]. Fehlt Luftwaffe oder
   // Sanitätsdienst, gilt die Abkürzung des Heeres. Anwärterzusätze (UA)/(FA) werden angehängt.
   var ABK = {
@@ -1337,7 +1484,7 @@
   }
 
   /* ===== Reiter ===== */
-  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubsplaner', duz: 'DuZ-Rechner' };
+  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner' };
 
   function show(v) {
     var titel = null, tab = v;
@@ -1474,7 +1621,9 @@
     function wink(x, y, w) { return '<path class="ch" d="M' + (x - w) + ' ' + (y + w * 0.7) + 'L' + x + ' ' + y + 'L' + (x + w) + ' ' + (y + w * 0.7) + '"/>'; }
     var strich = { gefr: 1, ogefr: 2, hgefr: 3, stgefr: 4, ostgefr: 5 }, i, n;
     if (strich[k]) {
-      for (i = 0; i < strich[k]; i++) { var y = 44 - i * 6; o += '<path class="st" d="M8 ' + (y + 3) + 'L20 ' + (y - 3) + '"/>'; }
+      // Bei fünf Streifen enger setzen, damit der oberste unter der Querlinie bleibt
+      var abst = strich[k] >= 5 ? 5.1 : 6;
+      for (i = 0; i < strich[k]; i++) { var y = +(44.5 - i * abst).toFixed(1); o += '<path class="st" d="M8 ' + (y + 3) + 'L20 ' + (y - 3) + '"/>'; }
     }
     var ua = { schuetze_ua: 0, gefr_ua: 1, ogefr_ua: 2, hgefr_ua: 3 };
     if (ua[k] !== undefined) {
@@ -1571,7 +1720,7 @@
     dienstgrade: ['Dienstgrade', 'i-rank', 'Alle Dienstgrade mit Besoldungsgruppe'],
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
-    urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'],
+    urlaub: ['Urlaubskartei', 'i-cal', 'Urlaub, Überstunden, ATB und Kalender-Export'],
     duz: ['DuZ-Rechner', 'i-clock', 'Dienste zu ungünstigen Zeiten, Übersicht je Monat, Quartal und Jahr'] };
   var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
@@ -1595,6 +1744,12 @@
     favSpeichern();
   }
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  // Über „MeinKamerad“ (Text aus daten.js, Absätze mit Leerzeile getrennt)
+  (function () {
+    var t = typeof D.ueber === 'string' ? D.ueber.trim() : '';
+    $('ueber-text').innerHTML = t ? t.split(/\n\s*\n/).map(function (a) { return '<p>' + esc(a.trim()).replace(/\n/g, '<br>') + '</p>'; }).join('')
+      : '<p class="hint" style="margin-top:0">Text folgt.</p>';
+  })();
   function sternKlein(key, name) {
     var an = istFav('zulagen', key);
     return '<button type="button" class="stern-klein" data-fav-zul="' + key + '" aria-pressed="' + an + '" aria-label="' +
@@ -1758,7 +1913,7 @@
   function dgDetail(d, g) {
     var info = state.infoDg === d.id;
     var html = '<div class="dg-detail" id="dg-detail-' + d.id + '"><div class="dg-aktionen">' +
-      '<button type="button" class="knopf primaer" data-rechner="' + d.id + '"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Im Rechner berechnen</button>' +
+      '<button type="button" class="knopf primaer" data-rechner="' + d.id + '"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Zum Rechner</button>' +
       '<button type="button" class="knopf sekundaer" data-vgl="' + d.id + '" aria-pressed="' + imVergleich(d.id) + '"><svg class="ic" aria-hidden="true"><use href="#i-vgl"/></svg>' + (imVergleich(d.id) ? 'Im Vergleich ✓' : 'Zum Vergleich') + '</button>' +
       '<button type="button" class="knopf sekundaer" data-fav-dg="' + d.id + '" aria-pressed="' + istFav('dienstgrade', d.id) + '"><svg class="ic stern" aria-hidden="true"><use href="#i-star"/></svg>' + (istFav('dienstgrade', d.id) ? 'Favorit ✓' : 'Favorit') + '</button>' +
       '<button type="button" class="knopf sekundaer" data-info="' + d.id + '" aria-expanded="' + info + '"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>' + (info ? 'Infos ausblenden' : 'Weitere Infos') + '</button>' +
@@ -1766,6 +1921,8 @@
     if (info) {
       var zeilen = [];
       if (abkuerzung(d.id)) zeilen.push(['Abkürzung', abkuerzung(d.id)]);
+      if (NATO_RANG[d.id]) zeilen.push(['NATO-Rang', NATO_RANG[d.id]]);
+      if (BEFOERDERUNG[d.id]) zeilen.push(['Beförderung', 'Frühestens nach ' + BEFOERDERUNG[d.id] + ' Dienstzeit ab Diensteintritt']);
       zeilen.push(['Dienstgradgruppe', g.name]);
       zeilen.push(['Besoldungsgruppe', bgsLabel(d.bgs)]);
       d.bgs.forEach(function (bg) {
@@ -1909,14 +2066,19 @@
     });
     return { so: s.so / 60, sa: s.sa / 60, na: s.na / 60 };
   }
+  // Vorbelegung: Beginn am 1. des gewählten Monats um 7 Uhr, Ende am Folgetag um 7 Uhr (24-Stunden-Dienst)
+  function duzFormVorbelegen() {
+    var erster = state.duzMonat + '-01';
+    $('duz-start-tag').value = erster;
+    $('duz-start-zeit').value = '07:00';
+    $('duz-ende-tag').value = iso(plusTage(vonIso(erster), 1));
+    $('duz-ende-zeit').value = '07:00';
+  }
   function renderDuzListe(land, h) {
     $('duz-monat').value = state.duzMonat;
     $('duz-land').value = land;
     var aktiv = document.activeElement;
-    if ($('duz-start-tag').value.slice(0, 7) !== state.duzMonat && aktiv !== $('duz-start-tag') && aktiv !== $('duz-ende-tag')) {
-      $('duz-start-tag').value = state.duzMonat + '-01';
-      $('duz-ende-tag').value = state.duzMonat + '-01';
-    }
+    if ($('duz-start-tag').value.slice(0, 7) !== state.duzMonat && aktiv !== $('duz-start-tag') && aktiv !== $('duz-ende-tag')) duzFormVorbelegen();
     var monat = state.duzMonat;
     var liste = DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, monat); });
     $('duz-liste').hidden = !liste.length;
@@ -1950,8 +2112,22 @@
   }
   function renderDuzSeite(d, land) {
     var m = state.duzMonat;
-    $('duz-fuer').textContent = 'Berechnet für ' + d.name + ' (' + bgLabel(d.bg) + '). Den Dienstgrad änderst du im Rechner.' +
-      (d.bg.charAt(0) !== D.duz.nurOrdnung ? ' In Besoldungsordnung B gibt es keine Zulage für Dienst zu ungünstigen Zeiten.' : '');
+    // Dienstgrad-Auswahl direkt auf der DuZ-Seite (gemeinsam mit dem Rechner)
+    if (document.activeElement !== $('duz-dg')) {
+      $('duz-dg').innerHTML = GRUPPEN.map(function (g) {
+        var opts = DIENSTGRADE.filter(function (x) { return x.gruppe === g.id && sichtbar(x); })
+          .map(function (x) { return '<option value="' + x.id + '">' + x.n[state.tsk] + (abkuerzung(x.id) ? ' (' + abkuerzung(x.id) + ')' : '') + '</option>'; }).join('');
+        return opts ? '<optgroup label="' + g.name + '">' + opts + '</optgroup>' : '';
+      }).join('');
+      $('duz-dg').value = d.id;
+    }
+    $('duz-bg-wrap').hidden = d.bgs.length < 2;
+    $('duz-bg').innerHTML = d.bgs.map(function (b) { return '<option value="' + b + '">' + bgLabel(b) + '</option>'; }).join('');
+    $('duz-bg').value = d.bg;
+    $('duz-fuer').textContent = (d.bg.charAt(0) !== D.duz.nurOrdnung
+      ? 'In Besoldungsordnung B gibt es keine Zulage für Dienst zu ungünstigen Zeiten, die Beträge unten sind deshalb 0 €. '
+      : 'Wichtig ist nur, ob du in Besoldungsordnung A bist; die Höhe der Zulage hängt nicht vom Dienstgrad ab. ') +
+      'Die Auswahl gilt auch im Rechner.';
     $('duz-liste-titel').textContent = 'Dienste im ' + monatName(m);
     var mb = duzMonatBetrag(m, d, land);
     $('duz-v-betrag').innerHTML = '<strong>Zulage ' + monatName(m) + ': ' + eur.format(mb.betrag) + '</strong>' +
@@ -2267,7 +2443,10 @@
   function duzMeldung(t, fehler) { $('duz-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('duz-meldung').textContent = t; }
   $('duz-start-tag').addEventListener('change', function (e) {
     var et = $('duz-ende-tag');
-    if (e.target.value && (!et.value || et.value < e.target.value)) et.value = e.target.value;
+    // Ende-Tag mitziehen: bei gleicher Uhrzeit ein Tag später, sonst mindestens der Beginn-Tag
+    if (e.target.value && (!et.value || et.value <= e.target.value)) {
+      et.value = $('duz-ende-zeit').value && $('duz-ende-zeit').value <= $('duz-start-zeit').value ? iso(plusTage(vonIso(e.target.value), 1)) : e.target.value;
+    }
   });
   $('duz-add').addEventListener('click', function () {
     var st = $('duz-start-tag').value, sz = $('duz-start-zeit').value, et = $('duz-ende-tag').value, ez = $('duz-ende-zeit').value;
@@ -2286,8 +2465,7 @@
     if (!duzImMonat(neu, state.duzMonat)) state.duzMonat = st.slice(0, 7);
     var r = duzDienstAuswerten(neu, '', UZ.land);
     duzMeldung('Dienst eingetragen: ' + stdText(r.dauer, true) + ', davon ' + stdText(r.so + r.sa + r.na, true) + ' zu ungünstigen Zeiten.');
-    $('duz-start-zeit').value = ''; $('duz-ende-zeit').value = '';
-    $('duz-start-tag').value = et; $('duz-ende-tag').value = et;
+    duzFormVorbelegen();
     render();
   });
   $('duz-liste').addEventListener('click', function (e) {
@@ -2550,22 +2728,35 @@
     go('rechner');
   });
 
-  /* ===== Urlaubsplaner (Einträge nur im Browser) ===== */
+  /* ===== Urlaubskartei (Einträge nur im Browser) ===== */
   var UD = D.urlaub;
   var U_KEY = 'meinkamerad-urlaub';
   var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
   var WT = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   var WT_LANG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-  var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', sonder: 'Sonderurlaub' };
+  var ARTEN = { urlaub: 'Erholungsurlaub', dza: 'Dienstzeitausgleich', atb: 'ATB', sonder: 'Sonderurlaub' };
+  // Konten der Übersicht: jedes zählt die Einträge einer Art
+  var KONTEN = [
+    { art: 'urlaub', name: 'Erholungsurlaub', info: 'Jahresurlaub inklusive Zusatzurlaub', farbe: 'var(--accent)' },
+    { art: 'dza', name: 'Überstunden', info: 'Abbau als Dienstzeitausgleich', farbe: 'var(--warn-bg)', rand: 'var(--warn-line)', stunden: true },
+    { art: 'atb', name: 'ATB', info: 'Ausnahmetatbestand', farbe: 'var(--atb)' },
+    { art: 'sonder', name: 'Sonderurlaub', info: 'Zum Beispiel Kindkranktage', farbe: 'var(--fg)' }
+  ];
   var heute = new Date();
+  var RX_FARBE = /^#[0-9a-fA-F]{6}$/;
+  var FARBEN = [['#D64545', 'Rot'], ['#E07B24', 'Orange'], ['#C9A227', 'Gelb'], ['#3C9D5D', 'Grün'], ['#1F9AA0', 'Türkis'],
+    ['#3A6FD8', 'Blau'], ['#8B5CC7', 'Lila'], ['#D2549A', 'Pink'], ['#7A7F87', 'Grau']];
   function uLaden() {
-    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, eintraege: [] };
+    var u = { land: 'NW', anspruch: {}, rest: {}, zusatz: {}, konten: {}, eintraege: [], tags: [], markierungen: [] };
     try {
       var j = JSON.parse(localStorage.getItem(U_KEY) || 'null');
       if (j && typeof j === 'object') {
         if (UD.bundeslaender[j.land]) u.land = j.land;
         u.diensteZeigen = !!j.diensteZeigen;
-        ['anspruch', 'rest', 'zusatz'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
+        if (j.dienstzeiten && typeof j.dienstzeiten === 'object') u.dienstzeiten = j.dienstzeiten;
+        ['anspruch', 'rest', 'zusatz', 'konten'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
+        if (Array.isArray(j.tags)) u.tags = j.tags.filter(function (t) { return t && t.id && typeof t.name === 'string' && RX_FARBE.test(t.farbe); });
+        if (Array.isArray(j.markierungen)) u.markierungen = j.markierungen.filter(function (m) { return m && /^\d{4}-\d{2}-\d{2}$/.test(m.von) && /^\d{4}-\d{2}-\d{2}$/.test(m.bis); });
         if (Array.isArray(j.eintraege)) u.eintraege = j.eintraege.filter(function (e) { return e && /^\d{4}-\d{2}-\d{2}$/.test(e.von) && /^\d{4}-\d{2}-\d{2}$/.test(e.bis) && ARTEN[e.art]; });
       }
     } catch (e) { /* ohne Speicher mit leerem Planer weiter */ }
@@ -2619,11 +2810,24 @@
     return UZ.eintraege.filter(function (e) { return e.von <= s && s <= e.bis; })[0];
   }
   function jahrWert(k, j) { var v = UZ[k][j]; return typeof v === 'number' && v >= 0 ? v : (k === 'anspruch' ? UD.standardAnspruch : 0); }
+  // feld: 'neu' (dieses Jahr) oder 'alt' (aus dem Vorjahr). Ältere Speicherstände (anspruch, rest, zusatz) gelten weiter.
+  function kontoWert(art, feld, j) {
+    var k = UZ.konten[j] && UZ.konten[j][art], v = k && k[feld];
+    if (typeof v === 'number' && v >= 0) return v;
+    if (art !== 'urlaub') return 0;
+    return feld === 'neu' ? jahrWert('anspruch', j) + jahrWert('zusatz', j) : jahrWert('rest', j);
+  }
   function zahl(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
 
   // Dienste, die an diesem Tag stattfinden (Ende genau um 0 Uhr zählt nicht mehr)
   function diensteAm(s) {
     return DUZ_DIENSTE.filter(function (x) { return x.start.slice(0, 10) <= s && (s < x.ende.slice(0, 10) || (s === x.ende.slice(0, 10) && x.ende.slice(11) !== '00:00')); });
+  }
+  function tagById(id) { return UZ.tags.filter(function (t) { return t.id === id; })[0]; }
+  // Markierungen eines Tages, nur solche mit vorhandenem Tag
+  function markierungenAm(s) {
+    return UZ.markierungen.filter(function (m) { return m.von <= s && s <= m.bis && tagById(m.tag); })
+      .map(function (m) { return { m: m, t: tagById(m.tag) }; });
   }
   function tagKlassen(d) {
     var s = iso(d), c = ['u-tag'], e = eintragAm(s);
@@ -2632,36 +2836,91 @@
     if (ftName(d)) c.push('ft');
     if (s === iso(heute)) c.push('heute');
     if (e) c.push('art-' + e.art, e.status);
-    if (uAnsicht.auswahlStart === s) c.push('auswahl');
+    var sv = $('u-von').value, sb = $('u-bis').value || sv;
+    if (sv && sv <= s && s <= sb) c.push('sel');
+    if (sv && s === sv) c.push('sel-a');
+    if (sv && s === sb) c.push('sel-b');
     var di = UZ.diensteZeigen ? diensteAm(s) : [];
     if (di.length) c.push('dienst');
-    return { cls: c.join(' '), e: e, di: di };
+    var mk = markierungenAm(s);
+    if (mk.length) c.push('mark');
+    if (mk.length > 1) c.push('mark2');
+    return { cls: c.join(' '), e: e, di: di, mk: mk };
+  }
+
+  // Dienstzeiten je Wochentag (1 = Montag … 5 = Freitag): eigene Werte, sonst Vorschlag aus daten.js
+  var DZ_TAGE = [[1, 'mo', 'Mo'], [2, 'di', 'Di'], [3, 'mi', 'Mi'], [4, 'do', 'Do'], [5, 'fr', 'Fr']];
+  var RX_ZEIT = /^([01]\d|2[0-3]):[0-5]\d$/;
+  function dienstzeit(k) {
+    var e = UZ.dienstzeiten && UZ.dienstzeiten[k], v = (UD.dienstzeiten || {})[k] || ['', '', 0];
+    var z = e ? [e.b, e.e, e.p] : v;
+    return { b: RX_ZEIT.test(z[0]) ? z[0] : '', e: RX_ZEIT.test(z[1]) ? z[1] : '', p: Math.max(0, +z[2] || 0) };
+  }
+  function minuten(t) { return +t.slice(0, 2) * 60 + +t.slice(3); }
+  function stundenAm(k) {
+    var z = dienstzeit(k);
+    if (!z.b || !z.e) return 0;
+    var m = minuten(z.e) - minuten(z.b);
+    if (m <= 0) m += 1440;
+    return Math.max(0, m - z.p) / 60;
+  }
+  function wochenStunden() { return DZ_TAGE.reduce(function (a, t) { return a + stundenAm(t[1]); }, 0); }
+  // Stunden, die ein Zeitraum Dienstzeitausgleich nach den Dienstzeiten abzieht
+  function ausgleichStunden(von, bis, nurJahr) {
+    var h = 0, d = vonIso(von), ende = vonIso(bis);
+    for (; d <= ende; d = plusTage(d, 1)) {
+      if (nurJahr && d.getFullYear() !== nurJahr) continue;
+      if (istFrei(d)) continue;
+      var t = DZ_TAGE[d.getDay() - 1];
+      if (t) h += stundenAm(t[1]);
+    }
+    return h;
+  }
+  function dienstzeitenHtml() {
+    var zeilen = DZ_TAGE.map(function (t) {
+      var z = dienstzeit(t[1]);
+      return '<span class="tg">' + t[2] + '</span>' +
+        '<input type="time" step="300" aria-label="' + WT_LANG[t[0]] + ' Beginn" data-dz="' + t[1] + '" data-dz-feld="b" value="' + z.b + '">' +
+        '<input type="time" step="300" aria-label="' + WT_LANG[t[0]] + ' Ende" data-dz="' + t[1] + '" data-dz-feld="e" value="' + z.e + '">' +
+        '<input type="number" min="0" max="240" step="5" inputmode="numeric" aria-label="' + WT_LANG[t[0]] + ' Pause in Minuten" data-dz="' + t[1] + '" data-dz-feld="p" value="' + z.p + '">' +
+        '<span class="h">' + zahl(stundenAm(t[1])) + '</span>';
+    }).join('');
+    return '<details class="u-dz"' + (uAnsicht.dzOffen ? ' open' : '') + '><summary>Dienstzeiten <span>' + zahl(wochenStunden()) + ' Std. je Woche</span></summary>' +
+      '<div class="u-dz-tab"><span></span><span class="k">Beginn</span><span class="k">Ende</span><span class="k">Pause (Min.)</span><span class="k">Std.</span>' + zeilen + '</div>' +
+      '<p class="hint" style="margin-top:8px">Ein Tag Dienstzeitausgleich zieht die Stunden dieses Wochentags ab. Ohne Beginn und Ende zählt der Tag nicht.</p></details>';
+  }
+  function renderKonten(j) {
+    var summe = {};
+    KONTEN.forEach(function (k) { summe[k.art] = { gen: 0, gepl: 0, tage: 0 }; });
+    UZ.eintraege.forEach(function (e) {
+      var n = arbeitstage(e.von, e.bis, j), s = summe[e.art];
+      if (!n || !s) return;
+      s.tage += n;
+      s[e.status === 'genehmigt' ? 'gen' : 'gepl'] += e.art === 'dza' ? ausgleichStunden(e.von, e.bis, j) : n;
+    });
+    $('u-konten-titel').textContent = 'Übersicht ' + j;
+    $('u-konten').innerHTML = KONTEN.map(function (k) {
+      var neu = kontoWert(k.art, 'neu', j), alt = kontoWert(k.art, 'alt', j), s = summe[k.art];
+      var id = 'u-k-' + k.art, eh = k.stunden ? ' Std.' : '', ehL = k.stunden ? ' (Std.)' : '';
+      var uebrig = neu + alt - s.gen - s.gepl;
+      var stand = 'Genehmigt ' + zahl(s.gen) + eh + ' · geplant ' + zahl(s.gepl) + eh;
+      if (k.stunden) stand += (s.tage ? ' (' + tageText(s.tage) + ')' : '') + '</div>' + dienstzeitenHtml() + '<div hidden>';
+      return '<div class="u-konto" style="--kfarbe:' + k.farbe + (k.rand ? ';--krand:' + k.rand : '') + '">' +
+        '<div class="kopf"><b>' + k.name + '</b>' + (k.info ? '<small>' + k.info + '</small>' : '') +
+        '<div class="uebrig' + (uebrig < 0 ? ' minus' : '') + '">' + zahl(uebrig) + '<span>' + (k.stunden ? 'Std. übrig' : 'übrig') + '</span></div></div>' +
+        '<div class="felder">' +
+        '<div><label for="' + id + '-neu">' + j + ehL + '</label><input type="number" id="' + id + '-neu" data-konto="' + k.art + '" data-feld="neu" min="0" max="' + (k.stunden ? 2000 : 366) + '" step="0.5" inputmode="decimal" value="' + neu + '"></div>' +
+        '<div><label for="' + id + '-alt">Aus ' + (j - 1) + ehL + '</label><input type="number" id="' + id + '-alt" data-konto="' + k.art + '" data-feld="alt" min="0" max="' + (k.stunden ? 2000 : 366) + '" step="0.5" inputmode="decimal" value="' + alt + '"></div>' +
+        '</div><div class="stand">' + stand + '</div></div>';
+    }).join('');
   }
 
   function renderUrlaub() {
     var j = uAnsicht.jahr, land = UZ.land;
     $('u-land').value = land;
     $('u-jahr').textContent = j;
-    $('u-anspruch').value = jahrWert('anspruch', j);
-    $('u-rest').value = jahrWert('rest', j);
-    $('u-zusatz').value = jahrWert('zusatz', j);
     $('u-hinweis').textContent = UD.hinweis;
-
-    // Zahlen für das gewählte Jahr
-    var gen = 0, gepl = 0, dza = 0;
-    UZ.eintraege.forEach(function (e) {
-      var n = arbeitstage(e.von, e.bis, j);
-      if (!n) return;
-      if (e.art === 'urlaub') { if (e.status === 'genehmigt') gen += n; else gepl += n; }
-      if (e.art === 'dza') dza += n;
-    });
-    var gesamt = jahrWert('anspruch', j) + jahrWert('rest', j) + jahrWert('zusatz', j);
-    var rest = gesamt - gen - gepl;
-    $('u-z-rest').textContent = zahl(rest);
-    $('u-z-gesamt').textContent = zahl(gesamt);
-    $('u-z-gen').textContent = zahl(gen);
-    $('u-z-gepl').textContent = zahl(gepl);
-    $('u-z-dza').textContent = zahl(dza);
+    renderKonten(j);
 
     // Monatskalender
     var m = uAnsicht.monat, erster = new Date(j, m, 1), versatz = (erster.getDay() + 6) % 7;
@@ -2672,9 +2931,12 @@
     for (var t = 1; t <= tageImMonat; t++) {
       var d = new Date(j, m, t), k = tagKlassen(d), ft = ftName(d);
       var label = WT_LANG[d.getDay()] + ', ' + t + '. ' + MONATE[m] + (ft ? ', Feiertag ' + ft : '') +
-        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '') +
-        (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '');
-      html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + label + '"' + (ft ? ' title="' + ft + '"' : '') + '>' + t + '</button>';
+        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (k.cls.indexOf('sel') >= 0 ? ', ausgewählt' : '') +
+        (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '') +
+        (k.mk.length ? ', ' + k.mk.map(function (x) { return x.t.name; }).join(', ') : '');
+      var titel = [ft].concat(k.mk.map(function (x) { return x.t.name; })).filter(Boolean).join(', ');
+      html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + esc(label) + '"' + (titel ? ' title="' + esc(titel) + '"' : '') +
+        (k.mk.length ? ' style="--tagfarbe:' + k.mk[0].t.farbe + (k.mk.length > 1 ? ';--tagfarbe2:' + k.mk[1].t.farbe : '') + '"' : '') + '>' + t + '</button>';
     }
     $('u-kal').innerHTML = html;
     var ftMonat = Object.keys(feiertage(j, land)).filter(function (s) { return vonIso(s).getMonth() === m; }).sort();
@@ -2700,6 +2962,7 @@
     // Brückentage
     $('u-bruecken-jahr').textContent = j;
     var vorschlaege = brueckentage(j);
+    $('u-bruecken-anz').textContent = vorschlaege.length ? vorschlaege.length + (vorschlaege.length === 1 ? ' Vorschlag' : ' Vorschläge') : '';
     $('u-bruecken').innerHTML = vorschlaege.length ? vorschlaege.map(function (v) {
       return '<button type="button" class="zeile" data-u-bruecke="' + v.von + '|' + v.bis + '"><span class="n">' + datumKurz(v.von) + (v.bis !== v.von ? ' bis ' + datumKurz(v.bis) : '') + '</span>' +
         '<span class="r">' + tageText(v.frei) + ' frei</span><span class="s">' + tageText(v.urlaub) + ' Urlaub · ' + v.anlass + '</span></button>';
@@ -2715,17 +2978,59 @@
         if (ftName(dd)) c.push('ft');
         if (e && !istFrei(dd)) { c.push('art-' + e.art, e.status); if (e.art === 'urlaub') ut++; }
         if (UZ.diensteZeigen && diensteAm(iso(dd)).length) { c.push('dienst'); dt++; }
-        g += '<i class="' + c.join(' ') + '"></i>';
+        var mkt = markierungenAm(iso(dd));
+        if (mkt.length) c.push('mark');
+        g += '<i class="' + c.join(' ') + '"' + (mkt.length ? ' style="--tagfarbe:' + mkt[0].t.farbe + '"' : '') + '></i>';
       }
       var info = [ut ? tageText(ut) + ' Urlaub' : '', dt ? dt + (dt === 1 ? ' Diensttag' : ' Diensttage') : ''].filter(Boolean);
       return '<button type="button" class="u-mini" data-u-monat="' + mi + '" aria-label="' + name + ' ' + j + ' anzeigen' + (info.length ? ', ' + info.join(', ') : '') + '">' +
         '<span class="mn">' + name + (info.length ? '<small>' + info.join(' · ') + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
     }).join('');
 
+    renderMarkierungen(j);
     $('u-dienste-zeigen').checked = !!UZ.diensteZeigen;
     $('u-leg-dienst').hidden = !UZ.diensteZeigen;
     uVorschau();
     renderSeitenStern();
+  }
+
+  function renderMarkierungen(j) {
+    $('u-leg-tags').innerHTML = UZ.tags.map(function (t) { return '<span class="l-tag" style="--tagfarbe:' + t.farbe + '">' + esc(t.name) + '</span>'; }).join('');
+    var wahl = $('u-mark-tag').value;
+    $('u-mark-tag').innerHTML = UZ.tags.length
+      ? UZ.tags.map(function (t) { return '<option value="' + t.id + '">' + esc(t.name) + '</option>'; }).join('')
+      : '<option value="">Noch keine Markierung angelegt</option>';
+    if (tagById(wahl)) $('u-mark-tag').value = wahl;
+    $('u-mark-tag').disabled = !UZ.tags.length;
+    $('u-mark-add').disabled = !UZ.tags.length;
+    if (!$('u-tag-farben').innerHTML) {
+      $('u-tag-farben').innerHTML = FARBEN.map(function (f, i) {
+        return '<label><input type="radio" name="u-tag-farbe" value="' + f[0] + '"' + (i === 0 ? ' checked' : '') + ' aria-label="' + f[1] + '"><span class="sw" style="--tagfarbe:' + f[0] + '"></span></label>';
+      }).join('') + '<label><input type="radio" name="u-tag-farbe" value="eigen" aria-label="Eigene Farbe"><span class="sw" style="background:conic-gradient(#d64545,#c9a227,#3c9d5d,#1f9aa0,#3a6fd8,#8b5cc7,#d64545)"></span></label>' +
+        '<input type="color" id="u-tag-farbe-eigen" value="#3a6fd8" aria-label="Eigene Farbe wählen">';
+    }
+    var ys = String(j);
+    $('u-tag-liste').innerHTML = UZ.tags.map(function (t) {
+      var tage = 0;
+      UZ.markierungen.forEach(function (m) {
+        if (m.tag !== t.id) return;
+        for (var d = vonIso(m.von); d <= vonIso(m.bis); d = plusTage(d, 1)) if (iso(d).slice(0, 4) === ys) tage++;
+      });
+      return '<div class="fav-item"><div class="zeile" style="cursor:default"><span class="n"><span class="u-chip" style="--tagfarbe:' + t.farbe + '"></span>' + esc(t.name) + '</span><span class="r">' + tage + (tage === 1 ? ' Tag' : ' Tage') + '</span><span class="s">in ' + j + '</span></div>' +
+        '<span class="u-eintrag-akt"><button type="button" data-u-tag-weg="' + t.id + '" aria-label="Markierung ' + esc(t.name) + ' löschen">Löschen</button></span></div>';
+    }).join('');
+    $('u-tag-liste').hidden = !UZ.tags.length;
+    $('u-mark-jahr').textContent = j;
+    var mliste = UZ.markierungen.filter(function (m) { return tagById(m.tag) && m.von.slice(0, 4) <= ys && m.bis.slice(0, 4) >= ys; })
+      .sort(function (a, b) { return a.von < b.von ? -1 : 1; });
+    $('u-mark-leer').hidden = mliste.length > 0;
+    $('u-mark-liste').hidden = !mliste.length;
+    $('u-mark-liste').innerHTML = mliste.map(function (m) {
+      var t = tagById(m.tag);
+      return '<div class="fav-item"><button type="button" class="zeile" data-u-mark-zeige="' + m.id + '"><span class="n"><span class="u-chip" style="--tagfarbe:' + t.farbe + '"></span>' + esc(t.name) + '</span>' +
+        '<span class="r"></span><span class="s">' + datumKurz(m.von) + (m.bis !== m.von ? ' bis ' + datumKurz(m.bis) : '') + (m.notiz ? ' · ' + esc(m.notiz) : '') + '</span></button>' +
+        '<span class="u-eintrag-akt"><button type="button" data-u-mark-weg="' + m.id + '" aria-label="Markierung löschen">Löschen</button></span></div>';
+    }).join('');
   }
 
   // Brückentage: kurze Arbeitstag-Folgen (bis 4 Tage) zwischen freien Tagen, an die ein Feiertag grenzt
@@ -2751,25 +3056,33 @@
   function uVorschau() {
     var von = $('u-von').value, bis = $('u-bis').value, el = $('u-vorschau');
     el.className = 'u-meldung';
-    if (!von || !bis) { el.textContent = uAnsicht.auswahlStart ? 'Beginn gewählt: ' + datumKurz(uAnsicht.auswahlStart) + '. Jetzt den letzten Tag antippen.' : ''; return; }
+    if (!von || !bis) { el.textContent = ''; return; }
     if (bis < von) { el.className = 'u-meldung fehler'; el.textContent = 'Das Ende liegt vor dem Beginn.'; return; }
     var n = arbeitstage(von, bis);
-    el.textContent = datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + ': ' + n + ' ' + (n === 1 ? 'Arbeitstag' : 'Arbeitstage') + ' (ohne Wochenenden und Feiertage).';
+    el.textContent = 'Ausgewählt: ' + datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + ', ' + n + ' ' + (n === 1 ? 'Arbeitstag' : 'Arbeitstage') + ' (ohne Wochenenden und Feiertage).' +
+      (uAnsicht.auswahlStart ? ' Tippe auf den letzten Tag, um den Zeitraum zu verlängern.' : '');
   }
   function uMeldung(t, fehler) { var el = $('u-vorschau'); el.className = 'u-meldung' + (fehler ? ' fehler' : ''); el.textContent = t; }
 
   function icsText(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
   function icsExport(nurJahr) {
-    var liste = UZ.eintraege.filter(function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); });
-    if (!liste.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
+    var imJahr = function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); };
+    var liste = UZ.eintraege.filter(imJahr);
+    var marks = UZ.markierungen.filter(function (m) { return imJahr(m) && tagById(m.tag); });
+    if (!liste.length && !marks.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
     var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubsplaner//DE', 'CALSCALE:GREGORIAN'];
+    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubskartei//DE', 'CALSCALE:GREGORIAN'];
     liste.forEach(function (e) {
       z.push('BEGIN:VEVENT', 'UID:' + e.id + '@meinkamerad', 'DTSTAMP:' + stamp,
         'DTSTART;VALUE=DATE:' + e.von.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + iso(plusTage(vonIso(e.bis), 1)).replace(/-/g, ''),
         'SUMMARY:' + icsText(ARTEN[e.art] + (e.status === 'genehmigt' ? '' : ' (geplant)')),
         'DESCRIPTION:' + icsText(arbeitstage(e.von, e.bis) + ' Arbeitstag(e)' + (e.notiz ? '. ' + e.notiz : '')),
         'TRANSP:OPAQUE', 'END:VEVENT');
+    });
+    marks.forEach(function (m) {
+      z.push('BEGIN:VEVENT', 'UID:' + m.id + '@meinkamerad', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + m.von.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + iso(plusTage(vonIso(m.bis), 1)).replace(/-/g, ''),
+        'SUMMARY:' + icsText(tagById(m.tag).name), 'DESCRIPTION:' + icsText(m.notiz || ''), 'TRANSP:TRANSPARENT', 'END:VEVENT');
     });
     z.push('END:VCALENDAR');
     var blob = new Blob([z.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
@@ -2778,7 +3091,8 @@
     a.download = 'urlaub' + (nurJahr ? '-' + nurJahr : '') + '.ics';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
-    uMeldung(liste.length + (liste.length === 1 ? ' Eintrag' : ' Einträge') + ' exportiert.');
+    var anz = liste.length + marks.length;
+    uMeldung(anz + (anz === 1 ? ' Eintrag' : ' Einträge') + ' exportiert.');
   }
 
   $('u-land').innerHTML = Object.keys(UD.bundeslaender).map(function (k) { return '<option value="' + k + '">' + UD.bundeslaender[k] + '</option>'; }).join('');
@@ -2786,12 +3100,24 @@
   function jahrWechsel(n) { uAnsicht.jahr += n; renderUrlaub(); }
   $('u-jahr-zurueck').addEventListener('click', function () { jahrWechsel(-1); });
   $('u-jahr-vor').addEventListener('click', function () { jahrWechsel(1); });
-  ['anspruch', 'rest', 'zusatz'].forEach(function (k) {
-    $('u-' + k).addEventListener('change', function (e) {
-      var v = parseFloat(String(e.target.value).replace(',', '.'));
-      if (isNaN(v) || v < 0) delete UZ[k][uAnsicht.jahr]; else UZ[k][uAnsicht.jahr] = Math.min(v, 60);
-      uSpeichern(); renderUrlaub();
-    });
+  $('u-konten').addEventListener('toggle', function (e) { if (e.target.classList && e.target.classList.contains('u-dz')) uAnsicht.dzOffen = e.target.open; }, true);
+  $('u-konten').addEventListener('change', function (e) {
+    var dzTag = e.target.getAttribute('data-dz');
+    if (dzTag) {
+      var dz = UZ.dienstzeiten || (UZ.dienstzeiten = {}), alt = dienstzeit(dzTag), wert = e.target.value, fd = e.target.getAttribute('data-dz-feld');
+      var neuZ = { b: alt.b, e: alt.e, p: alt.p };
+      if (fd === 'p') neuZ.p = Math.min(240, Math.max(0, parseInt(wert, 10) || 0));
+      else neuZ[fd] = RX_ZEIT.test(wert) ? wert : '';
+      dz[dzTag] = neuZ;
+      uAnsicht.dzOffen = true;
+      uSpeichern(); renderUrlaub(); return;
+    }
+    var art = e.target.getAttribute('data-konto'), feld = e.target.getAttribute('data-feld');
+    if (!art || !feld) return;
+    var j = uAnsicht.jahr, v = parseFloat(String(e.target.value).replace(',', '.'));
+    var k = UZ.konten[j] || (UZ.konten[j] = {}), w = k[art] || (k[art] = {});
+    if (isNaN(v) || v < 0) delete w[feld]; else w[feld] = Math.min(v, art === 'dza' ? 2000 : 366);
+    uSpeichern(); renderUrlaub();
   });
   function monatWechsel(n) {
     uAnsicht.monat += n;
@@ -2801,24 +3127,121 @@
   }
   $('u-monat-zurueck').addEventListener('click', function () { monatWechsel(-1); });
   $('u-monat-vor').addEventListener('click', function () { monatWechsel(1); });
-  $('u-kal').addEventListener('click', function (e) {
+  // Auswahl im Kalender: Anfang und Ende antippen oder tippen und ziehen
+  function auswahlSetzen(a, b) {
+    $('u-von').value = a < b ? a : b;
+    $('u-bis').value = a < b ? b : a;
+  }
+  function auswahlTippen(s) {
+    if (uAnsicht.auswahlStart && uAnsicht.auswahlStart !== s) {
+      auswahlSetzen(uAnsicht.auswahlStart, s);
+      uAnsicht.auswahlStart = '';
+    } else {
+      uAnsicht.auswahlStart = s;
+      auswahlSetzen(s, s);
+    }
+  }
+  // Nur die Markierung der Tage neu setzen (schnell, für das Ziehen)
+  function auswahlZeigen() {
+    var sv = $('u-von').value, sb = $('u-bis').value || sv;
+    Array.prototype.forEach.call(document.querySelectorAll('#u-kal button[data-tag]'), function (b) {
+      var t = b.getAttribute('data-tag');
+      b.classList.toggle('sel', !!sv && sv <= t && t <= sb);
+      b.classList.toggle('sel-a', !!sv && t === sv);
+      b.classList.toggle('sel-b', !!sv && t === sb);
+    });
+    uVorschau();
+  }
+  var zug = null, klickIgnorieren = 0;
+  function tagUnter(x, y) {
+    var el = document.elementFromPoint(x, y);
+    var b = el && el.closest ? el.closest('#u-kal button[data-tag]') : null;
+    return b ? b.getAttribute('data-tag') : '';
+  }
+  $('u-kal').addEventListener('pointerdown', function (e) {
+    var b = e.target.closest('button[data-tag]');
+    if (!b || e.pointerType === 'touch' || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    zug = { start: b.getAttribute('data-tag'), ende: b.getAttribute('data-tag'), bewegt: false, id: e.pointerId };
+    try { $('u-kal').setPointerCapture(e.pointerId); } catch (x) { /* nicht nötig */ }
+  });
+  $('u-kal').addEventListener('pointermove', function (e) {
+    if (!zug || e.pointerId !== zug.id) return;
+    var t = tagUnter(e.clientX, e.clientY);
+    if (!t || t === zug.ende) return;
+    zug.ende = t;
+    if (t !== zug.start) zug.bewegt = true;
+    if (zug.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(zug.start, t); auswahlZeigen(); }
+  });
+  function zugEnde(e) {
+    if (!zug || e.pointerId !== zug.id) return;
+    var z = zug; zug = null;
+    klickIgnorieren = Date.now();
+    if (z.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(z.start, z.ende); }
+    else auswahlTippen(z.start);
+    renderUrlaub();
+    var neu = document.querySelector('#u-kal button[data-tag="' + z.ende + '"]');
+    if (neu) neu.focus({ preventScroll: true });
+  }
+  $('u-kal').addEventListener('pointerup', zugEnde);
+  $('u-kal').addEventListener('pointercancel', function (e) { if (zug && e.pointerId === zug.id) { zug = null; renderUrlaub(); } });
+  // Finger: kurz gedrückt halten startet das Ziehen, sofortige Bewegung scrollt die Seite
+  var halte = null, fingerZug = null;
+  $('u-kal').addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) { clearTimeout(halte && halte.timer); halte = null; return; }
     var b = e.target.closest('button[data-tag]');
     if (!b) return;
-    var s = b.getAttribute('data-tag');
-    if (!uAnsicht.auswahlStart) {
-      uAnsicht.auswahlStart = s;
-      $('u-von').value = s; $('u-bis').value = '';
-    } else {
-      var a = uAnsicht.auswahlStart;
-      $('u-von').value = s < a ? s : a; $('u-bis').value = s < a ? a : s;
+    var t0 = e.touches[0];
+    halte = { tag: b.getAttribute('data-tag'), x: t0.clientX, y: t0.clientY };
+    halte.timer = setTimeout(function () {
+      fingerZug = { start: halte.tag, ende: halte.tag, bewegt: false };
+      halte = null;
+      $('u-kal').classList.add('ziehen');
       uAnsicht.auswahlStart = '';
+      auswahlSetzen(fingerZug.start, fingerZug.start);
+      auswahlZeigen();
+      try { if (navigator.vibrate) navigator.vibrate(12); } catch (x) { /* ohne Vibration */ }
+    }, 350);
+  }, { passive: true });
+  $('u-kal').addEventListener('touchmove', function (e) {
+    var t0 = e.touches[0];
+    if (halte) {
+      if (Math.abs(t0.clientX - halte.x) > 8 || Math.abs(t0.clientY - halte.y) > 8) { clearTimeout(halte.timer); halte = null; }
+      return;
     }
+    if (!fingerZug) return;
+    e.preventDefault();
+    var t = tagUnter(t0.clientX, t0.clientY);
+    if (!t || t === fingerZug.ende) return;
+    fingerZug.ende = t;
+    if (t !== fingerZug.start) fingerZug.bewegt = true;
+    auswahlSetzen(fingerZug.start, t);
+    auswahlZeigen();
+  }, { passive: false });
+  function fingerEnde() {
+    if (halte) { clearTimeout(halte.timer); halte = null; return; }
+    if (!fingerZug) return;
+    var z = fingerZug; fingerZug = null;
+    $('u-kal').classList.remove('ziehen');
+    klickIgnorieren = Date.now();
+    if (z.bewegt) { uAnsicht.auswahlStart = ''; auswahlSetzen(z.start, z.ende); }
+    else { uAnsicht.auswahlStart = z.start; auswahlSetzen(z.start, z.start); }
     renderUrlaub();
-    var neu = document.querySelector('#u-kal button[data-tag="' + s + '"]');
+  }
+  $('u-kal').addEventListener('touchend', fingerEnde);
+  $('u-kal').addEventListener('touchcancel', fingerEnde);
+  $('u-kal').addEventListener('contextmenu', function (e) { if (e.target.closest('button[data-tag]')) e.preventDefault(); });
+  // Tastatur (Enter/Leertaste) löst nur einen Klick aus
+  $('u-kal').addEventListener('click', function (e) {
+    if (Date.now() - klickIgnorieren < 350) return;
+    var b = e.target.closest('button[data-tag]');
+    if (!b) return;
+    auswahlTippen(b.getAttribute('data-tag'));
+    renderUrlaub();
+    var neu = document.querySelector('#u-kal button[data-tag="' + b.getAttribute('data-tag') + '"]');
     if (neu) neu.focus();
   });
-  $('u-von').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
-  $('u-bis').addEventListener('input', function () { uAnsicht.auswahlStart = ''; uVorschau(); });
+  $('u-von').addEventListener('input', function () { uAnsicht.auswahlStart = ''; auswahlZeigen(); });
+  $('u-bis').addEventListener('input', function () { uAnsicht.auswahlStart = ''; auswahlZeigen(); });
   $('u-auswahl-weg').addEventListener('click', function () { uAnsicht.auswahlStart = ''; $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = ''; renderUrlaub(); });
   $('u-form').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -2871,6 +3294,76 @@
     $('u-export-knoepfe').hidden = true;
     $('u-export-hinweis').hidden = false;
   }
+  // Eigene Markierungen
+  function tagMeldung(t, fehler) { $('u-tag-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('u-tag-meldung').textContent = t; }
+  $('u-tag-farben').addEventListener('input', function (e) {
+    if (e.target.id === 'u-tag-farbe-eigen') document.querySelector('input[name="u-tag-farbe"][value="eigen"]').checked = true;
+  });
+  function tagFormular(auf) {
+    $('u-tag-neu').hidden = !auf;
+    $('u-tag-auf').setAttribute('aria-expanded', auf ? 'true' : 'false');
+    $('u-tag-auf').setAttribute('aria-label', auf ? 'Neue Markierung schließen' : 'Neue Markierung anlegen');
+    if (auf) { tagMeldung(''); $('u-tag-name').focus(); }
+  }
+  $('u-tag-auf').addEventListener('click', function () { tagFormular($('u-tag-neu').hidden); });
+  $('u-tag-zu').addEventListener('click', function () { $('u-tag-name').value = ''; tagFormular(false); $('u-tag-auf').focus(); });
+  $('u-tag-add').addEventListener('click', function () {
+    var name = $('u-tag-name').value.trim().slice(0, 30);
+    if (!name) { tagMeldung('Bitte einen Namen eingeben.', true); $('u-tag-name').focus(); return; }
+    if (UZ.tags.some(function (t) { return t.name.toLowerCase() === name.toLowerCase(); })) { tagMeldung('Eine Markierung mit diesem Namen gibt es schon.', true); return; }
+    var w = document.querySelector('input[name="u-tag-farbe"]:checked');
+    var farbe = w && w.value === 'eigen' ? $('u-tag-farbe-eigen').value : (w ? w.value : FARBEN[0][0]);
+    if (!RX_FARBE.test(farbe)) farbe = FARBEN[0][0];
+    var t = { id: 't' + Date.now(), name: name, farbe: farbe.toUpperCase() };
+    UZ.tags.push(t);
+    uSpeichern();
+    $('u-tag-name').value = '';
+    tagFormular(false);
+    renderUrlaub();
+    $('u-mark-tag').value = t.id;
+    tagMeldung('Markierung „' + name + '“ angelegt. Wähle oben im Kalender Tage aus und tippe auf „Markierung eintragen“.');
+  });
+  $('u-tag-liste').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-u-tag-weg]');
+    if (!b) return;
+    var id = b.getAttribute('data-u-tag-weg'), t = tagById(id);
+    var anz = UZ.markierungen.filter(function (m) { return m.tag === id; }).length;
+    if (anz && b.getAttribute('data-bestaetigt') !== '1') {
+      b.setAttribute('data-bestaetigt', '1');
+      b.textContent = 'Wirklich löschen?';
+      tagMeldung('„' + t.name + '“ ist ' + anz + (anz === 1 ? ' Zeitraum' : ' Zeiträumen') + ' zugeordnet. Beim Löschen werden diese mit entfernt. Zum Bestätigen noch einmal tippen.', true);
+      return;
+    }
+    UZ.tags = UZ.tags.filter(function (x) { return x.id !== id; });
+    UZ.markierungen = UZ.markierungen.filter(function (m) { return m.tag !== id; });
+    uSpeichern();
+    renderUrlaub();
+    tagMeldung('Markierung „' + t.name + '“ gelöscht.');
+  });
+  $('u-mark-add').addEventListener('click', function () {
+    var tagId = $('u-mark-tag').value, von = $('u-von').value, bis = $('u-bis').value || von;
+    if (!tagById(tagId)) { uMeldung('Bitte zuerst unter „Eigene Markierungen“ eine Markierung anlegen.', true); tagFormular(true); $('u-tag-neu').scrollIntoView({ block: 'center' }); return; }
+    if (!von) { uMeldung('Bitte im Kalender oder oben einen Zeitraum wählen.', true); return; }
+    if (bis < von) { uMeldung('Das Ende liegt vor dem Beginn.', true); return; }
+    var dopp = UZ.markierungen.filter(function (m) { return m.tag === tagId && m.von <= bis && von <= m.bis; })[0];
+    if (dopp) { uMeldung('„' + tagById(tagId).name + '“ ist für einen Teil dieser Tage schon eingetragen (' + datumKurz(dopp.von) + (dopp.bis !== dopp.von ? ' bis ' + datumKurz(dopp.bis) : '') + ').', true); return; }
+    UZ.markierungen.push({ id: 'm' + Date.now(), tag: tagId, von: von, bis: bis, notiz: $('u-notiz').value.trim().slice(0, 80) });
+    uSpeichern();
+    uAnsicht.auswahlStart = '';
+    $('u-von').value = ''; $('u-bis').value = ''; $('u-notiz').value = '';
+    var dv = vonIso(von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth();
+    renderUrlaub();
+    uMeldung('„' + tagById(tagId).name + '“ eingetragen: ' + datumKurz(von) + (bis !== von ? ' bis ' + datumKurz(bis) : '') + '.');
+  });
+  $('u-mark-liste').addEventListener('click', function (e) {
+    var w = e.target.closest('button[data-u-mark-weg]');
+    if (w) { UZ.markierungen = UZ.markierungen.filter(function (m) { return m.id !== w.getAttribute('data-u-mark-weg'); }); uSpeichern(); renderUrlaub(); return; }
+    var z = e.target.closest('button[data-u-mark-zeige]');
+    if (z) {
+      var m = UZ.markierungen.filter(function (x) { return x.id === z.getAttribute('data-u-mark-zeige'); })[0];
+      if (m) { var dv = vonIso(m.von); uAnsicht.jahr = dv.getFullYear(); uAnsicht.monat = dv.getMonth(); renderUrlaub(); $('u-kal').scrollIntoView({ block: 'center' }); }
+    }
+  });
   $('u-export-jahr').addEventListener('click', function () { icsExport(uAnsicht.jahr); });
   $('u-export-alle').addEventListener('click', function () { icsExport(0); });
 
@@ -2878,6 +3371,13 @@
   $('duz-r-monat').addEventListener('change', function (e) {
     if (/^\d{4}-\d{2}$/.test(e.target.value)) { state.duzMonat = e.target.value; render(); }
   });
+  $('duz-dg').addEventListener('change', function (e) {
+    var dd = dgById(e.target.value);
+    if (!dd) return;
+    state.gruppe = dd.gruppe; state.dienstgrad = dd.id; state.bg = '';
+    fuelleDienstgrade(); render();
+  });
+  $('duz-bg').addEventListener('change', function (e) { state.bg = e.target.value; render(); });
   $('duz-zeitraum').addEventListener('change', function (e) { state.duzZeitraum = e.target.value; render(); });
   function diensteZeigen(an) { UZ.diensteZeigen = an; uSpeichern(); render(); renderUrlaub(); }
   $('duz-kal-zeigen').addEventListener('change', function (e) { diensteZeigen(e.target.checked); });

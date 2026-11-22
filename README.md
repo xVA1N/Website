@@ -31,6 +31,16 @@ Wenn danach in der Seite der Hinweis „Die Datei daten.js fehlt oder enthält e
 
 Wenn die Zuordnung der Einsatzgebiete zu Stufen geprüft ist, `gebieteBeispiel: false` setzen. Dann verschwinden alle Beispiel-Hinweise auf der Seite.
 
+## Text „Über MeinKamerad“
+
+Auf der Seite Mehr steht oben das Feld „Über MeinKamerad“. Den Text trägst du in `daten.js` ganz oben bei `ueber` ein, zum Beispiel:
+
+```js
+ueber: "Erster Absatz.\n\nZweiter Absatz.",
+```
+
+`\n\n` beginnt einen neuen Absatz. Solange der Text leer ist, steht dort „Text folgt.“
+
 ## Eigene Infos zu Dienstgraden
 
 Auf der Seite Dienstgrade klappt ein Dienstgrad beim Antippen auf. Unter „Weitere Infos“ erscheinen die Eckdaten und, falls vorhanden, ein eigener Text. Diesen Text trägst du in `daten.js` unter `dienstgradInfos` ein, zum Beispiel:
@@ -43,9 +53,9 @@ dienstgradInfos: {
 
 Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber in `daten.js`.
 
-## Urlaubsplaner
+## Urlaubskartei
 
-Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
+Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Übersicht führt vier Konten (Erholungsurlaub, Überstunden, ATB = Ausnahmetatbestand, Sonderurlaub), jeweils mit dem Anspruch dieses Jahres und dem Rest aus dem Vorjahr. Überstunden werden in Stunden geführt. Ein Tag Dienstzeitausgleich zieht die Stunden dieses Wochentags ab. Der Vorschlag für die Dienstzeiten (Beginn, Ende, Pause je Wochentag) steht in `daten.js` unter `urlaub.dienstzeiten`, jeder Nutzer kann ihn in der Urlaubskartei ändern. Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer in der Urlaubskartei über das Plus selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
 
 ## Quellen
 
