@@ -1607,7 +1607,9 @@
     function wink(x, y, w) { return '<path class="ch" d="M' + (x - w) + ' ' + (y + w * 0.7) + 'L' + x + ' ' + y + 'L' + (x + w) + ' ' + (y + w * 0.7) + '"/>'; }
     var strich = { gefr: 1, ogefr: 2, hgefr: 3, stgefr: 4, ostgefr: 5 }, i, n;
     if (strich[k]) {
-      for (i = 0; i < strich[k]; i++) { var y = 44 - i * 6; o += '<path class="st" d="M8 ' + (y + 3) + 'L20 ' + (y - 3) + '"/>'; }
+      // Bei fünf Streifen enger setzen, damit der oberste unter der Querlinie bleibt
+      var abst = strich[k] >= 5 ? 5.1 : 6;
+      for (i = 0; i < strich[k]; i++) { var y = +(44.5 - i * abst).toFixed(1); o += '<path class="st" d="M8 ' + (y + 3) + 'L20 ' + (y - 3) + '"/>'; }
     }
     var ua = { schuetze_ua: 0, gefr_ua: 1, ogefr_ua: 2, hgefr_ua: 3 };
     if (ua[k] !== undefined) {
