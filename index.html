@@ -415,6 +415,11 @@
   .u-meldung { font-size: .9rem; }
   .u-meldung.fehler { color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 8px 12px; }
   .u-eintrag-akt { display: flex; gap: 6px; align-items: center; padding-right: 8px; }
+  /* Listen mit Knöpfen: Knöpfe unter den Text, damit nichts überlappt */
+  #u-liste .fav-item, #u-mark-liste .fav-item, #u-tag-liste .fav-item, #duz-liste .fav-item { flex-wrap: wrap; }
+  #u-liste .fav-item > .zeile, #u-mark-liste .fav-item > .zeile, #u-tag-liste .fav-item > .zeile, #duz-liste .fav-item > .zeile { flex: 1 1 100%; padding-bottom: 6px; }
+  #u-liste .u-eintrag-akt, #u-mark-liste .u-eintrag-akt, #u-tag-liste .u-eintrag-akt, #duz-liste .u-eintrag-akt { padding: 0 12px 12px; }
+  .zeile .n { overflow-wrap: anywhere; }
   .u-eintrag-akt button { min-height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: .82rem; padding: 0 10px; cursor: pointer; white-space: nowrap; }
   .dg-info .eigen { border-top: 1px solid var(--line); padding-top: 10px; white-space: pre-line; }
   .zeile .n { font-weight: 500; min-width: 0; }
