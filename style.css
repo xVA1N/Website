@@ -649,7 +649,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-typ[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .lage-form-bearb { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line); }
 .lage-rahmen { position: relative; }
-.lage-leiste { position: absolute; left: 8px; right: 8px; top: 8px; z-index: 1100; display: grid; gap: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .96); color: #1A221C; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); font-size: .88rem; }
+.lage-leiste { position: sticky; top: 8px; z-index: 1100; margin-bottom: 8px; display: grid; gap: 8px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .97); color: #1A221C; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); font-size: .88rem; }
 .lage-leiste-knoepfe { display: flex; flex-wrap: wrap; gap: 6px; }
 .lage-leiste-knoepfe .knopf { flex: 1 1 80px; min-height: 38px; font-size: .88rem; }
 .lage-leiste .knopf.sekundaer { background: #FFFFFF; color: #35553A; border-color: #35553A; }
@@ -668,3 +668,11 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .leaflet-tooltip.lage-formtext { background: rgba(255, 255, 255, .85); border: 0; box-shadow: none; padding: 1px 5px; font-weight: 600; color: #1A221C; font-size: 12px; }
 .leaflet-tooltip.lage-formtext::before { display: none; }
 .lage-popup-mgrs { font-family: var(--font-mono); font-size: .8rem; }
+.lage-typen { grid-template-columns: repeat(4, 1fr); }
+.lage-typ { font-size: .78rem; min-height: 60px; }
+.lage-typ svg text { font-family: var(--font-text); }
+.lage-sicht { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 4px 0 8px; font-size: .9rem; }
+.lage-sicht legend { width: 100%; }
+.lage-sicht input { accent-color: var(--accent); }
+.leaflet-tooltip.lage-stufe { background: rgba(255, 255, 255, .95); border: 0; box-shadow: none; padding: 0 4px; font-weight: 800; font-size: 13px; letter-spacing: .02em; color: #111; }
+.leaflet-tooltip.lage-stufe::before { display: none; }

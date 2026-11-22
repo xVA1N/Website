@@ -650,20 +650,25 @@
         <button type="button" class="lage-typ" data-lage-typ="linie" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M4 22C14 6 24 26 36 8"/></svg>Linie</button>
         <button type="button" class="lage-typ" data-lage-typ="pfeil" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M5 24L30 8"/><path class="f" d="M36 4l-11 1 6 8z"/></svg>Pfeil</button>
         <button type="button" class="lage-typ" data-lage-typ="raum" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M6 8l20-4 9 14-14 8-15-6z"/></svg>Raum</button>
+        <button type="button" class="lage-typ" data-lage-typ="grenze" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 15h10M27 15h10"/><text x="20" y="19" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" stroke="none">II</text></svg>Grenze</button>
+        <button type="button" class="lage-typ" data-lage-typ="phase" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 20h34"/><text x="20" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="currentColor" stroke="none">PL</text></svg>Phasenlinie</button>
+        <button type="button" class="lage-typ" data-lage-typ="achse" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 12h21V6l13 9-13 9v-6H3z"/></svg>Angriffsachse</button>
+        <button type="button" class="lage-typ" data-lage-typ="sperre" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 21h34"/><path class="f" d="M7 21l4-7 4 7M17 21l4-7 4 7M27 21l4-7 4 7"/></svg>Sperre</button>
       </div>
       <div class="u-felder p-felder" style="margin-top:10px">
         <div><label class="label" for="lage-farbe" style="display:block">Farbe</label><select id="lage-farbe"><option value="blau">Blau (eigene)</option><option value="rot">Rot (Feind)</option><option value="schwarz">Schwarz (allgemein)</option><option value="gruen">Grün (Hindernis, Gelände)</option></select></div>
-        <div><label class="label" for="lage-text" style="display:block">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. PL ALPHA"></div>
+        <div><label class="label" for="lage-text" style="display:block">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. ALPHA"></div>
+        <div id="lage-stufe-wrap" hidden><label class="label" for="lage-stufe" style="display:block">Grenze der Ebene</label><select id="lage-stufe"><option value="I">Kompanie (I)</option><option value="II" selected>Bataillon (II)</option><option value="III">Regiment (III)</option><option value="X">Brigade (X)</option><option value="XX">Division (XX)</option><option value="XXX">Korps (XXX)</option></select></div>
+        <div id="lage-breite-wrap" hidden><label class="label" for="lage-breite" style="display:block">Breite</label><select id="lage-breite"><option value="s">schmal</option><option value="m" selected>mittel</option><option value="b">breit</option></select></div>
       </div>
       <label class="check" for="lage-gestrichelt" style="margin-top:10px"><input type="checkbox" id="lage-gestrichelt"><span class="t">Gestrichelt (geplant oder vermutet)</span></label>
       <div class="lage-form-bearb" id="lage-form-bearb" hidden>
         <p class="hint" id="lage-form-bearb-text" style="margin-top:0"></p>
         <div class="dg-aktionen"><button type="button" class="knopf primaer" id="lage-form-uebernehmen">Änderungen übernehmen</button><button type="button" class="knopf sekundaer" id="lage-form-abbrechen">Abbrechen</button></div>
       </div>
-      <p class="hint">Typ wählen, dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Beim Pfeil kommt die Spitze an den letzten Punkt.</p>
+      <p class="hint">Typ wählen, dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Bei Pfeil und Angriffsachse kommt die Spitze an den letzten Punkt, bei der Sperre zeigen die Zacken in Zeichenrichtung nach links. Formen nach APP-6, vereinfacht dargestellt.</p>
     </section>
     <div class="lage-rahmen">
-      <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
       <div class="lage-leiste" id="lage-leiste" hidden>
         <span id="lage-leiste-text"></span>
         <span class="lage-leiste-knoepfe">
@@ -672,14 +677,29 @@
           <button type="button" class="knopf primaer" id="lage-leiste-fertig">Fertig</button>
         </span>
       </div>
+      <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
     </div>
     <section class="panel">
       <div class="u-kopfzeile">
         <h2>Auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
         <a class="u-plus" href="#symbole" aria-label="Zeichen hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
       </div>
-      <p class="hint">Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
+      <fieldset class="lage-sicht"><legend>Anzeigen</legend>
+        <label class="netto-check" for="lage-sicht-eigen"><input type="checkbox" id="lage-sicht-eigen" checked> Eigene Kräfte</label>
+        <label class="netto-check" for="lage-sicht-feind"><input type="checkbox" id="lage-sicht-feind" checked> Feind</label>
+        <label class="netto-check" for="lage-sicht-sonst"><input type="checkbox" id="lage-sicht-sonst" checked> Sonstiges</label>
+      </fieldset>
+      <p class="hint">Zeichen zählen nach ihrer Zugehörigkeit, Formen nach ihrer Farbe: blau eigene, rot Feind, sonst Sonstiges. Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
       <div class="liste" id="lage-liste"></div>
+    </section>
+    <section class="panel">
+      <h2>Lagekarte weitergeben</h2>
+      <p class="hint" style="margin-top:0">Die gewählte Lagekarte mit allen Zeichen, Formen und dem eigenen Bild als Datei speichern. Eine solche Datei lässt sich hier wieder einlesen, sie kommt als neue Lagekarte dazu.</p>
+      <div class="dg-aktionen">
+        <button type="button" class="knopf primaer" id="lage-export">Als Datei speichern</button>
+        <button type="button" class="knopf sekundaer" id="lage-import-knopf">Datei einlesen</button>
+      </div>
+      <input type="file" id="lage-import" accept="application/json,.json" hidden>
     </section>
   </section>
 

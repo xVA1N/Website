@@ -13,11 +13,15 @@ var LAGE_KARTEN = {
 };
 // Farben für Linien, Pfeile und Räume (eigene Kräfte blau, Feind rot wie in APP-6)
 var LAGE_FARBEN = { blau: ['#0060C0', 'Blau (eigene)'], rot: ['#D01818', 'Rot (Feind)'], schwarz: ['#111111', 'Schwarz (allgemein)'], gruen: ['#118833', 'Grün (Hindernis, Gelände)'] };
-var LAGE_TYPEN = { linie: 'Linie', pfeil: 'Pfeil', raum: 'Raum' };
+var LAGE_TYPEN = { linie: 'Linie', pfeil: 'Pfeil', raum: 'Raum', grenze: 'Gefechtsstreifengrenze', phase: 'Phasenlinie', achse: 'Angriffsachse', sperre: 'Sperre' };
+// Größe an der Gefechtsstreifengrenze (Zeichen der höchsten Ebene, deren Grenze es ist)
+var LAGE_STUFEN = { 'I': 'Kompanie', 'II': 'Bataillon', 'III': 'Regiment', 'X': 'Brigade', 'XX': 'Division', 'XXX': 'Korps' };
+// Breite der Angriffsachse als Anteil ihrer Länge, damit sie mit der Karte mitwächst
+var LAGE_BREITEN = { s: ['schmal', 0.08], m: ['mittel', 0.14], b: ['breit', 0.22] };
 
 /* ---------- Speicher: mehrere Lagekarten ---------- */
 function lageNeu(name) {
-  return { id: 'k' + Date.now() + Math.floor(Math.random() * 1000), name: name, modus: 'topo', mitte: [51.0, 10.3], zoom: 6, zeichen: [], formen: [] };
+  return { id: 'k' + Date.now() + Math.floor(Math.random() * 1000), name: name, modus: 'topo', mitte: [51.0, 10.3], zoom: 6, zeichen: [], formen: [], sichtbar: { eigen: true, feind: true, sonst: true } };
 }
 function lageKartePruefen(k) {
   var l = lageNeu(typeof k.name === 'string' && k.name.trim() ? k.name.trim().slice(0, 40) : 'Lagekarte');
@@ -31,7 +35,13 @@ function lageKartePruefen(k) {
   if (Array.isArray(k.formen)) l.formen = k.formen.filter(function (f) {
     return f && LAGE_TYPEN[f.typ] && LAGE_FARBEN[f.farbe] && (f.ebene === 'karte' || f.ebene === 'bild') && Array.isArray(f.punkte) &&
       f.punkte.length >= 2 && f.punkte.every(function (p) { return Array.isArray(p) && isFinite(p[0]) && isFinite(p[1]); });
+  }).map(function (f) {
+    if (f.typ === 'grenze' && !LAGE_STUFEN[f.stufe]) f.stufe = 'II';
+    if (f.typ === 'achse' && !LAGE_BREITEN[f.breite]) f.breite = 'm';
+    return f;
   });
+  l.sichtbar = { eigen: true, feind: true, sonst: true };
+  if (k.sichtbar && typeof k.sichtbar === 'object') ['eigen', 'feind', 'sonst'].forEach(function (x) { if (k.sichtbar[x] === false) l.sichtbar[x] = false; });
   return l;
 }
 function lageLaden() {
@@ -190,6 +200,11 @@ function lageIcon(z) {
   return L.divIcon({ className: 'lage-zeichen' + (z.gesperrt ? ' gesperrt' : ''), html: sym.asSVG() + (z.gesperrt ? '<span class="lage-schloss" title="Gesperrt" style="left:' + Math.round(an.x - 8) + 'px;top:' + Math.round(gr.height + 3) + 'px">' + SCHLOSS + '</span>' : ''),
     iconSize: [gr.width, gr.height], iconAnchor: [an.x, an.y] });
 }
+// Ebene zum Ein- und Ausblenden: eigene Kräfte, Feind, Sonstiges
+function lageZugZeichen(z) { var c = z.sidc.charAt(3); return c === '3' || c === '2' ? 'eigen' : (c === '6' || c === '5' ? 'feind' : 'sonst'); }
+function lageZugForm(f) { return f.farbe === 'blau' ? 'eigen' : (f.farbe === 'rot' ? 'feind' : 'sonst'); }
+function lageSichtbarZ(z) { return LAGE.sichtbar[lageZugZeichen(z)] !== false; }
+function lageSichtbarF(f) { return LAGE.sichtbar[lageZugForm(f)] !== false; }
 function lageZeichen(id) { return LAGE.zeichen.filter(function (z) { return z.id === id; })[0]; }
 function lageForm(id) { return LAGE.formen.filter(function (f) { return f.id === id; })[0]; }
 function lageMgrsText(lat, lng) { return LAGE.modus === 'bild' ? '' : '<span class="lage-popup-mgrs">MGRS ' + esc(nachMgrs(lat, lng, 5)) + '</span>'; }
@@ -219,7 +234,7 @@ function lageZeichenZeigen() {
     lageSpeichern();
     lageMeldung('Zeichen in die Kartenmitte gesetzt. Zum Verschieben gedrückt halten und ziehen.');
   }
-  LAGE.zeichen.filter(function (z) { return z.ebene === ebene; }).forEach(function (z) {
+  LAGE.zeichen.filter(function (z) { return z.ebene === ebene && lageSichtbarZ(z); }).forEach(function (z) {
     var m = L.marker([z.y, z.x], { icon: lageIcon(z), draggable: !z.gesperrt, keyboard: true, title: (z.name || '') + (z.gesperrt ? ' (gesperrt)' : ''), autoPan: true, zIndexOffset: 500 }).addTo(lageKarte);
     m.on('dragend', function () {
       var p = m.getLatLng();
@@ -237,8 +252,9 @@ function lageZeichenZeigen() {
 
 /* ---------- Linien, Pfeile und Räume ---------- */
 function lageStil(f, vorschau) {
-  return { color: LAGE_FARBEN[f.farbe][0], weight: f.typ === 'raum' ? 2.5 : 3, opacity: vorschau ? 0.7 : 1, dashArray: f.gestrichelt ? '9 7' : null,
-    fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: f.typ === 'raum' ? 0.08 : 0, lineCap: 'round', lineJoin: 'round' };
+  var flaeche = f.typ === 'raum' || f.typ === 'achse';
+  return { color: LAGE_FARBEN[f.farbe][0], weight: flaeche ? 2.5 : (f.typ === 'grenze' ? 3.5 : 3), opacity: vorschau ? 0.7 : 1, dashArray: f.gestrichelt ? '9 7' : null,
+    fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: f.typ === 'raum' ? 0.08 : (f.typ === 'achse' ? 0.12 : 0), lineCap: 'round', lineJoin: 'round' };
 }
 // Pfeilspitze am letzten Punkt, in Bildschirmpixeln berechnet, damit sie bei jedem Zoom gleich groß bleibt
 function lagePfeilSpitze(punkte) {
@@ -249,19 +265,75 @@ function lagePfeilSpitze(punkte) {
   var basis = L.point(b.x - ux * l, b.y - uy * l);
   return [punkte[n - 1], lageKarte.layerPointToLatLng(L.point(basis.x - uy * w, basis.y + ux * w)), lageKarte.layerPointToLatLng(L.point(basis.x + uy * w, basis.y - ux * w))];
 }
+// Angriffsachse: breiter Pfeil um die Mittellinie (in Kartenkoordinaten, skaliert mit der Karte)
+function lageAchse(punkte, breite) {
+  var crs = lageKarte.options.crs;
+  var pp = punkte.map(function (p) { return crs.project(p); });
+  var gesamt = 0;
+  for (var i = 1; i < pp.length; i++) gesamt += pp[i].distanceTo(pp[i - 1]);
+  var w = gesamt * LAGE_BREITEN[breite][1] / 2;
+  var n = pp.length, last = pp[n - 1], vor = pp[n - 2];
+  var dx = last.x - vor.x, dy = last.y - vor.y, len = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / len, uy = dy / len;
+  var kopf = Math.min(w * 3, len * 0.8);
+  var ende = L.point(last.x - ux * kopf, last.y - uy * kopf);
+  var mitte = pp.slice(0, n - 1).concat([ende]);
+  var links = [], rechts = [];
+  mitte.forEach(function (q, i) {
+    var a = mitte[Math.max(0, i - 1)], b = mitte[Math.min(mitte.length - 1, i + 1)];
+    var tx = b.x - a.x, ty = b.y - a.y, tl = Math.sqrt(tx * tx + ty * ty) || 1;
+    var nx = -ty / tl, ny = tx / tl;
+    links.push(L.point(q.x + nx * w, q.y + ny * w)); rechts.push(L.point(q.x - nx * w, q.y - ny * w));
+  });
+  var nx2 = -uy, ny2 = ux;
+  var ring = links.concat([L.point(ende.x + nx2 * w * 2, ende.y + ny2 * w * 2), last, L.point(ende.x - nx2 * w * 2, ende.y - ny2 * w * 2)]).concat(rechts.reverse());
+  return ring.map(function (q) { return crs.unproject(q); });
+}
+// Sperre: Dreiecke entlang der Linie (in Bildschirmpixeln, deshalb nach jedem Zoom neu)
+function lageZaehne(punkte) {
+  var lp = punkte.map(function (p) { return lageKarte.latLngToLayerPoint(p); }), ringe = [], abstand = 26, h = 9, rest = abstand / 2;
+  for (var i = 1; i < lp.length; i++) {
+    var a = lp[i - 1], b = lp[i], dx = b.x - a.x, dy = b.y - a.y, len = Math.sqrt(dx * dx + dy * dy);
+    if (!len) continue;
+    var ux = dx / len, uy = dy / len, pos = rest;
+    while (pos + 6 <= len) {
+      var m = L.point(a.x + ux * pos, a.y + uy * pos);
+      ringe.push([lageKarte.layerPointToLatLng(L.point(m.x - ux * 6, m.y - uy * 6)), lageKarte.layerPointToLatLng(L.point(m.x + uy * h, m.y - ux * h)), lageKarte.layerPointToLatLng(L.point(m.x + ux * 6, m.y + uy * 6))]);
+      pos += abstand;
+    }
+    rest = pos - len;
+  }
+  return ringe.length ? ringe.map(function (r) { return [r]; }) : [];
+}
+function lageMitte(pk) {
+  if (pk.length === 2) return L.latLng((pk[0].lat + pk[1].lat) / 2, (pk[0].lng + pk[1].lng) / 2);
+  return pk[Math.floor((pk.length - 1) / 2)];
+}
 function lageFormLayerBauen(f, vorschau) {
   var g = L.layerGroup(), stil = lageStil(f, vorschau);
   var pk = f.punkte.map(function (p) { return L.latLng(p[0], p[1]); });
-  var haupt = f.typ === 'raum' && pk.length >= 3 ? L.polygon(pk, stil) : L.polyline(pk, stil);
+  var haupt = f.typ === 'raum' && pk.length >= 3 ? L.polygon(pk, stil) : (f.typ === 'achse' && pk.length >= 2 ? L.polygon(lageAchse(pk, f.breite || 'm'), stil) : L.polyline(pk, stil));
   haupt.addTo(g);
+  if (f.typ === 'sperre' && pk.length >= 2) {
+    var zaehne = L.polygon(lageZaehne(pk), { color: stil.color, weight: 1, fillColor: stil.color, fillOpacity: 1, opacity: stil.opacity, interactive: false });
+    zaehne.addTo(g);
+    g.zaehne = zaehne;
+  }
+  if (f.typ === 'grenze' && pk.length >= 2) {
+    L.tooltip({ permanent: true, direction: 'center', className: 'lage-stufe', interactive: false }).setLatLng(lageMitte(pk)).setContent(esc(f.stufe || 'II')).addTo(g);
+  }
+  if (f.typ === 'phase' && pk.length >= 2 && !vorschau) {
+    var pl = 'PL' + (f.text ? ' ' + esc(f.text) : '');
+    L.tooltip({ permanent: true, direction: 'left', className: 'lage-formtext', interactive: false, offset: [-6, 0] }).setLatLng(pk[0]).setContent(pl).addTo(g);
+    L.tooltip({ permanent: true, direction: 'right', className: 'lage-formtext', interactive: false, offset: [6, 0] }).setLatLng(pk[pk.length - 1]).setContent(pl).addTo(g);
+  }
   if (f.typ === 'pfeil' && pk.length >= 2) {
     var spitze = L.polygon(lagePfeilSpitze(pk), { color: stil.color, weight: 1, fillColor: stil.color, fillOpacity: 1, opacity: stil.opacity });
     spitze.addTo(g);
     g.spitze = spitze;
   }
-  if (f.text && !vorschau) {
-    var mitte = f.typ === 'raum' && pk.length >= 3 ? haupt.getBounds().getCenter() : pk[Math.floor((pk.length - 1) / 2)];
-    if (f.typ !== 'raum' && pk.length === 2) mitte = L.latLng((pk[0].lat + pk[1].lat) / 2, (pk[0].lng + pk[1].lng) / 2);
+  if (f.text && !vorschau && f.typ !== 'phase') {
+    var mitte = (f.typ === 'raum' && pk.length >= 3) || f.typ === 'achse' ? haupt.getBounds().getCenter() : lageMitte(pk);
+    if (f.typ === 'grenze') mitte = pk[0];
     L.tooltip({ permanent: true, direction: 'center', className: 'lage-formtext', interactive: false }).setLatLng(mitte).setContent(esc(f.text)).addTo(g);
   }
   g.haupt = haupt;
@@ -272,7 +344,7 @@ function lageFormenZeigen() {
   lageFormLayer = {};
   var ebene = lageEbene();
   if (ebene === 'bild' && !lageBild()) return;
-  LAGE.formen.filter(function (f) { return f.ebene === ebene; }).forEach(function (f) {
+  LAGE.formen.filter(function (f) { return f.ebene === ebene && lageSichtbarF(f); }).forEach(function (f) {
     var g = lageFormLayerBauen(f, false).addTo(lageKarte);
     g.eachLayer(function (l) {
       if (l instanceof L.Path) l.bindPopup(function () {
@@ -288,7 +360,11 @@ function lagePfeileNeu() {
   Object.keys(lageFormLayer).forEach(function (id) {
     var g = lageFormLayer[id], f = lageForm(id);
     if (g.spitze && f) g.spitze.setLatLngs(lagePfeilSpitze(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
+    if (g.zaehne && f) g.zaehne.setLatLngs(lageZaehne(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
   });
+  if (lageZeichnen && lageZeichnen.vorschau && lageZeichnen.vorschau.zaehne && lageZeichnen.punkte.length >= 2) {
+    lageZeichnen.vorschau.zaehne.setLatLngs(lageZaehne(lageZeichnen.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
+  }
   if (lageZeichnen && lageZeichnen.vorschau && lageZeichnen.vorschau.spitze && lageZeichnen.punkte.length >= 2) {
     lageZeichnen.vorschau.spitze.setLatLngs(lagePfeilSpitze(lageZeichnen.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
   }
@@ -301,6 +377,7 @@ function lageZeichnenStart(typ) {
   lagePunkteEnde();
   lageZeichnenEnde();
   lageZeichnen = { typ: typ, punkte: [], vorschau: null };
+  lageOptionenZeigen(typ);
   lageKarte.closePopup();
   lageKarte.doubleClickZoom.disable();
   $('lage-karte').classList.add('zeichnet');
@@ -311,6 +388,7 @@ function lageZeichnenEnde() {
   lageZeichnen = null;
   if (lageKarte) lageKarte.doubleClickZoom.enable();
   $('lage-karte').classList.remove('zeichnet');
+  lageOptionenZeigen(lageFormBearbId && lageForm(lageFormBearbId) ? lageForm(lageFormBearbId).typ : '');
   lageLeiste();
 }
 function lageMindest(typ) { return typ === 'raum' ? 3 : 2; }
@@ -318,7 +396,7 @@ function lageVorschau() {
   if (lageZeichnen.vorschau) lageKarte.removeLayer(lageZeichnen.vorschau);
   lageZeichnen.vorschau = null;
   if (!lageZeichnen.punkte.length) return;
-  var f = { typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked, punkte: lageZeichnen.punkte };
+  var f = { typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked, punkte: lageZeichnen.punkte, stufe: $('lage-stufe').value, breite: $('lage-breite').value };
   var g = lageFormLayerBauen(f, true);
   lageZeichnen.punkte.forEach(function (p) { L.circleMarker(p, { radius: 5, color: '#FFFFFF', weight: 2, fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: 1 }).addTo(g); });
   lageZeichnen.vorschau = g.addTo(lageKarte);
@@ -331,8 +409,11 @@ function lageKartenKlick(e) {
 }
 function lageZeichnenFertig() {
   if (!lageZeichnen || lageZeichnen.punkte.length < lageMindest(lageZeichnen.typ)) return;
-  LAGE.formen.push({ id: 'f' + Date.now(), typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked,
-    text: $('lage-text').value.trim().slice(0, 40), ebene: lageEbene(), punkte: lageZeichnen.punkte.slice() });
+  var neu = { id: 'f' + Date.now(), typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked,
+    text: $('lage-text').value.trim().slice(0, 40), ebene: lageEbene(), punkte: lageZeichnen.punkte.slice() };
+  if (neu.typ === 'grenze') neu.stufe = $('lage-stufe').value;
+  if (neu.typ === 'achse') neu.breite = $('lage-breite').value;
+  LAGE.formen.push(neu);
   var typ = lageZeichnen.typ;
   lageZeichnenEnde();
   lageSpeichern();
@@ -350,7 +431,7 @@ function lageLeiste() {
     var n = lageZeichnen.punkte.length, min = lageMindest(lageZeichnen.typ);
     el.hidden = false;
     $('lage-leiste-text').textContent = LAGE_TYPEN[lageZeichnen.typ] + ': ' + (n < min ? 'Tippe auf die Karte, um Punkte zu setzen (mindestens ' + min + ').' : n + ' Punkte. Weitere setzen oder „Fertig“ tippen.') +
-      (lageZeichnen.typ === 'pfeil' ? ' Die Spitze kommt an den letzten Punkt.' : '');
+      ({ pfeil: ' Die Spitze kommt an den letzten Punkt.', achse: ' Die Spitze kommt an den letzten Punkt.', sperre: ' Die Zacken zeigen nach links in Zeichenrichtung.' }[lageZeichnen.typ] || '');
     $('lage-leiste-zurueck').hidden = !n;
     $('lage-leiste-fertig').hidden = false;
     $('lage-leiste-fertig').disabled = n < min;
@@ -397,12 +478,18 @@ function lageFormIcon(f) {
   var c = LAGE_FARBEN[f.farbe][0], d = f.gestrichelt ? ' stroke-dasharray="4 3"' : '';
   if (f.typ === 'raum') return '<svg viewBox="0 0 40 30"><path d="M6 8l20-4 9 14-14 8-15-6z" fill="' + c + '" fill-opacity=".12" stroke="' + c + '" stroke-width="2.5"' + d + '/></svg>';
   if (f.typ === 'pfeil') return '<svg viewBox="0 0 40 30"><path d="M5 24L30 8" stroke="' + c + '" stroke-width="3"' + d + ' fill="none"/><path d="M36 4l-11 1 6 8z" fill="' + c + '"/></svg>';
+  if (f.typ === 'achse') return '<svg viewBox="0 0 40 30"><path d="M3 12h21V6l13 9-13 9v-6H3z" fill="' + c + '" fill-opacity=".15" stroke="' + c + '" stroke-width="2"' + d + '/></svg>';
+  if (f.typ === 'grenze') return '<svg viewBox="0 0 40 30"><path d="M3 15h34" stroke="' + c + '" stroke-width="3"' + d + '/><rect x="13" y="8" width="14" height="14" fill="#fff"/><text x="20" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="' + c + '">' + esc(f.stufe || 'II') + '</text></svg>';
+  if (f.typ === 'phase') return '<svg viewBox="0 0 40 30"><path d="M3 18h34" stroke="' + c + '" stroke-width="3"' + d + '/><text x="20" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="' + c + '">PL</text></svg>';
+  if (f.typ === 'sperre') return '<svg viewBox="0 0 40 30"><path d="M3 20h34" stroke="' + c + '" stroke-width="3"/><path d="M7 20l4-7 4 7M17 20l4-7 4 7M27 20l4-7 4 7" fill="' + c + '"/></svg>';
   return '<svg viewBox="0 0 40 30"><path d="M4 22C14 6 24 26 36 8" stroke="' + c + '" stroke-width="3"' + d + ' fill="none"/></svg>';
 }
 function renderLageListe() {
   var ebene = lageEbene();
-  var zl = LAGE.zeichen.filter(function (z) { return z.ebene === ebene; }), fl = LAGE.formen.filter(function (f) { return f.ebene === ebene; });
-  $('lage-anz').textContent = zl.length + fl.length ? String(zl.length + fl.length) : '';
+  var zAlle = LAGE.zeichen.filter(function (z) { return z.ebene === ebene; }), fAlle = LAGE.formen.filter(function (f) { return f.ebene === ebene; });
+  var zl = zAlle.filter(lageSichtbarZ), fl = fAlle.filter(lageSichtbarF), versteckt = zAlle.length + fAlle.length - zl.length - fl.length;
+  $('lage-anz').textContent = zAlle.length + fAlle.length ? String(zAlle.length + fAlle.length) : '';
+  ['eigen', 'feind', 'sonst'].forEach(function (x) { $('lage-sicht-' + x).checked = LAGE.sichtbar[x] !== false; });
   var zeile = function (id, icon, text, gesperrt) {
     return '<div class="fav-item"><button type="button" class="zeile mit-icon" data-lage-zeige="' + id + '">' +
       '<span class="lage-liste-zeichen">' + icon + '</span><span class="n">' + text + '</span>' +
@@ -413,9 +500,11 @@ function renderLageListe() {
     return zeile(z.id, window.ms ? msSymbolAus({ sidc: z.sidc, opt: { fill: z.opt.fill, colorMode: z.opt.colorMode, standard: 'APP6' } }, 18).asSVG() : '',
       esc(z.name || 'Zeichen') + (z.opt && z.opt.uniqueDesignation ? ' · ' + esc(z.opt.uniqueDesignation) : ''), z.gesperrt);
   }).concat(fl.map(function (f) {
-    return zeile(f.id, lageFormIcon(f), LAGE_TYPEN[f.typ] + (f.text ? ' · ' + esc(f.text) : '') + (f.gestrichelt ? ' (gestrichelt)' : ''), f.gesperrt);
+    return zeile(f.id, lageFormIcon(f), LAGE_TYPEN[f.typ] + (f.typ === 'grenze' ? ' ' + esc(f.stufe || 'II') : '') + (f.typ === 'achse' ? ' (' + LAGE_BREITEN[f.breite || 'm'][0] + ')' : '') +
+      (f.text ? ' · ' + esc(f.text) : '') + (f.gestrichelt ? ' (gestrichelt)' : ''), f.gesperrt);
   })).join('');
-  $('lage-liste').innerHTML = html || '<p class="hint" style="padding:12px">Noch nichts auf dieser Grundlage.</p>';
+  $('lage-liste').innerHTML = (html || '<p class="hint" style="padding:12px">' + (versteckt ? 'Alles ist ausgeblendet.' : 'Noch nichts auf dieser Grundlage.') + '</p>') +
+    (html && versteckt ? '<p class="hint" style="padding:8px 12px">' + versteckt + ' ausgeblendet.</p>' : '');
 }
 
 /* ---------- Sperren, Bearbeiten, Löschen ---------- */
@@ -458,11 +547,16 @@ function lageFormBearbeiten(id) {
   $('lage-farbe').value = f.farbe;
   $('lage-gestrichelt').checked = !!f.gestrichelt;
   $('lage-text').value = f.text || '';
+  if (f.stufe) $('lage-stufe').value = f.stufe;
+  if (f.breite) $('lage-breite').value = f.breite;
+  lageOptionenZeigen(f.typ);
   $('lage-form-bearb').hidden = false;
   $('lage-form-bearb-text').textContent = LAGE_TYPEN[f.typ] + ' bearbeiten: Farbe, Strich und Beschriftung oben ändern, dann übernehmen.';
   $('lage-werkzeug').scrollIntoView({ block: 'center' });
 }
-function lageFormBearbeitenEnde() { lageFormBearbId = null; $('lage-form-bearb').hidden = true; }
+function lageFormBearbeitenEnde() { lageFormBearbId = null; $('lage-form-bearb').hidden = true; lageOptionenZeigen(lageZeichnen ? lageZeichnen.typ : ''); }
+// Zusatzfelder je Typ: Größe an der Grenze, Breite der Angriffsachse
+function lageOptionenZeigen(typ) { $('lage-stufe-wrap').hidden = typ !== 'grenze'; $('lage-breite-wrap').hidden = typ !== 'achse'; }
 function lageLoeschen(id) {
   var o = lageObjekt(id);
   if (!o || o.gesperrt) return;
@@ -512,13 +606,61 @@ $('lage-werkzeug').addEventListener('click', function (e) {
   lageFormBearbeitenEnde();
   lageZeichnenStart(typ);
 });
-['lage-farbe', 'lage-gestrichelt'].forEach(function (id) { $(id).addEventListener('change', function () { if (lageZeichnen) lageVorschau(); }); });
+['lage-farbe', 'lage-gestrichelt', 'lage-stufe', 'lage-breite'].forEach(function (id) { $(id).addEventListener('change', function () { if (lageZeichnen) lageVorschau(); }); });
+// Ebenen ein- und ausblenden
+['eigen', 'feind', 'sonst'].forEach(function (x) {
+  $('lage-sicht-' + x).addEventListener('change', function (e) { LAGE.sichtbar[x] = e.target.checked; lageSpeichern(); if (lageKarte) { lageKarte.closePopup(); lageFormenZeigen(); lageZeichenZeigen(); } });
+});
+
+// Lagekarte als Datei weitergeben und wieder einlesen (mit eigenem Bild)
+function lageDateiname() {
+  var t = LAGE.name.toLowerCase().replace(/[äöüß]/g, function (c) { return { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' }[c]; }).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return 'lagekarte-' + (t || 'lage') + '.json';
+}
+$('lage-export').addEventListener('click', function () {
+  var daten = { app: 'MeinKamerad', typ: 'lagekarte', version: 1, gesichert: new Date().toISOString(), karte: LAGE, bild: lageBild() || null };
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(daten)], { type: 'application/json' }));
+  a.download = lageDateiname();
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  lageMeldung('Lagekarte „' + LAGE.name + '“ als Datei gespeichert.');
+});
+$('lage-import-knopf').addEventListener('click', function () { $('lage-import').click(); });
+$('lage-import').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () {
+    try {
+      var j = JSON.parse(String(r.result));
+      if (!j || j.app !== 'MeinKamerad' || j.typ !== 'lagekarte' || !j.karte) throw new Error('falsch');
+      var k = lageKartePruefen(j.karte);
+      k.id = lageNeu('').id;
+      if (LAGE_ALLE.karten.some(function (x) { return x.name === k.name; })) k.name = (k.name + ' (eingelesen)').slice(0, 40);
+      if (typeof j.bild === 'string' && /^data:image\/(png|jpeg|webp);base64,/.test(j.bild)) {
+        try { localStorage.setItem(lageBildKey(k), j.bild); } catch (err) { lageMeldung('Das Bild der Lagekarte passt nicht in den Speicher dieses Browsers.', true); return; }
+      } else if (k.modus === 'bild') k.modus = 'topo';
+      LAGE_ALLE.karten.push(k);
+      lageWechseln(k.id);
+      lageMeldung('Lagekarte „' + k.name + '“ eingelesen.');
+    } catch (err) { lageMeldung('Diese Datei enthält keine Lagekarte von MeinKamerad.', true); }
+  };
+  r.readAsText(f);
+});
+if (window.claude && typeof window.claude.use === 'function') $('lage-export').title = 'In dieser Vorschau sind Downloads gesperrt.';
 $('lage-leiste-zurueck').addEventListener('click', function () { if (lageZeichnen) { lageZeichnen.punkte.pop(); lageVorschau(); lageLeiste(); } });
 $('lage-leiste-fertig').addEventListener('click', function () { if (lageZeichnen) lageZeichnenFertig(); else lagePunkteEnde(); });
 $('lage-leiste-abbrechen').addEventListener('click', function () { lageZeichnenEnde(); lagePunkteEnde(); });
 $('lage-form-uebernehmen').addEventListener('click', function () {
   var f = lageForm(lageFormBearbId);
-  if (f) { f.farbe = $('lage-farbe').value; f.gestrichelt = $('lage-gestrichelt').checked; f.text = $('lage-text').value.trim().slice(0, 40); lageSpeichern(); lageFormenZeigen(); renderLageListe(); lageMeldung('Geändert.'); }
+  if (f) {
+    f.farbe = $('lage-farbe').value; f.gestrichelt = $('lage-gestrichelt').checked; f.text = $('lage-text').value.trim().slice(0, 40);
+    if (f.typ === 'grenze') f.stufe = $('lage-stufe').value;
+    if (f.typ === 'achse') f.breite = $('lage-breite').value;
+    lageSpeichern(); lageFormenZeigen(); renderLageListe(); lageMeldung('Geändert.');
+  }
   lageFormBearbeitenEnde();
 });
 $('lage-form-abbrechen').addEventListener('click', lageFormBearbeitenEnde);
