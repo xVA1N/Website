@@ -107,6 +107,25 @@ function msSymbolAus(a, groesse) {
   return new window.ms.Symbol(a.sidc, o);
 }
 function msSymbol(groesse) { return msSymbolAus(msAuswahl(), groesse); }
+// Formular aus einem gespeicherten Zeichen füllen (Code und Beschriftungen)
+function msFormularSetzen(z) {
+  var c = z.sidc, o = z.opt || {};
+  var r = document.querySelector('input[name="ms-zug"][value="' + c.charAt(3) + '"]');
+  if (r) r.checked = true;
+  r = document.querySelector('input[name="ms-status"][value="' + c.charAt(6) + '"]');
+  if (r) r.checked = true;
+  var hq = +c.charAt(7);
+  $('ms-stab').checked = (hq & 2) === 2;
+  $('ms-tf').checked = (hq & 4) === 4;
+  if ($('ms-groesse').querySelector('option[value="' + c.substr(8, 2) + '"]')) $('ms-groesse').value = c.substr(8, 2);
+  if ($('ms-art').querySelector('option[value="' + c.substr(10, 6) + '"]')) $('ms-art').value = c.substr(10, 6);
+  $('ms-staerke').value = o.reinforcedReduced || '';
+  $('ms-farbe').value = o.fill === false ? 'ohne' : (o.colorMode || 'Medium');
+  $('ms-bez').value = o.uniqueDesignation || '';
+  $('ms-hoeher').value = o.higherFormation || '';
+  $('ms-info').value = o.additionalInformation || '';
+  renderSymbol();
+}
 function renderSymbol() {
   if (!msGeladen) return;
   var sidc = msSidc();

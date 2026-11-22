@@ -75,7 +75,7 @@ Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (
 
 ## Lagekarte
 
-Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Zeichen lassen sich verschieben und löschen. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
+Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Zeichen lassen sich verschieben, sperren (Schloss, dann nicht mehr verschiebbar oder änderbar), nachträglich im Baukasten bearbeiten und löschen. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
 
 ## Urlaubskartei
 

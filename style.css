@@ -622,3 +622,13 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-liste-zeichen { display: inline-grid; place-items: center; width: 44px; height: 36px; flex: none; }
 .lage-liste-zeichen svg { max-width: 44px; max-height: 36px; }
 #lage-meldung:empty { display: none; }
+.lage-zeichen { position: relative; }
+.lage-schloss { position: absolute; top: -6px; right: -10px; width: 20px; height: 20px; border-radius: 50%; background: #1E2A20; color: #FFFFFF; display: grid; place-items: center; box-shadow: 0 0 0 2px #FFFFFF; }
+.lage-schloss svg, .lage-liste-schloss svg, .lage-popup svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: none; }
+.lage-liste-schloss { flex: none; display: grid; place-items: center; width: 28px; color: var(--muted); }
+.lage-popup { display: grid; gap: 4px; font: inherit; }
+.lage-popup span, .lage-popup small { color: #555; }
+.lage-popup-knoepfe { display: grid; gap: 6px; margin-top: 6px; }
+.lage-popup-knoepfe .knopf { min-height: 36px; font-size: .9rem; gap: 6px; flex: none; }
+.lage-popup-knoepfe .knopf[disabled] { opacity: .45; cursor: not-allowed; }
+.lage-popup-knoepfe .knopf[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }

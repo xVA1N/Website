@@ -48,6 +48,7 @@ function ladeLeaflet() {
 }
 
 function zeigeLage() {
+  if (lageBearbId) lageBearbeitenEnde();
   if (!lageBereit) {
     lageBereit = Promise.all([ladeLeaflet(), ladeMilsymbol()]).then(function () { msGeladen = true; lageAufbauen(); }, function () {
       lageBereit = null;
@@ -107,10 +108,14 @@ function lageGrundlage() {
   }
 }
 
+var SCHLOSS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+var SCHLOSS_OFFEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
 function lageIcon(z) {
   var sym = msSymbolAus(z, 30), gr = sym.getSize(), an = sym.getAnchor();
-  return L.divIcon({ className: 'lage-zeichen', html: sym.asSVG(), iconSize: [gr.width, gr.height], iconAnchor: [an.x, an.y] });
+  return L.divIcon({ className: 'lage-zeichen' + (z.gesperrt ? ' gesperrt' : ''), html: sym.asSVG() + (z.gesperrt ? '<span class="lage-schloss" title="Gesperrt">' + SCHLOSS + '</span>' : ''),
+    iconSize: [gr.width, gr.height], iconAnchor: [an.x, an.y] });
 }
+function lageZeichen(id) { return LAGE.zeichen.filter(function (z) { return z.id === id; })[0]; }
 function lagePos(z) { return z.ebene === 'bild' ? [z.y, z.x] : [z.y, z.x]; }
 
 // Zeichen der aktuellen Ebene als verschiebbare Marker
@@ -131,16 +136,20 @@ function lageZeichenZeigen() {
     lageMeldung('Zeichen in die Kartenmitte gesetzt. Zum Verschieben gedrückt halten und ziehen.');
   }
   LAGE.zeichen.filter(function (z) { return z.ebene === ebene; }).forEach(function (z) {
-    var m = L.marker(lagePos(z), { icon: lageIcon(z), draggable: true, keyboard: true, title: z.name || '', autoPan: true }).addTo(lageKarte);
+    var m = L.marker(lagePos(z), { icon: lageIcon(z), draggable: !z.gesperrt, keyboard: true, title: (z.name || '') + (z.gesperrt ? ' (gesperrt)' : ''), autoPan: true }).addTo(lageKarte);
     m.on('dragend', function () {
       var p = m.getLatLng();
       z.x = p.lng; z.y = p.lat;
       lageSpeichern();
     });
     m.bindPopup(function () {
-      return '<b>' + esc(z.name || 'Zeichen') + '</b>' + (z.opt && z.opt.uniqueDesignation ? '<br>' + esc(z.opt.uniqueDesignation) : '') +
-        '<br><button type="button" class="knopf sekundaer lage-popup-weg" data-lage-weg="' + z.id + '" style="margin-top:8px;min-height:36px">Löschen</button>';
-    });
+      return '<div class="lage-popup"><b>' + esc(z.name || 'Zeichen') + '</b>' + (z.opt && z.opt.uniqueDesignation ? '<span>' + esc(z.opt.uniqueDesignation) + '</span>' : '') +
+        '<div class="lage-popup-knoepfe">' +
+        '<button type="button" class="knopf sekundaer" data-lage-sperre="' + z.id + '" aria-pressed="' + !!z.gesperrt + '">' + (z.gesperrt ? SCHLOSS_OFFEN + 'Entsperren' : SCHLOSS + 'Sperren') + '</button>' +
+        '<button type="button" class="knopf sekundaer" data-lage-bearb="' + z.id + '"' + (z.gesperrt ? ' disabled' : '') + '>Bearbeiten</button>' +
+        '<button type="button" class="knopf sekundaer" data-lage-weg="' + z.id + '"' + (z.gesperrt ? ' disabled' : '') + '>Löschen</button>' +
+        '</div>' + (z.gesperrt ? '<small>Gesperrt: nicht verschiebbar, nicht änderbar.</small>' : '') + '</div>';
+    }, { minWidth: 200 });
     lageMarker[z.id] = m;
   });
   renderLageListe();
@@ -152,12 +161,42 @@ function renderLageListe() {
   $('lage-liste').innerHTML = liste.length ? liste.map(function (z) {
     return '<div class="fav-item"><button type="button" class="zeile mit-icon" data-lage-zeige="' + z.id + '">' +
       '<span class="lage-liste-zeichen">' + (window.ms ? msSymbolAus({ sidc: z.sidc, opt: { fill: z.opt.fill, colorMode: z.opt.colorMode, standard: 'APP6' } }, 18).asSVG() : '') + '</span>' +
-      '<span class="n">' + esc(z.name || 'Zeichen') + (z.opt && z.opt.uniqueDesignation ? ' · ' + esc(z.opt.uniqueDesignation) : '') + '</span></button>' +
-      '<button type="button" class="stern-klein loeschen" data-lage-weg="' + z.id + '" aria-label="Zeichen löschen">×</button></div>';
+      '<span class="n">' + esc(z.name || 'Zeichen') + (z.opt && z.opt.uniqueDesignation ? ' · ' + esc(z.opt.uniqueDesignation) : '') + '</span>' +
+      (z.gesperrt ? '<span class="lage-liste-schloss" title="Gesperrt">' + SCHLOSS + '</span>' : '') + '</button>' +
+      (z.gesperrt ? '' : '<button type="button" class="stern-klein loeschen" data-lage-weg="' + z.id + '" aria-label="Zeichen löschen">×</button>') + '</div>';
   }).join('') : '<p class="hint" style="padding:12px">Noch keine Zeichen auf dieser Grundlage.</p>';
 }
 
+function lageSperren(id) {
+  var z = lageZeichen(id);
+  if (!z) return;
+  z.gesperrt = !z.gesperrt;
+  lageSpeichern();
+  lageZeichenZeigen();
+  if (lageMarker[id]) lageMarker[id].openPopup();
+  lageMeldung(z.gesperrt ? 'Zeichen gesperrt.' : 'Zeichen entsperrt.');
+}
+// Bearbeiten: Baukasten mit den Werten des Zeichens füllen und zurück auf die Karte
+var lageBearbId = null;
+function lageBearbeiten(id) {
+  var z = lageZeichen(id);
+  if (!z || z.gesperrt) return;
+  lageBearbId = id;
+  msFormularSetzen(z);
+  $('ms-auf-karte').lastChild.textContent = 'Änderungen übernehmen';
+  $('ms-bearb-abbrechen').hidden = false;
+  $('ms-bearb-hinweis').hidden = false;
+  go('symbole');
+}
+function lageBearbeitenEnde() {
+  lageBearbId = null;
+  $('ms-auf-karte').lastChild.textContent = 'Auf Lagekarte setzen';
+  $('ms-bearb-abbrechen').hidden = true;
+  $('ms-bearb-hinweis').hidden = true;
+}
 function lageLoeschen(id) {
+  var zz = lageZeichen(id);
+  if (zz && zz.gesperrt) return;
   LAGE.zeichen = LAGE.zeichen.filter(function (z) { return z.id !== id; });
   lageSpeichern();
   if (lageKarte) lageKarte.closePopup();
@@ -182,7 +221,11 @@ $('lage-liste').addEventListener('click', function (e) {
 });
 $('lage-karte').addEventListener('click', function (e) {
   var w = e.target.closest('button[data-lage-weg]');
-  if (w) lageLoeschen(w.getAttribute('data-lage-weg'));
+  if (w) { lageLoeschen(w.getAttribute('data-lage-weg')); return; }
+  var s = e.target.closest('button[data-lage-sperre]');
+  if (s) { lageSperren(s.getAttribute('data-lage-sperre')); return; }
+  var b = e.target.closest('button[data-lage-bearb]');
+  if (b) lageBearbeiten(b.getAttribute('data-lage-bearb'));
 });
 $('lage-bild-knopf').addEventListener('click', function () { $('lage-bild-datei').click(); });
 $('lage-bild-weg').addEventListener('click', function () {
@@ -217,6 +260,15 @@ $('lage-bild-datei').addEventListener('change', function (e) {
 // Aus dem Baukasten: Zeichen merken und zur Karte wechseln
 $('ms-auf-karte').addEventListener('click', function () {
   if (!msGeladen) return;
+  if (lageBearbId) {
+    var z = lageZeichen(lageBearbId), a = msAuswahl();
+    if (z) { z.sidc = a.sidc; z.opt = a.opt; z.name = a.name; lageSpeichern(); }
+    lageBearbeitenEnde();
+    go('lage');
+    lageMeldung('Zeichen geändert.');
+    return;
+  }
   lageWartend = msAuswahl();
   go('lage');
 });
+$('ms-bearb-abbrechen').addEventListener('click', function () { lageBearbeitenEnde(); go('lage'); });
