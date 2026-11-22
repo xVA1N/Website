@@ -74,6 +74,16 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
+  /* ---------- Eigene Texte zu einzelnen Dienstgraden ---------- */
+  // Erscheinen auf der Seite Dienstgrade unter „Weitere Infos“. Schlüssel ist der Dienstgrad:
+  // soldat, gefr, ogefr, hgefr, stgefr, ostgefr, korp, stkorp, uffz, stuffz, fw, ofw, hfw, stfw, ostfw,
+  // schuetze_ua, gefr_ua, ogefr_ua, hgefr_ua, gefr_fa, uffz_fa, fj, faehnrich, ofaehnrich, lt, olt,
+  // hptm, sthptm, maj, oberstlt, oberst, bgen, gmaj, glt, gen,
+  // Sanitätsoffiziere: sa13, sa14, sa15, sa16, sb6, sb7, sb9.
+  // Beispiel: hfw: "Häufig als Kompaniefeldwebel (Spieß) eingesetzt.",
+  dienstgradInfos: {
+  },
+
   /* ---------- Amtszulagen (Anlage I mit Fußnoten, Beträge aus Anlage IX) ---------- */
   // Schlüssel ist der Dienstgrad. art: "immer" = wird immer gezahlt,
   // "moeglich" = nur bei Funktionen, die sich abheben (im Rechner per Häkchen).

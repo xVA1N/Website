@@ -31,6 +31,18 @@ Wenn danach in der Seite der Hinweis „Die Datei daten.js fehlt oder enthält e
 
 Wenn die Zuordnung der Einsatzgebiete zu Stufen geprüft ist, `gebieteBeispiel: false` setzen. Dann verschwinden alle Beispiel-Hinweise auf der Seite.
 
+## Eigene Infos zu Dienstgraden
+
+Auf der Seite Dienstgrade klappt ein Dienstgrad beim Antippen auf. Unter „Weitere Infos“ erscheinen die Eckdaten und, falls vorhanden, ein eigener Text. Diesen Text trägst du in `daten.js` unter `dienstgradInfos` ein, zum Beispiel:
+
+```js
+dienstgradInfos: {
+  hfw: "Häufig als Kompaniefeldwebel (Spieß) eingesetzt.",
+},
+```
+
+Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber in `daten.js`.
+
 ## Quellen
 
 - Grundgehalt (Anlage IV), Familienzuschlag (Anlage V) und Stellenzulagen (Anlage IX) des Bundesbesoldungsgesetzes, gültig ab 1. März 2024, BGBl. 2023 I Nr. 414.
