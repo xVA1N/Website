@@ -397,6 +397,7 @@
   .u-tag.sel { background-color: color-mix(in srgb, var(--accent) 28%, var(--surface)); }
   .u-tag.sel-a, .u-tag.sel-b { outline: 2px solid var(--accent); outline-offset: -2px; font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
+  .panel > .u-kal-hint { margin: 0 0 10px; text-align: center; }
   .u-arten { display: grid; gap: 6px; }
   .u-arten label { position: relative; display: block; }
   .u-arten input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
@@ -891,6 +892,7 @@
     </section>
 
     <section class="panel">
+      <p class="hint u-kal-hint">Ersten und letzten Tag antippen oder gedrückt halten und ziehen.</p>
       <div class="u-nav">
         <button type="button" id="u-monat-zurueck" aria-label="Vorheriger Monat">‹</button>
         <h2 class="m" id="u-monat" aria-live="polite"></h2>
@@ -904,7 +906,6 @@
 
     <section class="panel">
       <h2>Zeitraum eintragen</h2>
-      <p class="hint">Ersten und letzten Tag antippen oder gedrückt halten und ziehen.</p>
       <form id="u-form" class="stack" novalidate>
         <div class="u-felder">
           <div><label class="label" for="u-von" style="display:block">Von</label><input type="date" id="u-von" required></div>
