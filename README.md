@@ -43,9 +43,9 @@ dienstgradInfos: {
 
 Die Kürzel der Dienstgrade (hfw, ostgefr usw.) stehen als Liste direkt darüber in `daten.js`.
 
-## Urlaubsplaner
+## Urlaubskartei
 
-Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Übersicht führt vier Konten (Erholungsurlaub, Überstunden, ATB, Sonderurlaub), jeweils mit dem Anspruch dieses Jahres und dem Rest aus dem Vorjahr. Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer im Planer über das Plus selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
+Die Feiertage aller Bundesländer stehen in `daten.js` unter `urlaub.feiertage` als Regeln (festes Datum, Abstand zu Ostern oder Buß- und Bettag), sodass sie für jedes Jahr automatisch berechnet werden. Dort steht auch der vorgeschlagene Jahresanspruch (`standardAnspruch`). Die Übersicht führt vier Konten (Erholungsurlaub, Überstunden, ATB, Sonderurlaub), jeweils mit dem Anspruch dieses Jahres und dem Rest aus dem Vorjahr. Eigene Markierungen (Name und Farbe, z. B. „Lehrgang“) legt jeder Nutzer in der Urlaubskartei über das Plus selbst an. Die Einträge der Nutzer werden nur in ihrem Browser gespeichert.
 
 ## Quellen
 

@@ -87,7 +87,7 @@ window.MK_DATEN = {
     }
   },
 
-  /* ---------- Urlaubsplaner ---------- */
+  /* ---------- Urlaubskartei ---------- */
   urlaub: {
     // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn im
     // Planer anpassen. Maßgeblich ist der eigene Urlaubsbescheid.

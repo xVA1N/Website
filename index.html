@@ -334,7 +334,7 @@
   .vgl .plus { color: var(--accent); }
   .vgl .klein { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; font-family: var(--font-text); }
   .vgl .knopf { min-height: 36px; padding: 0 10px; font-size: .85rem; flex: none; }
-  /* Urlaubsplaner */
+  /* Urlaubskartei */
   .u-zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
   .u-zahl { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); min-width: 0; }
   .u-zahl .w { font-family: var(--font-mono); font-size: 1.5rem; font-variant-numeric: tabular-nums; line-height: 1.2; }
@@ -639,7 +639,7 @@
       </a>
       <a class="tile" href="#urlaub">
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
-        <span><span class="tt">Urlaubsplaner</span><span class="td">Urlaub planen, Resttage, Feiertage, Brückentage und Kalender-Export</span></span>
+        <span><span class="tt">Urlaubskartei</span><span class="td">Urlaub, Überstunden und ATB, Feiertage, Brückentage und Kalender-Export</span></span>
       </a>
       <a class="tile" href="#mehr">
         <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
@@ -879,7 +879,7 @@
       <h2>Kalender</h2>
       <label class="check" for="duz-kal-zeigen">
         <input type="checkbox" id="duz-kal-zeigen">
-        <span class="t">Dienste im Kalender des Urlaubsplaners anzeigen<span class="sub">Tage mit Dienst bekommen dort einen blauen Balken.</span></span>
+        <span class="t">Dienste im Kalender der Urlaubskartei anzeigen<span class="sub">Tage mit Dienst bekommen dort einen blauen Balken.</span></span>
       </label>
       <div class="dg-aktionen"><a class="knopf sekundaer" href="#urlaub"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Zum Kalender</a></div>
       <p class="hint" id="duz-export-hinweis" hidden>In dieser Vorschau sind Downloads nicht möglich. Der Export funktioniert auf der Website unter xva1n.github.io/Website.</p>
@@ -892,7 +892,7 @@
   </section>
 
   <!-- URLAUB -->
-  <section class="view" id="view-urlaub" aria-label="Urlaubsplaner" hidden>
+  <section class="view" id="view-urlaub" aria-label="Urlaubskartei" hidden>
     <section class="panel">
       <div class="u-felder einspaltig">
         <div>
@@ -1453,7 +1453,7 @@
   }
 
   /* ===== Reiter ===== */
-  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubsplaner', duz: 'DuZ-Rechner' };
+  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner' };
 
   function show(v) {
     var titel = null, tab = v;
@@ -1687,7 +1687,7 @@
     dienstgrade: ['Dienstgrade', 'i-rank', 'Alle Dienstgrade mit Besoldungsgruppe'],
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
-    urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'],
+    urlaub: ['Urlaubskartei', 'i-cal', 'Urlaub, Überstunden, ATB und Kalender-Export'],
     duz: ['DuZ-Rechner', 'i-clock', 'Dienste zu ungünstigen Zeiten, Übersicht je Monat, Quartal und Jahr'] };
   var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
@@ -2687,7 +2687,7 @@
     go('rechner');
   });
 
-  /* ===== Urlaubsplaner (Einträge nur im Browser) ===== */
+  /* ===== Urlaubskartei (Einträge nur im Browser) ===== */
   var UD = D.urlaub;
   var U_KEY = 'meinkamerad-urlaub';
   var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -2983,7 +2983,7 @@
     var marks = UZ.markierungen.filter(function (m) { return imJahr(m) && tagById(m.tag); });
     if (!liste.length && !marks.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
     var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubsplaner//DE', 'CALSCALE:GREGORIAN'];
+    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//Urlaubskartei//DE', 'CALSCALE:GREGORIAN'];
     liste.forEach(function (e) {
       z.push('BEGIN:VEVENT', 'UID:' + e.id + '@meinkamerad', 'DTSTAMP:' + stamp,
         'DTSTART;VALUE=DATE:' + e.von.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + iso(plusTage(vonIso(e.bis), 1)).replace(/-/g, ''),
