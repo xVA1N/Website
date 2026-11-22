@@ -13,7 +13,63 @@ var LAGE_KARTEN = {
 };
 // Farben für Linien, Pfeile und Räume (eigene Kräfte blau, Feind rot wie in APP-6)
 var LAGE_FARBEN = { blau: ['#0060C0', 'Blau (eigene)'], rot: ['#D01818', 'Rot (Feind)'], schwarz: ['#111111', 'Schwarz (allgemein)'], gruen: ['#118833', 'Grün (Hindernis, Gelände)'] };
-var LAGE_TYPEN = { linie: 'Linie', pfeil: 'Pfeil', raum: 'Raum', grenze: 'Gefechtsstreifengrenze', phase: 'Phasenlinie', achse: 'Angriffsachse', sperre: 'Sperre' };
+var LAGE_TYPEN = { linie: 'Linie (frei)', pfeil: 'Pfeil (frei)', raum: 'Raum (frei)', grenze: 'Grenze', ende: 'Linie', richtung: 'Angriffsrichtung', achse: 'Angriffsachse', sperre: 'Sperre' };
+// Führungszeichen nach APP-6D (Control Measures): Code, Originalbezeichnung, deutsche Übersetzung (frei), Darstellung, Kürzel, Variante.
+// Darstellung: grenze, ende (Kürzel an beiden Enden), richtung (Linie mit Spitze), achse (breiter Pfeil), raum (Fläche mit Kürzel), sperre.
+// Variante: haupt (Hauptangriff), neben (Nebenangriff), geplant (gestrichelt), feind (rot), feindv (rot, gestrichelt).
+var LAGE_FZ_GRUPPEN = [
+  ['Linien', [
+    ['110100', 'Boundary', 'Gefechtsstreifengrenze', 'grenze', ''],
+    ['140300', 'Phase Line', 'Phasenlinie', 'ende', 'PL'],
+    ['141000', 'Line of Departure', 'Ablauflinie', 'ende', 'LD'],
+    ['141100', 'Line of Departure/Line of Contact', 'Ablauflinie/Gefechtsberührungslinie', 'ende', 'LD/LC'],
+    ['140200', 'Line of Contact', 'Gefechtsberührungslinie', 'ende', 'LC'],
+    ['140900', 'Limit of Advance', 'Grenze des Vorgehens', 'ende', 'LOA'],
+    ['140700', 'Final Coordination Line', 'Letzte Koordinierungslinie', 'ende', 'FCL'],
+    ['141600', 'Release Line', 'Entlassungslinie', 'ende', 'RL'],
+    ['141400', 'Bridgehead Line (BL)', 'Brückenkopflinie', 'ende', 'BL'],
+    ['141500', 'Holding Line (HL)', 'Haltelinie', 'ende', 'HL'],
+    ['260100', 'Fire Support Coordination Line (FSCL)', 'Feuerunterstützungs-Koordinierungslinie', 'ende', 'FSCL'],
+    ['260200', 'Coordinated Fire Line (CFL)', 'Koordinierte Feuerlinie', 'ende', 'CFL'],
+    ['260500', 'Restrictive Fire Line', 'Feuerbeschränkungslinie', 'ende', 'RFL']
+  ]],
+  ['Angriffe', [
+    ['140602', 'Direction of Attack – Friendly Direction of Main Attack', 'Richtung des Hauptangriffs', 'richtung', '', 'haupt'],
+    ['140603', 'Direction of Attack – Friendly Direction of Supporting Attack', 'Richtung des Nebenangriffs', 'richtung', '', 'neben'],
+    ['140604', 'Direction of Attack – Friendly Planned or On Order', 'Angriffsrichtung, geplant oder auf Befehl', 'richtung', '', 'geplant'],
+    ['140606', 'Direction of Attack – Enemy Confirmed', 'Angriffsrichtung Feind, bestätigt', 'richtung', '', 'feind'],
+    ['140607', 'Direction of Attack – Enemy Templated or Suspected', 'Angriffsrichtung Feind, vermutet', 'richtung', '', 'feindv'],
+    ['151403', 'Axis of Advance – Main Attack', 'Angriffsachse, Hauptangriff', 'achse', '', 'haupt'],
+    ['151404', 'Axis of Advance – Supporting Attack', 'Angriffsachse, Nebenangriff', 'achse', '', 'neben'],
+    ['151405', 'Axis of Advance – Supporting Attack Planned or on Order', 'Angriffsachse, geplant oder auf Befehl', 'achse', '', 'geplant'],
+    ['151407', 'Axis of Advance – Enemy Confirmed', 'Angriffsachse Feind, bestätigt', 'achse', '', 'feind'],
+    ['151408', 'Axis of Advance – Enemy Templated or Suspected', 'Angriffsachse Feind, vermutet', 'achse', '', 'feindv']
+  ]],
+  ['Räume', [
+    ['150200', 'Assembly Area (AA)', 'Verfügungsraum', 'raum', 'AA'],
+    ['151600', 'Attack Position', 'Angriffsstellung', 'raum', 'ATK'],
+    ['151500', 'Assault Position', 'Sturmausgangsstellung', 'raum', 'ASLT'],
+    ['151700', 'Objective', 'Angriffsziel', 'raum', 'OBJ'],
+    ['151300', 'Engagement Area (EA)', 'Wirkungsraum', 'raum', 'EA'],
+    ['120200', 'Named Area of Interest', 'Beobachtungsraum (NAI)', 'raum', 'NAI'],
+    ['150600', 'Drop Zone (DZ)', 'Absetzzone', 'raum', 'DZ'],
+    ['150800', 'Landing Zone (LZ)', 'Landezone', 'raum', 'LZ'],
+    ['150900', 'Pick-Up Zone (PZ)', 'Aufnahmezone', 'raum', 'PZ'],
+    ['150700', 'Extraction Zone (EZ)', 'Extraktionszone', 'raum', 'EZ'],
+    ['240201', 'Free Fire Area – Irregular', 'Feuerfreiraum', 'raum', 'FFA'],
+    ['240401', 'Restricted Fire Area – Irregular', 'Feuerbeschränkungsraum', 'raum', 'RFA']
+  ]],
+  ['Sperren', [
+    ['290100', 'Obstacle Line', 'Sperrlinie (vereinfacht)', 'sperre', '']
+  ]]
+];
+var LAGE_FZ = {};
+LAGE_FZ_GRUPPEN.forEach(function (g) { g[1].forEach(function (e) { LAGE_FZ[e[0]] = { code: e[0], o: e[1], de: e[2], art: e[3], kurz: e[4], v: e[5] || '' }; }); });
+// Alte Formen (vor dem Katalog) auf APP-6D-Codes abbilden
+var LAGE_ALT_CODE = { grenze: '110100', phase: '140300', achse: '151404', sperre: '290100' };
+function lageFz(f) { return f && f.code ? LAGE_FZ[f.code] : null; }
+function lageFormName(f) { var z = lageFz(f); return z ? z.de : LAGE_TYPEN[f.typ]; }
+function lageVariante(f) { var z = lageFz(f); return z ? z.v : ''; }
 // Größe an der Gefechtsstreifengrenze (Zeichen der höchsten Ebene, deren Grenze es ist)
 var LAGE_STUFEN = { 'I': 'Kompanie', 'II': 'Bataillon', 'III': 'Regiment', 'X': 'Brigade', 'XX': 'Division', 'XXX': 'Korps' };
 // Breite der Angriffsachse als Anteil ihrer Länge, damit sie mit der Karte mitwächst
@@ -33,6 +89,8 @@ function lageKartePruefen(k) {
     return z && typeof z.sidc === 'string' && /^\d{20}$/.test(z.sidc) && (z.ebene === 'karte' || z.ebene === 'bild') && isFinite(z.x) && isFinite(z.y);
   });
   if (Array.isArray(k.formen)) l.formen = k.formen.filter(function (f) {
+    if (f && LAGE_ALT_CODE[f.typ] && !f.code) { f.code = LAGE_ALT_CODE[f.typ]; f.typ = LAGE_FZ[f.code].art; }
+    if (f && f.code && LAGE_FZ[f.code]) f.typ = LAGE_FZ[f.code].art;
     return f && LAGE_TYPEN[f.typ] && LAGE_FARBEN[f.farbe] && (f.ebene === 'karte' || f.ebene === 'bild') && Array.isArray(f.punkte) &&
       f.punkte.length >= 2 && f.punkte.every(function (p) { return Array.isArray(p) && isFinite(p[0]) && isFinite(p[1]); });
   }).map(function (f) {
@@ -252,9 +310,10 @@ function lageZeichenZeigen() {
 
 /* ---------- Linien, Pfeile und Räume ---------- */
 function lageStil(f, vorschau) {
-  var flaeche = f.typ === 'raum' || f.typ === 'achse';
-  return { color: LAGE_FARBEN[f.farbe][0], weight: flaeche ? 2.5 : (f.typ === 'grenze' ? 3.5 : 3), opacity: vorschau ? 0.7 : 1, dashArray: f.gestrichelt ? '9 7' : null,
-    fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: f.typ === 'raum' ? 0.08 : (f.typ === 'achse' ? 0.12 : 0), lineCap: 'round', lineJoin: 'round' };
+  var flaeche = f.typ === 'raum' || f.typ === 'achse', v = lageVariante(f), fz = !!lageFz(f);
+  var strich = f.gestrichelt || v === 'geplant' || v === 'feindv';
+  return { color: LAGE_FARBEN[f.farbe][0], weight: flaeche ? 2.5 : (f.typ === 'grenze' ? 3.5 : 3), opacity: vorschau ? 0.7 : 1, dashArray: strich ? '9 7' : null,
+    fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: f.typ === 'raum' ? (fz ? 0.05 : 0.08) : (f.typ === 'achse' && !fz ? 0.12 : 0), lineCap: 'round', lineJoin: 'round' };
 }
 // Pfeilspitze am letzten Punkt, in Bildschirmpixeln berechnet, damit sie bei jedem Zoom gleich groß bleibt
 function lagePfeilSpitze(punkte) {
@@ -308,6 +367,23 @@ function lageMitte(pk) {
   if (pk.length === 2) return L.latLng((pk[0].lat + pk[1].lat) / 2, (pk[0].lng + pk[1].lng) / 2);
   return pk[Math.floor((pk.length - 1) / 2)];
 }
+// Offene Pfeilspitze (zwei Striche) am letzten Punkt, in Bildschirmpixeln; zurueck verschiebt sie Richtung Anfang
+function lageOffeneSpitze(punkte, zurueck) {
+  var s = lagePfeilSpitze(punkte), n = punkte.length;
+  if (!zurueck) return [s[1], s[0], s[2]];
+  var a = lageKarte.latLngToLayerPoint(punkte[n - 2]), b = lageKarte.latLngToLayerPoint(punkte[n - 1]);
+  var dx = b.x - a.x, dy = b.y - a.y, len = Math.sqrt(dx * dx + dy * dy) || 1, vx = -dx / len * zurueck, vy = -dy / len * zurueck;
+  return [s[1], s[0], s[2]].map(function (p) { var q = lageKarte.latLngToLayerPoint(p); return lageKarte.layerPointToLatLng(L.point(q.x + vx, q.y + vy)); });
+}
+// Zweite, innere Spitze der Angriffsachse beim Hauptangriff (in Kartenkoordinaten wie die Achse)
+function lageAchseHaupt(punkte, breite) {
+  var ring = lageAchse(punkte, breite), crs = lageKarte.options.crs, n = ring.length;
+  // Ring: linke Seite …, Flügel links, Spitze, Flügel rechts, rechte Seite …
+  var k = Math.floor(n / 2), fl = crs.project(ring[k - 1]), sp = crs.project(ring[k]), fr = crs.project(ring[k + 1]);
+  // Verkleinerte zweite Spitze innerhalb der ersten (zum Schwerpunkt hin gestaucht)
+  var cx = (fl.x + sp.x + fr.x) / 3, cy = (fl.y + sp.y + fr.y) / 3, f = 0.5;
+  return [fl, sp, fr].map(function (q) { return crs.unproject(L.point(cx + (q.x - cx) * f, cy + (q.y - cy) * f)); });
+}
 function lageFormLayerBauen(f, vorschau) {
   var g = L.layerGroup(), stil = lageStil(f, vorschau);
   var pk = f.punkte.map(function (p) { return L.latLng(p[0], p[1]); });
@@ -321,8 +397,28 @@ function lageFormLayerBauen(f, vorschau) {
   if (f.typ === 'grenze' && pk.length >= 2) {
     L.tooltip({ permanent: true, direction: 'center', className: 'lage-stufe', interactive: false }).setLatLng(lageMitte(pk)).setContent(esc(f.stufe || 'II')).addTo(g);
   }
-  if (f.typ === 'phase' && pk.length >= 2 && !vorschau) {
-    var pl = 'PL' + (f.text ? ' ' + esc(f.text) : '');
+  var fz = lageFz(f), v = lageVariante(f);
+  if (f.typ === 'achse' && v === 'haupt' && pk.length >= 2) L.polyline(lageAchseHaupt(pk, f.breite || 'm'), { color: stil.color, weight: stil.weight, opacity: stil.opacity, dashArray: stil.dashArray, interactive: false }).addTo(g);
+  if (f.typ === 'richtung' && pk.length >= 2) {
+    if (v === 'haupt') {
+      var sv = L.polygon(lagePfeilSpitze(pk), { color: stil.color, weight: 1, fillColor: stil.color, fillOpacity: 1, opacity: stil.opacity });
+      sv.addTo(g); g.spitze = sv;
+      var zw = L.polyline(lageOffeneSpitze(pk, 10), { color: stil.color, weight: 3, opacity: stil.opacity, interactive: false });
+      zw.addTo(g); g.spitzeZurueck = zw;
+    } else {
+      var so = L.polyline(lageOffeneSpitze(pk, 0), { color: stil.color, weight: 3, opacity: stil.opacity, lineCap: 'round', lineJoin: 'round' });
+      so.addTo(g); g.spitzeOffen = so;
+    }
+  }
+  if (f.typ === 'grenze' && pk.length >= 2 && !vorschau && (f.text || f.text2)) {
+    // Bezeichnungen der Nachbarn links und rechts der Linie, senkrecht zur Linie versetzt (Pixelabstand, unabhängig vom Zoom)
+    var a0 = lageKarte.latLngToLayerPoint(pk[0]), a1 = lageKarte.latLngToLayerPoint(pk[1]), gx = a1.x - a0.x, gy = a1.y - a0.y, gl = Math.sqrt(gx * gx + gy * gy) || 1;
+    var nx = gy / gl * 22, ny = -gx / gl * 22, ort = L.latLng((pk[0].lat * 3 + pk[1].lat) / 4, (pk[0].lng * 3 + pk[1].lng) / 4);
+    if (f.text) L.tooltip({ permanent: true, direction: 'center', className: 'lage-formtext', interactive: false, offset: [nx, ny] }).setLatLng(ort).setContent(esc(f.text)).addTo(g);
+    if (f.text2) L.tooltip({ permanent: true, direction: 'center', className: 'lage-formtext', interactive: false, offset: [-nx, -ny] }).setLatLng(ort).setContent(esc(f.text2)).addTo(g);
+  }
+  if (f.typ === 'ende' && pk.length >= 2 && !vorschau) {
+    var pl = esc(fz ? fz.kurz : 'PL') + (f.text ? ' ' + esc(f.text) : '');
     L.tooltip({ permanent: true, direction: 'left', className: 'lage-formtext', interactive: false, offset: [-6, 0] }).setLatLng(pk[0]).setContent(pl).addTo(g);
     L.tooltip({ permanent: true, direction: 'right', className: 'lage-formtext', interactive: false, offset: [6, 0] }).setLatLng(pk[pk.length - 1]).setContent(pl).addTo(g);
   }
@@ -331,10 +427,10 @@ function lageFormLayerBauen(f, vorschau) {
     spitze.addTo(g);
     g.spitze = spitze;
   }
-  if (f.text && !vorschau && f.typ !== 'phase') {
+  var marke = f.typ === 'raum' && fz && fz.kurz ? fz.kurz + (f.text ? ' ' + f.text : '') : f.text;
+  if (marke && !vorschau && f.typ !== 'ende' && f.typ !== 'grenze') {
     var mitte = (f.typ === 'raum' && pk.length >= 3) || f.typ === 'achse' ? haupt.getBounds().getCenter() : lageMitte(pk);
-    if (f.typ === 'grenze') mitte = pk[0];
-    L.tooltip({ permanent: true, direction: 'center', className: 'lage-formtext', interactive: false }).setLatLng(mitte).setContent(esc(f.text)).addTo(g);
+    L.tooltip({ permanent: true, direction: 'center', className: 'lage-formtext', interactive: false }).setLatLng(mitte).setContent(esc(marke)).addTo(g);
   }
   g.haupt = haupt;
   return g;
@@ -349,8 +445,10 @@ function lageFormenZeigen() {
     g.eachLayer(function (l) {
       if (l instanceof L.Path) l.bindPopup(function () {
         var p = f.punkte[f.punkte.length - 1];
-        return '<div class="lage-popup"><b>' + LAGE_TYPEN[f.typ] + ' · ' + LAGE_FARBEN[f.farbe][1] + '</b>' + (f.text ? '<span>' + esc(f.text) + '</span>' : '') +
-          (f.typ === 'pfeil' ? lageMgrsText(p[0], p[1]) : '') + lagePopupKnoepfe(f.id, f.gesperrt, true) + '</div>';
+        var z = lageFz(f);
+        return '<div class="lage-popup"><b>' + esc(lageFormName(f)) + '</b>' + (z ? '<span class="lage-popup-orig">APP-6D ' + z.code + ': ' + esc(z.o) + '</span>' : '') +
+          (f.text ? '<span>' + esc(f.text) + (f.text2 ? ' | ' + esc(f.text2) : '') + '</span>' : '') +
+          (f.typ === 'pfeil' || f.typ === 'richtung' || f.typ === 'achse' ? lageMgrsText(p[0], p[1]) : '') + lagePopupKnoepfe(f.id, f.gesperrt, true) + '</div>';
       }, { minWidth: 200 });
     });
     lageFormLayer[f.id] = g;
@@ -361,6 +459,8 @@ function lagePfeileNeu() {
     var g = lageFormLayer[id], f = lageForm(id);
     if (g.spitze && f) g.spitze.setLatLngs(lagePfeilSpitze(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
     if (g.zaehne && f) g.zaehne.setLatLngs(lageZaehne(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
+    if (g.spitzeOffen && f) g.spitzeOffen.setLatLngs(lageOffeneSpitze(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); }), 0));
+    if (g.spitzeZurueck && f) g.spitzeZurueck.setLatLngs(lageOffeneSpitze(f.punkte.map(function (p) { return L.latLng(p[0], p[1]); }), 10));
   });
   if (lageZeichnen && lageZeichnen.vorschau && lageZeichnen.vorschau.zaehne && lageZeichnen.punkte.length >= 2) {
     lageZeichnen.vorschau.zaehne.setLatLngs(lageZaehne(lageZeichnen.punkte.map(function (p) { return L.latLng(p[0], p[1]); })));
@@ -371,12 +471,12 @@ function lagePfeileNeu() {
 }
 
 // Zeichnen: Typ wählen, dann Punkte auf die Karte tippen
-function lageZeichnenStart(typ) {
+function lageZeichnenStart(typ, code) {
   if (!lageKarte) return;
   if (LAGE.modus === 'bild' && !lageBild()) { lageMeldung('Zuerst ein Bild wählen.', true); return; }
   lagePunkteEnde();
   lageZeichnenEnde();
-  lageZeichnen = { typ: typ, punkte: [], vorschau: null };
+  lageZeichnen = { typ: typ, code: code || '', punkte: [], vorschau: null };
   lageOptionenZeigen(typ);
   lageKarte.closePopup();
   lageKarte.doubleClickZoom.disable();
@@ -388,7 +488,7 @@ function lageZeichnenEnde() {
   lageZeichnen = null;
   if (lageKarte) lageKarte.doubleClickZoom.enable();
   $('lage-karte').classList.remove('zeichnet');
-  lageOptionenZeigen(lageFormBearbId && lageForm(lageFormBearbId) ? lageForm(lageFormBearbId).typ : '');
+  lageOptionenZeigen(lageFormBearbId && lageForm(lageFormBearbId) ? lageForm(lageFormBearbId).typ : lageFzGewaehlt());
   lageLeiste();
 }
 function lageMindest(typ) { return typ === 'raum' ? 3 : 2; }
@@ -396,7 +496,7 @@ function lageVorschau() {
   if (lageZeichnen.vorschau) lageKarte.removeLayer(lageZeichnen.vorschau);
   lageZeichnen.vorschau = null;
   if (!lageZeichnen.punkte.length) return;
-  var f = { typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked, punkte: lageZeichnen.punkte, stufe: $('lage-stufe').value, breite: $('lage-breite').value };
+  var f = { typ: lageZeichnen.typ, code: lageZeichnen.code, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked, punkte: lageZeichnen.punkte, stufe: $('lage-stufe').value, breite: $('lage-breite').value };
   var g = lageFormLayerBauen(f, true);
   lageZeichnen.punkte.forEach(function (p) { L.circleMarker(p, { radius: 5, color: '#FFFFFF', weight: 2, fillColor: LAGE_FARBEN[f.farbe][0], fillOpacity: 1 }).addTo(g); });
   lageZeichnen.vorschau = g.addTo(lageKarte);
@@ -411,27 +511,28 @@ function lageZeichnenFertig() {
   if (!lageZeichnen || lageZeichnen.punkte.length < lageMindest(lageZeichnen.typ)) return;
   var neu = { id: 'f' + Date.now(), typ: lageZeichnen.typ, farbe: $('lage-farbe').value, gestrichelt: $('lage-gestrichelt').checked,
     text: $('lage-text').value.trim().slice(0, 40), ebene: lageEbene(), punkte: lageZeichnen.punkte.slice() };
-  if (neu.typ === 'grenze') neu.stufe = $('lage-stufe').value;
+  if (lageZeichnen.code) neu.code = lageZeichnen.code;
+  if (neu.typ === 'grenze') { neu.stufe = $('lage-stufe').value; neu.text2 = $('lage-text2').value.trim().slice(0, 40); }
   if (neu.typ === 'achse') neu.breite = $('lage-breite').value;
   LAGE.formen.push(neu);
-  var typ = lageZeichnen.typ;
   lageZeichnenEnde();
   lageSpeichern();
   lageFormenZeigen();
   renderLageListe();
-  lageMeldung(LAGE_TYPEN[typ] + ' gespeichert.');
+  lageMeldung(lageFormName(neu) + ' gespeichert.');
 }
 // Leiste über der Karte: Anleitung und Knöpfe während des Zeichnens oder Punkte-Verschiebens
 function lageLeiste() {
   var el = $('lage-leiste');
   document.querySelectorAll('#lage-werkzeug button[data-lage-typ]').forEach(function (b) {
-    b.setAttribute('aria-pressed', String(!!lageZeichnen && lageZeichnen.typ === b.getAttribute('data-lage-typ')));
+    var t = b.getAttribute('data-lage-typ');
+    b.setAttribute('aria-pressed', String(!!lageZeichnen && (t === 'fz' ? !!lageZeichnen.code : !lageZeichnen.code && lageZeichnen.typ === t)));
   });
   if (lageZeichnen) {
     var n = lageZeichnen.punkte.length, min = lageMindest(lageZeichnen.typ);
     el.hidden = false;
-    $('lage-leiste-text').textContent = LAGE_TYPEN[lageZeichnen.typ] + ': ' + (n < min ? 'Tippe auf die Karte, um Punkte zu setzen (mindestens ' + min + ').' : n + ' Punkte. Weitere setzen oder „Fertig“ tippen.') +
-      ({ pfeil: ' Die Spitze kommt an den letzten Punkt.', achse: ' Die Spitze kommt an den letzten Punkt.', sperre: ' Die Zacken zeigen nach links in Zeichenrichtung.' }[lageZeichnen.typ] || '');
+    $('lage-leiste-text').textContent = lageFormName(lageZeichnen) + ': ' + (n < min ? 'Tippe auf die Karte, um Punkte zu setzen (mindestens ' + min + ').' : n + ' Punkte. Weitere setzen oder „Fertig“ tippen.') +
+      ({ pfeil: ' Die Spitze kommt an den letzten Punkt.', richtung: ' Die Spitze kommt an den letzten Punkt.', achse: ' Die Spitze kommt an den letzten Punkt.', sperre: ' Die Zacken zeigen nach links in Zeichenrichtung.', grenze: ' Die Bezeichnungen stehen links und rechts in Zeichenrichtung.' }[lageZeichnen.typ] || '');
     $('lage-leiste-zurueck').hidden = !n;
     $('lage-leiste-fertig').hidden = false;
     $('lage-leiste-fertig').disabled = n < min;
@@ -475,12 +576,16 @@ function lageFormNeuZeichnen(f) {
 
 /* ---------- Liste unter der Karte ---------- */
 function lageFormIcon(f) {
-  var c = LAGE_FARBEN[f.farbe][0], d = f.gestrichelt ? ' stroke-dasharray="4 3"' : '';
-  if (f.typ === 'raum') return '<svg viewBox="0 0 40 30"><path d="M6 8l20-4 9 14-14 8-15-6z" fill="' + c + '" fill-opacity=".12" stroke="' + c + '" stroke-width="2.5"' + d + '/></svg>';
+  var c = LAGE_FARBEN[f.farbe][0], v = lageVariante(f), z = lageFz(f);
+  var d = f.gestrichelt || v === 'geplant' || v === 'feindv' ? ' stroke-dasharray="4 3"' : '';
+  var txt = function (t, y) { return '<text x="20" y="' + y + '" text-anchor="middle" font-size="' + (t.length > 3 ? 7 : 9) + '" font-weight="700" fill="' + c + '">' + esc(t) + '</text>'; };
+  if (f.typ === 'raum') return '<svg viewBox="0 0 40 30"><path d="M6 8l20-4 9 14-14 8-15-6z" fill="' + c + '" fill-opacity=".1" stroke="' + c + '" stroke-width="2.5"' + d + '/>' + (z && z.kurz ? txt(z.kurz, 19) : '') + '</svg>';
   if (f.typ === 'pfeil') return '<svg viewBox="0 0 40 30"><path d="M5 24L30 8" stroke="' + c + '" stroke-width="3"' + d + ' fill="none"/><path d="M36 4l-11 1 6 8z" fill="' + c + '"/></svg>';
-  if (f.typ === 'achse') return '<svg viewBox="0 0 40 30"><path d="M3 12h21V6l13 9-13 9v-6H3z" fill="' + c + '" fill-opacity=".15" stroke="' + c + '" stroke-width="2"' + d + '/></svg>';
-  if (f.typ === 'grenze') return '<svg viewBox="0 0 40 30"><path d="M3 15h34" stroke="' + c + '" stroke-width="3"' + d + '/><rect x="13" y="8" width="14" height="14" fill="#fff"/><text x="20" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="' + c + '">' + esc(f.stufe || 'II') + '</text></svg>';
-  if (f.typ === 'phase') return '<svg viewBox="0 0 40 30"><path d="M3 18h34" stroke="' + c + '" stroke-width="3"' + d + '/><text x="20" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="' + c + '">PL</text></svg>';
+  if (f.typ === 'richtung') return '<svg viewBox="0 0 40 30"><path d="M4 24L33 7" stroke="' + c + '" stroke-width="3"' + d + ' fill="none"/>' +
+    (v === 'haupt' ? '<path d="M37 4l-11 1 6 8z" fill="' + c + '"/><path d="M22 6l6 8" stroke="' + c + '" stroke-width="2.5"/>' : '<path d="M26 5l11-1-5 10" stroke="' + c + '" stroke-width="3" fill="none"/>') + '</svg>';
+  if (f.typ === 'achse') return '<svg viewBox="0 0 40 30"><path d="M3 12h21V6l13 9-13 9v-6H3z" fill="none" stroke="' + c + '" stroke-width="2"' + d + '/>' + (v === 'haupt' ? '<path d="M19 6l8 9-8 9" fill="none" stroke="' + c + '" stroke-width="2"/>' : '') + '</svg>';
+  if (f.typ === 'grenze') return '<svg viewBox="0 0 40 30"><path d="M3 15h34" stroke="' + c + '" stroke-width="3"' + d + '/><rect x="13" y="8" width="14" height="14" fill="#fff"/>' + txt(f.stufe || 'II', 19) + '</svg>';
+  if (f.typ === 'ende') return '<svg viewBox="0 0 40 30"><path d="M3 20h34" stroke="' + c + '" stroke-width="3"' + d + '/>' + txt(z ? z.kurz : 'PL', 13) + '</svg>';
   if (f.typ === 'sperre') return '<svg viewBox="0 0 40 30"><path d="M3 20h34" stroke="' + c + '" stroke-width="3"/><path d="M7 20l4-7 4 7M17 20l4-7 4 7M27 20l4-7 4 7" fill="' + c + '"/></svg>';
   return '<svg viewBox="0 0 40 30"><path d="M4 22C14 6 24 26 36 8" stroke="' + c + '" stroke-width="3"' + d + ' fill="none"/></svg>';
 }
@@ -500,8 +605,8 @@ function renderLageListe() {
     return zeile(z.id, window.ms ? msSymbolAus({ sidc: z.sidc, opt: { fill: z.opt.fill, colorMode: z.opt.colorMode, standard: 'APP6' } }, 18).asSVG() : '',
       esc(z.name || 'Zeichen') + (z.opt && z.opt.uniqueDesignation ? ' · ' + esc(z.opt.uniqueDesignation) : ''), z.gesperrt);
   }).concat(fl.map(function (f) {
-    return zeile(f.id, lageFormIcon(f), LAGE_TYPEN[f.typ] + (f.typ === 'grenze' ? ' ' + esc(f.stufe || 'II') : '') + (f.typ === 'achse' ? ' (' + LAGE_BREITEN[f.breite || 'm'][0] + ')' : '') +
-      (f.text ? ' · ' + esc(f.text) : '') + (f.gestrichelt ? ' (gestrichelt)' : ''), f.gesperrt);
+    return zeile(f.id, lageFormIcon(f), esc(lageFormName(f)) + (f.typ === 'grenze' ? ' ' + esc(f.stufe || 'II') : '') + (f.typ === 'achse' ? ' (' + LAGE_BREITEN[f.breite || 'm'][0] + ')' : '') +
+      (f.text ? ' · ' + esc(f.text) : '') + (f.text2 ? ' | ' + esc(f.text2) : '') + (f.gestrichelt ? ' (gestrichelt)' : ''), f.gesperrt);
   })).join('');
   $('lage-liste').innerHTML = (html || '<p class="hint" style="padding:12px">' + (versteckt ? 'Alles ist ausgeblendet.' : 'Noch nichts auf dieser Grundlage.') + '</p>') +
     (html && versteckt ? '<p class="hint" style="padding:8px 12px">' + versteckt + ' ausgeblendet.</p>' : '');
@@ -551,12 +656,18 @@ function lageFormBearbeiten(id) {
   if (f.breite) $('lage-breite').value = f.breite;
   lageOptionenZeigen(f.typ);
   $('lage-form-bearb').hidden = false;
-  $('lage-form-bearb-text').textContent = LAGE_TYPEN[f.typ] + ' bearbeiten: Farbe, Strich und Beschriftung oben ändern, dann übernehmen.';
+  $('lage-text2').value = f.text2 || '';
+  $('lage-form-bearb-text').textContent = lageFormName(f) + ' bearbeiten: Farbe, Strich und Beschriftung oben ändern, dann übernehmen.';
   $('lage-werkzeug').scrollIntoView({ block: 'center' });
 }
-function lageFormBearbeitenEnde() { lageFormBearbId = null; $('lage-form-bearb').hidden = true; lageOptionenZeigen(lageZeichnen ? lageZeichnen.typ : ''); }
+function lageFormBearbeitenEnde() { lageFormBearbId = null; $('lage-form-bearb').hidden = true; lageOptionenZeigen(lageZeichnen ? lageZeichnen.typ : lageFzGewaehlt()); }
+function lageFzGewaehlt() { var z = LAGE_FZ[$('lage-fz').value]; return z ? z.art : ''; }
 // Zusatzfelder je Typ: Größe an der Grenze, Breite der Angriffsachse
-function lageOptionenZeigen(typ) { $('lage-stufe-wrap').hidden = typ !== 'grenze'; $('lage-breite-wrap').hidden = typ !== 'achse'; }
+function lageOptionenZeigen(typ) {
+  $('lage-stufe-wrap').hidden = typ !== 'grenze'; $('lage-text2-wrap').hidden = typ !== 'grenze'; $('lage-breite-wrap').hidden = typ !== 'achse';
+  var mitCode = lageZeichnen ? !!lageZeichnen.code : !lageFormBearbId;
+  $('lage-text-label').textContent = typ === 'grenze' ? 'Bezeichnung links' : (typ === 'ende' || (typ === 'raum' && mitCode) ? 'Name' : 'Beschriftung');
+}
 function lageLoeschen(id) {
   var o = lageObjekt(id);
   if (!o || o.gesperrt) return;
@@ -601,11 +712,23 @@ $('lage-karte-weg').addEventListener('click', function () {
 $('lage-werkzeug').addEventListener('click', function (e) {
   var b = e.target.closest('button[data-lage-typ]');
   if (!b) return;
-  var typ = b.getAttribute('data-lage-typ');
-  if (lageZeichnen && lageZeichnen.typ === typ) { lageZeichnenEnde(); return; }
+  var typ = b.getAttribute('data-lage-typ'), code = '';
+  if (typ === 'fz') { code = $('lage-fz').value; typ = LAGE_FZ[code].art; }
+  if (lageZeichnen && lageZeichnen.typ === typ && lageZeichnen.code === code) { lageZeichnenEnde(); return; }
   lageFormBearbeitenEnde();
-  lageZeichnenStart(typ);
+  lageZeichnenStart(typ, code);
 });
+$('lage-fz').innerHTML = LAGE_FZ_GRUPPEN.map(function (g) {
+  return '<optgroup label="' + g[0] + '">' + g[1].map(function (e) { return '<option value="' + e[0] + '">' + esc(e[2]) + ' · ' + esc(e[1]) + ' (' + e[0] + ')</option>'; }).join('') + '</optgroup>';
+}).join('');
+// APP-6 zeichnet Führungszeichen schwarz, feindliche rot
+$('lage-fz').addEventListener('change', function () {
+  var z = LAGE_FZ[$('lage-fz').value];
+  $('lage-farbe').value = z.v === 'feind' || z.v === 'feindv' ? 'rot' : 'schwarz';
+  if (lageZeichnen && lageZeichnen.code) lageZeichnenStart(z.art, z.code);
+  else if (!lageZeichnen && !lageFormBearbId) lageOptionenZeigen(z.art);
+});
+lageOptionenZeigen(lageFzGewaehlt());
 ['lage-farbe', 'lage-gestrichelt', 'lage-stufe', 'lage-breite'].forEach(function (id) { $(id).addEventListener('change', function () { if (lageZeichnen) lageVorschau(); }); });
 // Ebenen ein- und ausblenden
 ['eigen', 'feind', 'sonst'].forEach(function (x) {
@@ -657,7 +780,7 @@ $('lage-form-uebernehmen').addEventListener('click', function () {
   var f = lageForm(lageFormBearbId);
   if (f) {
     f.farbe = $('lage-farbe').value; f.gestrichelt = $('lage-gestrichelt').checked; f.text = $('lage-text').value.trim().slice(0, 40);
-    if (f.typ === 'grenze') f.stufe = $('lage-stufe').value;
+    if (f.typ === 'grenze') { f.stufe = $('lage-stufe').value; f.text2 = $('lage-text2').value.trim().slice(0, 40); }
     if (f.typ === 'achse') f.breite = $('lage-breite').value;
     lageSpeichern(); lageFormenZeigen(); renderLageListe(); lageMeldung('Geändert.');
   }

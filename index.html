@@ -665,18 +665,17 @@
     </section>
     <section class="panel" id="lage-werkzeug">
       <h2>Zeichnen</h2>
+      <div class="u-felder einspaltig p-felder" style="margin-bottom:10px"><div><label class="label" for="lage-fz" style="display:block">Führungszeichen nach APP-6D</label><select id="lage-fz"></select></div></div>
       <div class="seg lage-typen">
         <button type="button" class="lage-typ" data-lage-typ="linie" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M4 22C14 6 24 26 36 8"/></svg>Linie</button>
         <button type="button" class="lage-typ" data-lage-typ="pfeil" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M5 24L30 8"/><path class="f" d="M36 4l-11 1 6 8z"/></svg>Pfeil</button>
         <button type="button" class="lage-typ" data-lage-typ="raum" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M6 8l20-4 9 14-14 8-15-6z"/></svg>Raum</button>
-        <button type="button" class="lage-typ" data-lage-typ="grenze" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 15h10M27 15h10"/><text x="20" y="19" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" stroke="none">II</text></svg>Grenze</button>
-        <button type="button" class="lage-typ" data-lage-typ="phase" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 20h34"/><text x="20" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="currentColor" stroke="none">PL</text></svg>Phasenlinie</button>
-        <button type="button" class="lage-typ" data-lage-typ="achse" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 12h21V6l13 9-13 9v-6H3z"/></svg>Angriffsachse</button>
-        <button type="button" class="lage-typ" data-lage-typ="sperre" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 21h34"/><path class="f" d="M7 21l4-7 4 7M17 21l4-7 4 7M27 21l4-7 4 7"/></svg>Sperre</button>
+        <button type="button" class="lage-typ lage-typ-app6" data-lage-typ="fz" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 21h34"/><text x="20" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" stroke="none">APP-6</text></svg>Zeichnen</button>
       </div>
       <div class="u-felder p-felder" style="margin-top:10px">
         <div><label class="label" for="lage-farbe" style="display:block">Farbe</label><select id="lage-farbe"><option value="blau">Blau (eigene)</option><option value="rot">Rot (Feind)</option><option value="schwarz">Schwarz (allgemein)</option><option value="gruen">Grün (Hindernis, Gelände)</option></select></div>
-        <div><label class="label" for="lage-text" style="display:block">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. ALPHA"></div>
+        <div><label class="label" for="lage-text" style="display:block" id="lage-text-label">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. ALPHA"></div>
+        <div id="lage-text2-wrap" hidden><label class="label" for="lage-text2" style="display:block">Bezeichnung rechts</label><input type="text" id="lage-text2" maxlength="40" autocomplete="off" placeholder="z. B. 2./371"></div>
         <div id="lage-stufe-wrap" hidden><label class="label" for="lage-stufe" style="display:block">Grenze der Ebene</label><select id="lage-stufe"><option value="I">Kompanie (I)</option><option value="II" selected>Bataillon (II)</option><option value="III">Regiment (III)</option><option value="X">Brigade (X)</option><option value="XX">Division (XX)</option><option value="XXX">Korps (XXX)</option></select></div>
         <div id="lage-breite-wrap" hidden><label class="label" for="lage-breite" style="display:block">Breite</label><select id="lage-breite"><option value="s">schmal</option><option value="m" selected>mittel</option><option value="b">breit</option></select></div>
       </div>
@@ -685,7 +684,7 @@
         <p class="hint" id="lage-form-bearb-text" style="margin-top:0"></p>
         <div class="dg-aktionen"><button type="button" class="knopf primaer" id="lage-form-uebernehmen">Änderungen übernehmen</button><button type="button" class="knopf sekundaer" id="lage-form-abbrechen">Abbrechen</button></div>
       </div>
-      <p class="hint">Typ wählen, dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Bei Pfeil und Angriffsachse kommt die Spitze an den letzten Punkt, bei der Sperre zeigen die Zacken in Zeichenrichtung nach links. Formen nach APP-6, vereinfacht dargestellt.</p>
+      <p class="hint">Führungszeichen auswählen und „APP-6 Zeichnen“ tippen, oder eine freie Linie, einen Pfeil oder einen Raum wählen. Dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Bei Richtungen und Achsen kommt die Spitze an den letzten Punkt. Namen und Codes stammen aus APP-6D, die deutschen Bezeichnungen sind frei übersetzt. Die Formen sind nach der Norm nachgezeichnet, Maße und Einzelheiten können abweichen; die Sperrlinie ist vereinfacht.</p>
     </section>
     <div class="lage-rahmen">
       <div class="lage-leiste" id="lage-leiste" hidden>

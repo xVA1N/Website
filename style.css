@@ -669,6 +669,8 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .leaflet-tooltip.lage-formtext::before { display: none; }
 .lage-popup-mgrs { font-family: var(--font-mono); font-size: .8rem; }
 .lage-typen { grid-template-columns: repeat(4, 1fr); }
+.lage-typ-app6 svg text { font-size: 9px; }
+.lage-popup-orig { font-size: .78rem; color: #555; }
 .lage-typ { font-size: .78rem; min-height: 60px; }
 .lage-typ svg text { font-family: var(--font-text); }
 .lage-sicht { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 4px 0 8px; font-size: .9rem; }
