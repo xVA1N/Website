@@ -22,6 +22,7 @@
     --warn-bg: #FFF0CC;
     --warn-fg: #5E4200;
     --warn-line: #E8C86A;
+    --rot: #C62828;
     --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -38,6 +39,7 @@
       --warn-bg: #3A2F10;
       --warn-fg: #F1D88F;
       --warn-line: #6B5517;
+      --rot: #FF7A6E;
       color-scheme: dark;
     }
   }
@@ -53,6 +55,7 @@
     --warn-bg: #3A2F10;
     --warn-fg: #F1D88F;
     --warn-line: #6B5517;
+    --rot: #FF7A6E;
     color-scheme: dark;
   }
 
@@ -338,8 +341,7 @@
   .u-tag { position: relative; min-height: 44px; border: 1px solid transparent; border-radius: 8px; background: var(--surface); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; padding: 0; }
   .u-tag.leer { visibility: hidden; }
   .u-tag.we { color: var(--muted); background: transparent; }
-  .u-tag.ft { color: var(--accent); font-weight: 700; background: var(--soft); }
-  .u-tag.ft::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: currentColor; }
+  .u-tag.ft::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: var(--rot); box-shadow: 0 0 0 1.5px var(--surface); }
   .u-tag.heute { border-color: var(--fg); }
   .u-tag.art-urlaub.genehmigt { background: var(--accent); color: var(--accent-ink); }
   .u-tag.art-urlaub.geplant { background: var(--soft); border: 2px dashed var(--accent); }
@@ -354,7 +356,7 @@
   .u-legende .l-up::before { background: var(--soft); border: 2px dashed var(--accent); }
   .u-legende .l-dza::before { background: var(--warn-bg); border-color: var(--warn-line); }
   .u-legende .l-so::before { background: var(--fg); border-color: var(--fg); }
-  .u-legende .l-ft::before { background: var(--soft); }
+  .u-legende .l-ft::before { width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--rot); vertical-align: 1px; margin-left: 3px; margin-right: 9px; }
   .u-jahr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
   .u-mini { border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
   .u-mini .mn { font-weight: 600; font-size: .85rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
@@ -363,7 +365,7 @@
   .u-mini .g i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--soft); }
   .u-mini .g i.x { visibility: hidden; }
   .u-mini .g i.we { background: transparent; }
-  .u-mini .g i.ft { background: var(--accent); opacity: .35; }
+  .u-mini .g i.ft { background: var(--rot); opacity: .75; }
   .u-mini .g i.art-urlaub { background: var(--accent); opacity: 1; }
   .u-mini .g i.art-urlaub.geplant { opacity: .5; }
   .u-mini .g i.art-dza { background: var(--warn-line); }
