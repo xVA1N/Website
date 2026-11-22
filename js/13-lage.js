@@ -112,7 +112,7 @@ var SCHLOSS = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" wi
 var SCHLOSS_OFFEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
 function lageIcon(z) {
   var sym = msSymbolAus(z, 30), gr = sym.getSize(), an = sym.getAnchor();
-  return L.divIcon({ className: 'lage-zeichen' + (z.gesperrt ? ' gesperrt' : ''), html: sym.asSVG() + (z.gesperrt ? '<span class="lage-schloss" title="Gesperrt">' + SCHLOSS + '</span>' : ''),
+  return L.divIcon({ className: 'lage-zeichen' + (z.gesperrt ? ' gesperrt' : ''), html: sym.asSVG() + (z.gesperrt ? '<span class="lage-schloss" title="Gesperrt" style="left:' + Math.round(an.x - 8) + 'px;top:' + Math.round(gr.height + 3) + 'px">' + SCHLOSS + '</span>' : ''),
     iconSize: [gr.width, gr.height], iconAnchor: [an.x, an.y] });
 }
 function lageZeichen(id) { return LAGE.zeichen.filter(function (z) { return z.id === id; })[0]; }

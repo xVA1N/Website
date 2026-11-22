@@ -623,7 +623,8 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-liste-zeichen svg { max-width: 44px; max-height: 36px; }
 #lage-meldung:empty { display: none; }
 .lage-zeichen { position: relative; }
-.lage-schloss { position: absolute; top: -6px; right: -10px; width: 20px; height: 20px; border-radius: 50%; background: #1E2A20; color: #FFFFFF; display: grid; place-items: center; box-shadow: 0 0 0 2px #FFFFFF; }
+.lage-schloss { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #1E2A20; color: #FFFFFF; display: grid; place-items: center; box-shadow: 0 0 0 1.5px #FFFFFF; pointer-events: none; }
+.lage-schloss svg { width: 11px; height: 11px; }
 .lage-schloss svg, .lage-liste-schloss svg, .lage-popup svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; filter: none; }
 .lage-liste-schloss { flex: none; display: grid; place-items: center; width: 28px; color: var(--muted); }
 .lage-popup { display: grid; gap: 4px; font: inherit; }
