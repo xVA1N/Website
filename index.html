@@ -331,6 +331,7 @@
   .u-zahl .t { font-size: .82rem; color: var(--muted); }
   .u-zahl.haupt { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .u-zahl.haupt .t { color: inherit; }
+  .frage-inhalt { margin-top: 12px; }
   .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
   .u-felder input[type="date"], .u-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -604,26 +605,44 @@
       </fieldset>
 
       <fieldset>
-        <legend>Führungsfunktion</legend>
-        <select id="fuehrung" aria-label="Führungsfunktion"></select>
-        <p class="hint" id="fuehrung-info"></p>
+        <legend>Hast du eine Führungsfunktion?</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="frage-fue" value="nein" checked><span>Nein</span></label>
+          <label><input type="radio" name="frage-fue" value="ja"><span>Ja</span></label>
+        </div>
+        <p class="hint">Zum Beispiel Kompaniechef, Zugführer, Gruppenführer oder Kompaniefeldwebel.</p>
+        <div class="stack frage-inhalt" id="frage-fue-inhalt" hidden>
+          <select id="fuehrung" aria-label="Führungsfunktion"></select>
+          <p class="hint" id="fuehrung-info"></p>
+        </div>
       </fieldset>
 
       <fieldset>
-        <legend>Stellenzulage für besondere Verwendung</legend>
-        <div class="stack">
+        <legend>Bekommst du eine Stellenzulage für eine besondere Verwendung?</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="frage-stelle" value="nein" checked><span>Nein</span></label>
+          <label><input type="radio" name="frage-stelle" value="ja"><span>Ja</span></label>
+        </div>
+        <p class="hint">Zum Beispiel als Feldjäger, in der Cyberverteidigung, als Combat Controller oder im BMVg.</p>
+        <div class="stack frage-inhalt" id="frage-stelle-inhalt" hidden>
           <select id="stelle" aria-label="Verwendung für die Stellenzulage"></select>
           <div id="dauer-wrap" hidden>
             <label class="label" for="dauer" id="dauer-label" style="display:block">Dauer in dieser Verwendung</label>
             <select id="dauer"></select>
           </div>
+          <p class="hint" id="stelle-info"></p>
         </div>
-        <p class="hint" id="stelle-info"></p>
         <p class="hint" id="zul-regel" hidden></p>
       </fieldset>
 
       <fieldset>
-        <legend>Dienst zu ungünstigen Zeiten</legend>
+        <legend>Leistest du Dienst zu ungünstigen Zeiten?</legend>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="frage-duz" value="nein" checked><span>Nein</span></label>
+          <label><input type="radio" name="frage-duz" value="ja"><span>Ja</span></label>
+        </div>
+        <p class="hint">Nachts, samstags, an Sonn- oder Feiertagen.</p>
+        <div class="stack frage-inhalt" id="frage-duz-inhalt" hidden>
         <p class="hint" style="margin-top:0">Stunden im Kalendermonat. Bereitschaftsdienst zählt voll mit, Rufbereitschaft und Reisezeiten nicht. Angefangene Stunden werden anteilig berechnet, z. B. 2,5.</p>
         <div class="u-felder">
           <div><label class="label" for="duz-so" style="display:block">Sonn- und Feiertage</label><input type="number" id="duz-so" min="0" max="744" step="0.25" inputmode="decimal" value="0"></div>
@@ -632,6 +651,7 @@
         </div>
         <p class="hint">Zu „Sonn- und Feiertage“ zählen auch der Samstag vor Ostern und vor Pfingsten sowie der 24. und 31. Dezember jeweils ab 12 Uhr, wenn sie nicht auf einen Sonntag fallen. „Nachts“ meint die übrigen Tage einschließlich Samstagnacht.</p>
         <p class="hint" id="duz-info"></p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -1135,6 +1155,9 @@
     dauer: 0,
     gebiet: 'keine',
     tage: 30,
+    frageFue: false,
+    frageStelle: false,
+    frageDuz: false,
     duzSo: 0,
     duzSa: 0,
     duzNa: 0
@@ -1466,7 +1489,7 @@
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
     urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'] };
-  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'duzSo', 'duzSa', 'duzNa',
+  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'duzSo', 'duzSa', 'duzNa',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
   function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
   function favLaden() {
@@ -1798,8 +1821,13 @@
     $('kind-minus').disabled = state.kinder <= 0;
     $('kind-plus').disabled = state.kinder >= 6;
 
-    var fz = FUEHRUNG.filter(function (f) { return f.id === state.fuehrung; })[0];
-    $('fuehrung').value = fz.id;
+    // Fragen: Ja/Nein steuert, ob der Bereich aufklappt und mitgerechnet wird
+    [['fue', 'frageFue'], ['stelle', 'frageStelle'], ['duz', 'frageDuz']].forEach(function (q) {
+      document.querySelector('input[name="frage-' + q[0] + '"][value="' + (state[q[1]] ? 'ja' : 'nein') + '"]').checked = true;
+      $('frage-' + q[0] + '-inhalt').hidden = !state[q[1]];
+    });
+    var fz = FUEHRUNG.filter(function (f) { return f.id === (state.frageFue ? state.fuehrung : 'keine'); })[0];
+    $('fuehrung').value = state.fuehrung;
     var fueBetrag = fuehrungBetrag(fz, d);
     $('fuehrung-info').textContent = fz.id === 'keine'
       ? 'Zulagen für Kompaniechef, Zugführer, Gruppenführer, Kompaniefeldwebel und vergleichbare Funktionen.'
@@ -1807,8 +1835,8 @@
         ? 'Diese Zulage gibt es nur in ' + gruppenText(fz.gruppen) + ', nicht für ' + bgLabel(d.bg) + '.'
         : 'Nr. ' + fz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(fueBetrag) + ' pro Monat (Anlage IX, gültig ab ' + D.stand.gueltigAb + ').';
     fueBetrag = fueBetrag || 0;
-    var sz = STELLENZULAGEN.filter(function (z) { return z.id === state.stelle; })[0];
-    $('stelle').value = sz.id;
+    var sz = STELLENZULAGEN.filter(function (z) { return z.id === (state.frageStelle ? state.stelle : 'keine'); })[0];
+    $('stelle').value = state.stelle;
     $('dauer-wrap').hidden = !sz.dauer;
     $('dauer-label').textContent = sz.auswahlLabel || 'Dauer in dieser Verwendung';
     if (sz.dauer) {
@@ -1881,8 +1909,9 @@
     var kgBeiMir = state.kgBei === 'ich';
     var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder, state.partner, kgBeiMir);
     // Dienst zu ungünstigen Zeiten (EZulV §§ 3 bis 5)
-    var DZ = D.duz, duzStd = (state.duzSo || 0) + (state.duzSa || 0) + (state.duzNa || 0);
-    var duz = Math.round(((state.duzSo || 0) * DZ.saetze.sonnFeiertag + (state.duzSa || 0) * DZ.saetze.samstag + (state.duzNa || 0) * DZ.saetze.nacht) * 100) / 100;
+    var DZ = D.duz, dzF = state.frageDuz ? 1 : 0;
+    var duzStd = dzF * ((state.duzSo || 0) + (state.duzSa || 0) + (state.duzNa || 0));
+    var duz = Math.round(dzF * ((state.duzSo || 0) * DZ.saetze.sonnFeiertag + (state.duzSa || 0) * DZ.saetze.samstag + (state.duzNa || 0) * DZ.saetze.nacht) * 100) / 100;
     var duzInfo = 'Sätze je Stunde: Sonn- und Feiertage ' + eur.format(DZ.saetze.sonnFeiertag) + ', Samstage ' + eur.format(DZ.saetze.samstag) + ', nachts ' + eur.format(DZ.saetze.nacht) + ' (' + DZ.fundstelle + ', gültig ab ' + DZ.gueltigAb + ').';
     if (duzStd > 0) {
       if (d.bg.charAt(0) !== DZ.nurOrdnung) {
@@ -2001,6 +2030,15 @@
     state.gebiet = e.target.value;
     render();
   });
+  [['fue', 'frageFue', 'fuehrung'], ['stelle', 'frageStelle', 'stelle'], ['duz', 'frageDuz', 'duz-so']].forEach(function (q) {
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="frage-' + q[0] + '"]'), function (r) {
+      r.addEventListener('change', function (e) {
+        state[q[1]] = e.target.value === 'ja';
+        render();
+        if (state[q[1]]) $(q[2]).focus();
+      });
+    });
+  });
   ['so', 'sa', 'na'].forEach(function (k) {
     $('duz-' + k).addEventListener('input', function (e) {
       var v = parseFloat(String(e.target.value).replace(',', '.'));
@@ -2087,6 +2125,7 @@
     var b = e.target.closest('button[data-fuehrung]');
     if (!b) return;
     state.fuehrung = b.getAttribute('data-fuehrung');
+    state.frageFue = true;
     render();
     go('rechner');
   });
@@ -2095,6 +2134,7 @@
     var b = e.target.closest('button[data-stelle]');
     if (!b) return;
     state.stelle = b.getAttribute('data-stelle');
+    state.frageStelle = true;
     state.dauer = 0;
     render();
     go('rechner');
@@ -2202,6 +2242,10 @@
     var b = FAV.berechnungen.filter(function (x) { return x.id === o.getAttribute('data-fav-calc'); })[0];
     if (!b) return;
     CALC_KEYS.forEach(function (k) { if (k in b.snap) state[k] = b.snap[k]; });
+    // Ältere Favoriten ohne Fragen: aus den Werten ableiten
+    if (!('frageFue' in b.snap)) state.frageFue = state.fuehrung !== 'keine';
+    if (!('frageStelle' in b.snap)) state.frageStelle = state.stelle !== 'keine';
+    if (!('frageDuz' in b.snap)) state.frageDuz = !!((state.duzSo || 0) + (state.duzSa || 0) + (state.duzNa || 0));
     var dd = dgById(state.dienstgrad);
     state.gruppe = dd.gruppe;
     if (dd.bgs.indexOf(state.bg) < 0) state.bg = '';
@@ -2235,8 +2279,8 @@
     var o = e.target.closest('button[data-fav-zul-open]');
     if (!o) return;
     var t = o.getAttribute('data-fav-zul-open').split(':');
-    if (t[0] === 'fuehrung') state.fuehrung = t[1];
-    else { state.stelle = t[1]; state.dauer = 0; }
+    if (t[0] === 'fuehrung') { state.fuehrung = t[1]; state.frageFue = true; }
+    else { state.stelle = t[1]; state.dauer = 0; state.frageStelle = true; }
     render();
     go('rechner');
   });
