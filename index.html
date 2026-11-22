@@ -465,7 +465,13 @@
       </fieldset>
 
       <fieldset>
-        <legend>Stellenzulage</legend>
+        <legend>Führungsfunktion</legend>
+        <select id="fuehrung" aria-label="Führungsfunktion"></select>
+        <p class="hint" id="fuehrung-info"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Stellenzulage für besondere Verwendung</legend>
         <div class="stack">
           <select id="stelle" aria-label="Verwendung für die Stellenzulage"></select>
           <div id="dauer-wrap" hidden>
@@ -474,6 +480,7 @@
           </div>
         </div>
         <p class="hint" id="stelle-info"></p>
+        <p class="hint" id="zul-beide" hidden>Du hast eine Führungsfunktion und eine besondere Verwendung gewählt. Beide Zulagen sind hier addiert. Ob sie nebeneinander voll gezahlt werden, regeln die Vorbemerkungen in Anlage I BBesG. Das ist noch nicht geprüft.</p>
       </fieldset>
 
       <fieldset>
@@ -497,7 +504,8 @@
       <dl class="lines">
         <div><dt>Grundgehalt</dt><dd id="z-grund"></dd></div>
         <div><dt>Familienzuschlag</dt><dd id="z-fam"></dd></div>
-        <div><dt>Stellenzulage</dt><dd id="z-zul"></dd></div>
+        <div><dt>Zulage Führungsfunktion</dt><dd id="z-fue"></dd></div>
+        <div><dt>Stellenzulage besondere Verwendung</dt><dd id="z-zul"></dd></div>
         <div><dt>Auslandsverwendungszuschlag</dt><dd id="z-avz"></dd></div>
         <div><dt>12 Monate, ohne Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
       </dl>
@@ -529,7 +537,14 @@
   <section class="view" id="view-zulagen" aria-label="Zulagen" hidden>
     <section class="panel">
       <div>
-        <h2>Stellenzulagen</h2>
+        <h2>Zulagen für Führungsfunktionen</h2>
+        <p class="hint" id="fue-kopf"></p>
+      </div>
+      <div class="liste" id="fue-liste"></div>
+    </section>
+    <section class="panel">
+      <div>
+        <h2>Stellenzulagen für besondere Verwendungen</h2>
         <p class="hint" id="zul-kopf"></p>
       </div>
       <div class="liste" id="zul-liste"></div>
@@ -563,7 +578,7 @@
         </details>
         <details>
           <summary>Welche Zulagen gibt es?</summary>
-          <p>Stellenzulagen hängen an der Verwendung und oft an der Besoldungsgruppe oder an der Dauer in der Verwendung. Der Auslandsverwendungszuschlag wird je Tag gezahlt und hängt vom Einsatzgebiet ab. Eingebaut sind bisher einige Beispiele.</p>
+          <p>Für Führungsfunktionen wie Kompaniechef, Zugführer, Gruppenführer oder Kompaniefeldwebel gibt es eigene Zulagen mit festen Beträgen. Weitere Stellenzulagen hängen an der Verwendung und oft an der Besoldungsgruppe oder an der Dauer in der Verwendung. Der Auslandsverwendungszuschlag wird je Tag gezahlt und hängt vom Einsatzgebiet ab. Eingebaut sind bisher einige Beispiele.</p>
         </details>
       </div>
     </section>
@@ -659,6 +674,12 @@
     return o;
   }));
   var EINSATZGEBIETE = [{ id: 'keine', name: 'Keine Auslandsverwendung', stufe: 0 }].concat(AVZ.gebiete);
+  var FUEHRUNG = [{ id: 'keine', name: 'Keine Führungsfunktion' }].concat(D.fuehrungszulagen);
+  // Betrag der Führungszulage, null wenn sie für diese Besoldungsgruppe nicht vorgesehen ist
+  function fuehrungBetrag(f, d) {
+    if (!f.betrag) return 0;
+    return f.gruppen && !inGruppen(d.bg, f.gruppen) ? null : f.betrag;
+  }
 
   var GRUPPEN = [
     { id: 'mannschaft', name: 'Mannschaften', standard: 'ogefr' },
@@ -751,6 +772,7 @@
     kinder: 0,
     partner: false,
     kgBei: 'ich',
+    fuehrung: 'keine',
     stelle: 'keine',
     dauer: 0,
     gebiet: 'keine',
@@ -901,6 +923,9 @@
   }
   $('stufen').innerHTML = stufenHtml;
 
+  $('fuehrung').innerHTML = FUEHRUNG.map(function (f) {
+    return '<option value="' + f.id + '">' + f.name + '</option>';
+  }).join('');
   $('stelle').innerHTML = STELLENZULAGEN.map(function (z) {
     return '<option value="' + z.id + '">' + z.name + '</option>';
   }).join('');
@@ -1075,6 +1100,13 @@
   function renderZulagen() {
     var d = aktuell();
     $('zul-kopf').textContent = 'Beträge für ' + d.name + ' (' + bgLabel(d.bg) + ') nach Anlage IX BBesG, gültig ab ' + D.stand.gueltigAb + '. Tippe auf eine Zulage, um sie im Rechner zu wählen.';
+    $('fue-kopf').textContent = 'Beträge für ' + d.name + ' (' + bgLabel(d.bg) + ') nach Anlage IX BBesG, gültig ab ' + D.stand.gueltigAb + '. Tippe auf eine Funktion, um sie im Rechner zu wählen.';
+    $('fue-liste').innerHTML = FUEHRUNG.filter(function (f) { return f.id !== 'keine'; }).map(function (f) {
+      var b = fuehrungBetrag(f, d);
+      var text = b === null ? 'Nur für ' + f.gruppen.replace(/-/g, ' bis ').replace(/([AB])(\d)/g, '$1 $2') + ', nicht für ' + bgLabel(d.bg) : eur.format(b) + ' pro Monat';
+      return '<button type="button" class="zeile" data-fuehrung="' + f.id + '"' + (f.id === state.fuehrung ? ' aria-current="true"' : '') + '>' +
+        '<span class="n">' + f.name + '</span><span class="r">Nr. ' + f.nr.split(' ')[0] + '</span><span class="s">' + text + (f.nr.indexOf(' ') > 0 ? ' · Nr. ' + f.nr : '') + '</span></button>';
+    }).join('');
     $('zul-liste').innerHTML = STELLENZULAGEN.filter(function (z) { return z.id !== 'keine'; }).map(function (z) {
       var text;
       if (z.dauer) {
@@ -1144,6 +1176,15 @@
     $('kind-minus').disabled = state.kinder <= 0;
     $('kind-plus').disabled = state.kinder >= 6;
 
+    var fz = FUEHRUNG.filter(function (f) { return f.id === state.fuehrung; })[0];
+    $('fuehrung').value = fz.id;
+    var fueBetrag = fuehrungBetrag(fz, d);
+    $('fuehrung-info').textContent = fz.id === 'keine'
+      ? 'Zulagen für Kompaniechef, Zugführer, Gruppenführer, Kompaniefeldwebel und vergleichbare Funktionen.'
+      : fueBetrag === null
+        ? 'Diese Zulage gibt es nur in ' + fz.gruppen.replace(/-/g, ' bis ').replace(/([AB])(\d)/g, '$1 $2') + ', nicht für ' + bgLabel(d.bg) + '.'
+        : 'Nr. ' + fz.nr + ' der Vorbemerkungen zu den Besoldungsordnungen A und B: ' + eur.format(fueBetrag) + ' pro Monat (Anlage IX, gültig ab ' + D.stand.gueltigAb + ').';
+    fueBetrag = fueBetrag || 0;
     var sz = STELLENZULAGEN.filter(function (z) { return z.id === state.stelle; })[0];
     $('stelle').value = sz.id;
     $('dauer-wrap').hidden = !sz.dauer;
@@ -1183,15 +1224,17 @@
     var grund = (a ? TAB_A[d.bg][state.stufe - STUFE_MIN] : TAB_B[d.bg]) + plus;
     var kgBeiMir = state.kgBei === 'ich';
     var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder, state.partner, kgBeiMir);
-    var brutto = Math.round((grund + fam + stelleBetrag + avz) * 100) / 100;
+    $('zul-beide').hidden = !(fueBetrag && stelleBetrag);
+    var brutto = Math.round((grund + fam + fueBetrag + stelleBetrag + avz) * 100) / 100;
 
     $('brutto').textContent = eur.format(brutto);
     $('kette').textContent = d.name + ' · ' + bgLabel(d.bg) + (a ? ' · Stufe ' + state.stufe : ' · feste Beträge, keine Stufen');
     $('z-grund').textContent = eur.format(grund);
     $('z-fam').textContent = eur.format(fam);
+    $('z-fue').textContent = eur.format(fueBetrag);
     $('z-zul').textContent = eur.format(stelleBetrag);
     $('z-avz').textContent = eur.format(avz);
-    $('z-jahr').textContent = eur.format(Math.round((grund + fam + stelleBetrag) * 1200) / 100);
+    $('z-jahr').textContent = eur.format(Math.round((grund + fam + fueBetrag + stelleBetrag) * 1200) / 100);
     $('plus-hint').hidden = !plus;
     $('plus-hint').textContent = plus ? 'Im Grundgehalt enthalten: Erhöhungsbetrag von ' + eur.format(plus) + ' nach Anlage IV.' : '';
 
@@ -1292,6 +1335,17 @@
     state.dienstgrad = dd.id;
     state.bg = '';
     fuelleDienstgrade();
+    render();
+    go('rechner');
+  });
+  $('fuehrung').addEventListener('change', function (e) {
+    state.fuehrung = e.target.value;
+    render();
+  });
+  $('fue-liste').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-fuehrung]');
+    if (!b) return;
+    state.fuehrung = b.getAttribute('data-fuehrung');
     render();
     go('rechner');
   });

@@ -74,7 +74,17 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
-  /* ---------- Anlage IX: Stellenzulagen ---------- */
+  /* ---------- Anlage IX: Zulagen für Führungsfunktionen ---------- */
+  // Eigene Liste, im Rechner und im Reiter „Zulagen“ getrennt von den übrigen Stellenzulagen.
+  // "gruppen" ist optional und begrenzt die Zulage auf diese Besoldungsgruppen.
+  fuehrungszulagen: [
+    { id: "chef", name: "Kompaniechef, Einheitsführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 1", betrag: 150 },
+    { id: "zugfuehrer", name: "Zugführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 2", betrag: 130 },
+    { id: "gruppenfuehrer", name: "Gruppenführer, Truppführer oder vergleichbare Funktion", nr: "4 Abs. 1 Nr. 3 bis 5", betrag: 100 },
+    { id: "kpfw", name: "Kompaniefeldwebel", nr: "4a", betrag: 135, gruppen: "A7-A9" }
+  ],
+
+  /* ---------- Anlage IX: Stellenzulagen für besondere Verwendungen ---------- */
   // Jede Zulage hat entweder "staffel" (Betrag je Besoldungsgruppe, optional je Laufbahn)
   // oder "dauer" (Auswahlliste, z. B. nach Dauer in der Verwendung; die Überschrift der
   // Auswahl steht in "auswahlLabel"). "quelle" ist optional, sonst gilt Anlage IX mit Stand oben.
