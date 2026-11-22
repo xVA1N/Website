@@ -1902,7 +1902,7 @@
   function dgDetail(d, g) {
     var info = state.infoDg === d.id;
     var html = '<div class="dg-detail" id="dg-detail-' + d.id + '"><div class="dg-aktionen">' +
-      '<button type="button" class="knopf primaer" data-rechner="' + d.id + '"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Im Rechner berechnen</button>' +
+      '<button type="button" class="knopf primaer" data-rechner="' + d.id + '"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Zum Rechner</button>' +
       '<button type="button" class="knopf sekundaer" data-vgl="' + d.id + '" aria-pressed="' + imVergleich(d.id) + '"><svg class="ic" aria-hidden="true"><use href="#i-vgl"/></svg>' + (imVergleich(d.id) ? 'Im Vergleich ✓' : 'Zum Vergleich') + '</button>' +
       '<button type="button" class="knopf sekundaer" data-fav-dg="' + d.id + '" aria-pressed="' + istFav('dienstgrade', d.id) + '"><svg class="ic stern" aria-hidden="true"><use href="#i-star"/></svg>' + (istFav('dienstgrade', d.id) ? 'Favorit ✓' : 'Favorit') + '</button>' +
       '<button type="button" class="knopf sekundaer" data-info="' + d.id + '" aria-expanded="' + info + '"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>' + (info ? 'Infos ausblenden' : 'Weitere Infos') + '</button>' +
