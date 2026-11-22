@@ -530,6 +530,8 @@
   details.panel > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; min-height: 44px; padding: 0; }
   details.panel > summary::-webkit-details-marker { display: none; }
   details.panel > summary h2 { flex: 1; min-width: 0; }
+  details.panel > summary .u-anz { flex: none; font-size: .82rem; font-weight: 400; color: var(--muted); }
+  details.u-klapp > summary h2 { margin: 0; }
   details.panel > summary::after {
     content: ""; flex: none; width: 10px; height: 10px; margin: 0 6px 3px 2px;
     border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
@@ -985,11 +987,11 @@
       <p class="hint" id="u-mark-leer">Noch keine markierten Zeiträume in diesem Jahr.</p>
     </section>
 
-    <section class="panel">
-      <h2>Brückentage <span id="u-bruecken-jahr"></span></h2>
-      <p class="hint">Wenige Urlaubstage zwischen Feiertagen und Wochenenden ergeben viele freie Tage am Stück. Tippe auf einen Vorschlag, um ihn ins Formular zu übernehmen.</p>
+    <details class="panel u-klapp">
+      <summary><h2>Brückentage <span id="u-bruecken-jahr"></span></h2><span class="u-anz" id="u-bruecken-anz"></span></summary>
+      <p class="hint" style="margin-top:0">Wenige Urlaubstage zwischen Feiertagen und Wochenenden ergeben viele freie Tage am Stück. Tippe auf einen Vorschlag, um ihn ins Formular zu übernehmen.</p>
       <div class="liste" id="u-bruecken"></div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Jahresübersicht</h2>
@@ -2872,6 +2874,7 @@
     // Brückentage
     $('u-bruecken-jahr').textContent = j;
     var vorschlaege = brueckentage(j);
+    $('u-bruecken-anz').textContent = vorschlaege.length ? vorschlaege.length + (vorschlaege.length === 1 ? ' Vorschlag' : ' Vorschläge') : '';
     $('u-bruecken').innerHTML = vorschlaege.length ? vorschlaege.map(function (v) {
       return '<button type="button" class="zeile" data-u-bruecke="' + v.von + '|' + v.bis + '"><span class="n">' + datumKurz(v.von) + (v.bis !== v.von ? ' bis ' + datumKurz(v.bis) : '') + '</span>' +
         '<span class="r">' + tageText(v.frei) + ' frei</span><span class="s">' + tageText(v.urlaub) + ' Urlaub · ' + v.anlass + '</span></button>';
