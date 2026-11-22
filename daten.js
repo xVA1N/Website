@@ -89,8 +89,8 @@ window.MK_DATEN = {
 
   /* ---------- Urlaubskartei ---------- */
   urlaub: {
-    // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn im
-    // Planer anpassen. Maßgeblich ist der eigene Urlaubsbescheid.
+    // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn in der
+    // Urlaubskartei anpassen. Maßgeblich ist der eigene Urlaubsbescheid.
     standardAnspruch: 30,
     hinweis: "Grundlage ist die Soldatinnen- und Soldatenurlaubsverordnung. Anspruch, Resturlaub und Fristen bitte mit dem eigenen Urlaubsbescheid abgleichen.",
     bundeslaender: {
