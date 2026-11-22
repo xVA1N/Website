@@ -74,6 +74,19 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
+  /* ---------- Dienst zu ungünstigen Zeiten (Erschwerniszulagenverordnung §§ 3 bis 5) ---------- */
+  duz: {
+    gueltigAb: "1. März 2024",
+    fundstelle: "§ 4 EZulV, BGBl. 2023 I Nr. 414",
+    mindestStunden: 5,           // mehr als 5 Stunden im Kalendermonat (§ 3 Abs. 1)
+    nurOrdnung: "A",             // nur Besoldungsgruppen mit aufsteigenden Gehältern (§ 3 Abs. 1)
+    saetze: {
+      sonnFeiertag: 6.31,        // Sonn- und Feiertage; Samstag vor Ostern und Pfingsten, 24. und 31.12. jeweils ab 12 Uhr
+      samstag: 1.49,             // übrige Samstage 13 bis 20 Uhr
+      nacht: 2.97                // im Übrigen 20 bis 6 Uhr
+    }
+  },
+
   /* ---------- Urlaubsplaner ---------- */
   urlaub: {
     // Vorschlag für den Jahresanspruch in Arbeitstagen (5-Tage-Woche). Jeder Nutzer kann ihn im

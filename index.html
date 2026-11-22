@@ -331,7 +331,7 @@
   .u-zahl .t { font-size: .82rem; color: var(--muted); }
   .u-zahl.haupt { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
   .u-zahl.haupt .t { color: inherit; }
-  .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .u-felder { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; align-items: end; }
   .u-felder input[type="date"], .u-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; }
   .u-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .u-nav button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 1.2rem; cursor: pointer; }
@@ -623,6 +623,18 @@
       </fieldset>
 
       <fieldset>
+        <legend>Dienst zu ungünstigen Zeiten</legend>
+        <p class="hint" style="margin-top:0">Stunden im Kalendermonat. Bereitschaftsdienst zählt voll mit, Rufbereitschaft und Reisezeiten nicht. Angefangene Stunden werden anteilig berechnet, z. B. 2,5.</p>
+        <div class="u-felder">
+          <div><label class="label" for="duz-so" style="display:block">Sonn- und Feiertage</label><input type="number" id="duz-so" min="0" max="744" step="0.25" inputmode="decimal" value="0"></div>
+          <div><label class="label" for="duz-sa" style="display:block">Samstage 13 bis 20 Uhr</label><input type="number" id="duz-sa" min="0" max="744" step="0.25" inputmode="decimal" value="0"></div>
+          <div><label class="label" for="duz-na" style="display:block">Nachts 20 bis 6 Uhr</label><input type="number" id="duz-na" min="0" max="744" step="0.25" inputmode="decimal" value="0"></div>
+        </div>
+        <p class="hint">Zu „Sonn- und Feiertage“ zählen auch der Samstag vor Ostern und vor Pfingsten sowie der 24. und 31. Dezember jeweils ab 12 Uhr, wenn sie nicht auf einen Sonntag fallen. „Nachts“ meint die übrigen Tage einschließlich Samstagnacht.</p>
+        <p class="hint" id="duz-info"></p>
+      </fieldset>
+
+      <fieldset>
         <legend>Auslandsverwendung</legend>
         <div class="stack">
           <select id="gebiet" aria-label="Einsatzgebiet"></select>
@@ -646,8 +658,9 @@
         <div><dt>Amtszulage</dt><dd id="z-amt"></dd></div>
         <div><dt>Zulage Führungsfunktion</dt><dd id="z-fue"></dd></div>
         <div><dt>Stellenzulage besondere Verwendung</dt><dd id="z-zul"></dd></div>
+        <div><dt>Dienst zu ungünstigen Zeiten</dt><dd id="z-duz"></dd></div>
         <div><dt>Auslandsverwendungszuschlag</dt><dd id="z-avz"></dd></div>
-        <div><dt>12 Monate, ohne Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
+        <div><dt>12 Monate, ohne DuZ und Auslandszuschlag</dt><dd id="z-jahr"></dd></div>
       </dl>
       <p class="small" id="kg-info" hidden></p>
       <div class="fav-speichern">
@@ -838,6 +851,14 @@
       </div>
       <div class="liste" id="zul-liste"></div>
       <p class="hint">Weitere Zulagen (fliegerische Verwendung, maritimer Bereich) folgen. Ihre Unterstufen sind noch zu prüfen.</p>
+    </section>
+    <section class="panel">
+      <div>
+        <h2>Dienst zu ungünstigen Zeiten</h2>
+        <p class="hint">Erschwerniszulage je Stunde für Dienst nachts, samstags, an Sonn- und Feiertagen. Es gibt sie nur in Besoldungsordnung A und erst ab mehr als <span id="duz-z-min"></span> Stunden im Kalendermonat. Bereitschaftsdienst zählt voll, Rufbereitschaft und Reisezeiten nicht. Nicht gezahlt wird sie neben dem Auslandsverwendungszuschlag, bei Dienst nach § 30c Abs. 4 Soldatengesetz und wenn der Dienst anders abgegolten oder ausgeglichen wird.</p>
+      </div>
+      <dl class="info" id="duz-z-liste"></dl>
+      <p class="hint" id="duz-z-quelle"></p>
     </section>
     <section class="panel">
       <div>
@@ -1087,6 +1108,7 @@
   });
 
   /* ===== Hilfen ===== */
+  function zahlDe(n) { return String(Math.round(n * 100) / 100).replace('.', ','); }
   var eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
   var $ = function (id) { return document.getElementById(id); };
   var bgLabel = function (bg) { return bg.replace(/^([AB])/, '$1 '); };
@@ -1112,7 +1134,10 @@
     infoDg: '',
     dauer: 0,
     gebiet: 'keine',
-    tage: 30
+    tage: 30,
+    duzSo: 0,
+    duzSa: 0,
+    duzNa: 0
   };
 
   function sichtbar(d) { return !!d.n[state.tsk]; }
@@ -1239,6 +1264,15 @@
     try { location.hash = v; } catch (e) { /* Ansicht wird unten trotzdem umgeschaltet */ }
     show(v);
   }
+
+  // Dienst zu ungünstigen Zeiten auf der Seite Zulagen (feste Werte, einmal einsetzen)
+  $('duz-z-min').textContent = D.duz.mindestStunden;
+  $('duz-z-liste').innerHTML = [
+    ['Sonn- und Feiertage', D.duz.saetze.sonnFeiertag, 'auch Samstag vor Ostern und Pfingsten sowie 24. und 31. Dezember jeweils ab 12 Uhr'],
+    ['Samstage 13 bis 20 Uhr', D.duz.saetze.samstag, ''],
+    ['Nachts 20 bis 6 Uhr', D.duz.saetze.nacht, 'an allen übrigen Tagen']
+  ].map(function (z) { return '<dt>' + z[0] + '</dt><dd>' + eur.format(z[1]) + ' je Stunde' + (z[2] ? ' (' + z[2] + ')' : '') + '</dd>'; }).join('');
+  $('duz-z-quelle').textContent = 'Stand ' + D.duz.gueltigAb + ', ' + D.duz.fundstelle + '. Im Rechner kannst du deine Stunden eintragen.';
 
   /* ===== Stand-Angaben aus daten.js überall einsetzen ===== */
   var TEXTE = { gueltigAb: D.stand.gueltigAb, fundstelle: D.stand.fundstelle, gesetz: D.stand.gesetz,
@@ -1432,7 +1466,7 @@
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
     urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'] };
-  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei',
+  var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'duzSo', 'duzSa', 'duzNa',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
   function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
   function favLaden() {
@@ -1846,7 +1880,30 @@
     var grund = (a ? TAB_A[d.bg][state.stufe - STUFE_MIN] : TAB_B[d.bg]) + plus;
     var kgBeiMir = state.kgBei === 'ich';
     var fam = familienzuschlag(d.bg, state.verheiratet, state.kinder, state.partner, kgBeiMir);
-    var brutto = Math.round((grund + amtBetrag + fam + fueBetrag + stelleBetrag + avz) * 100) / 100;
+    // Dienst zu ungünstigen Zeiten (EZulV §§ 3 bis 5)
+    var DZ = D.duz, duzStd = (state.duzSo || 0) + (state.duzSa || 0) + (state.duzNa || 0);
+    var duz = Math.round(((state.duzSo || 0) * DZ.saetze.sonnFeiertag + (state.duzSa || 0) * DZ.saetze.samstag + (state.duzNa || 0) * DZ.saetze.nacht) * 100) / 100;
+    var duzInfo = 'Sätze je Stunde: Sonn- und Feiertage ' + eur.format(DZ.saetze.sonnFeiertag) + ', Samstage ' + eur.format(DZ.saetze.samstag) + ', nachts ' + eur.format(DZ.saetze.nacht) + ' (' + DZ.fundstelle + ', gültig ab ' + DZ.gueltigAb + ').';
+    if (duzStd > 0) {
+      if (d.bg.charAt(0) !== DZ.nurOrdnung) {
+        duz = 0;
+        duzInfo = 'Die Zulage gibt es nur in Besoldungsgruppen mit aufsteigenden Gehältern (Besoldungsordnung A), nicht für ' + bgLabel(d.bg) + ' (§ 3 Abs. 1 EZulV).';
+      } else if (duzStd <= DZ.mindestStunden) {
+        duz = 0;
+        duzInfo = 'Erst ab mehr als ' + DZ.mindestStunden + ' Stunden im Monat gibt es die Zulage. Eingetragen sind ' + zahlDe(duzStd) + ' Stunden (§ 3 Abs. 1 EZulV).';
+      } else {
+        duzInfo = zahlDe(duzStd) + ' Stunden ergeben ' + eur.format(duz) + '. ' + duzInfo;
+        if (avz) duzInfo += ' Neben dem Auslandsverwendungszuschlag wird die Zulage nicht gezahlt (§ 5 EZulV). Trage hier nur Stunden außerhalb der Auslandsverwendung ein.';
+      }
+    }
+    duzInfo += ' Ausgeschlossen ist sie auch bei Dienst nach § 30c Abs. 4 Soldatengesetz und wenn der Dienst anders abgegolten oder ausgeglichen wird (§ 5 EZulV).';
+    $('duz-info').textContent = duzInfo;
+    ['So', 'Sa', 'Na'].forEach(function (k) {
+      var el = $('duz-' + k.toLowerCase());
+      if (document.activeElement !== el) el.value = state['duz' + k] ? String(state['duz' + k]) : '0';
+    });
+    $('z-duz').textContent = eur.format(duz);
+    var brutto = Math.round((grund + amtBetrag + fam + fueBetrag + stelleBetrag + duz + avz) * 100) / 100;
 
     $('brutto').textContent = eur.format(brutto);
     $('kette').textContent = d.name + ' · ' + bgLabel(d.bg) + (a ? ' · Stufe ' + state.stufe : ' · feste Beträge, keine Stufen');
@@ -1943,6 +2000,13 @@
   $('gebiet').addEventListener('change', function (e) {
     state.gebiet = e.target.value;
     render();
+  });
+  ['so', 'sa', 'na'].forEach(function (k) {
+    $('duz-' + k).addEventListener('input', function (e) {
+      var v = parseFloat(String(e.target.value).replace(',', '.'));
+      state['duz' + k.charAt(0).toUpperCase() + k.slice(1)] = isNaN(v) || v < 0 ? 0 : Math.min(v, 744);
+      render();
+    });
   });
   $('avz-tage').addEventListener('input', function (e) {
     var n = parseInt(e.target.value, 10);
