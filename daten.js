@@ -80,6 +80,40 @@ window.MK_DATEN = {
     fundstelle: "§ 6 BKGG, BGBl. 2024 I Nr. 449"
   },
 
+  /* ---------- Lohnsteuer für den Netto-Rechner (Näherung, Steuerjahr 2026) ---------- */
+  // Einkommensteuertarif § 32a EStG 2026. x = zu versteuerndes Einkommen in vollen Euro.
+  //   bis grundfreibetrag: 0
+  //   bis zone2Bis: (zone2[0] * y + zone2[1]) * y,             y = (x - grundfreibetrag) / 10000
+  //   bis zone3Bis: (zone3[0] * z + zone3[1]) * z + zone3[2],  z = (x - zone2Bis) / 10000
+  //   bis zone4Bis: 0.42 * x - zone4Abzug
+  //   darüber:      0.45 * x - zone5Abzug
+  steuer: {
+    jahr: 2026,
+    grundfreibetrag: 12348,
+    zone2Bis: 17799,
+    zone2: [914.51, 1400],
+    zone3Bis: 69878,
+    zone3: [173.10, 2397, 1034.87],
+    zone4Bis: 277825,
+    zone4Abzug: 11135.63,
+    zone5Abzug: 19470.38,
+    arbeitnehmerPauschbetrag: 1230,
+    sonderausgabenPauschbetrag: 36,
+    entlastungAlleinerziehende: 4260,
+    // Kinderfreibetrag und Freibetrag für Betreuung, Erziehung oder Ausbildung je Kind (beide Eltern zusammen).
+    // Wirkt nur auf Solidaritätszuschlag und Kirchensteuer, nicht auf die Lohnsteuer.
+    kinderfreibetragJeKind: 9756,
+    soliFreigrenze: 20350,
+    soliSatz: 0.055,
+    soliMilderung: 0.119,
+    kirchensteuer: { standard: 0.09, BY: 0.08, BW: 0.08 },
+    hinweis: "Näherung nach dem Einkommensteuertarif 2026. Steuerklassen V und VI sowie persönliche Freibeträge sind nicht abgebildet. Maßgeblich ist die Bezügemitteilung."
+  },
+
+  // Laufzeit in Jahren, die man in einer Erfahrungsstufe verbringt, bevor die nächste erreicht ist (§ 27 Abs. 3 BBesG):
+  // Stufe 1 → 2 nach 2 Jahren, 2 → 3, 3 → 4 und 4 → 5 nach je 3 Jahren, 5 → 6, 6 → 7 und 7 → 8 nach je 4 Jahren.
+  stufenlaufzeit: { 1: 2, 2: 3, 3: 3, 4: 3, 5: 4, 6: 4, 7: 4 },
+
   /* ---------- Dienst zu ungünstigen Zeiten (Erschwerniszulagenverordnung §§ 3 bis 5) ---------- */
   duz: {
     gueltigAb: "1. März 2024",

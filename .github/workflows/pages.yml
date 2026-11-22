@@ -26,8 +26,10 @@ jobs:
       - uses: actions/checkout@v5
       - name: Prüfen, ob daten.js gültig ist
         run: node -e "global.window={}; require('./daten.js'); if(!window.MK_DATEN) process.exit(1); console.log('daten.js ok')"
+      - name: Skripte auf Syntaxfehler prüfen
+        run: for f in js/*.js sw.js; do node --check "$f" || exit 1; done
       - name: Website-Dateien zusammenstellen
-        run: mkdir _site && cp index.html daten.js _site/
+        run: mkdir _site && cp -r index.html style.css daten.js js vendor icons manifest.webmanifest sw.js _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
