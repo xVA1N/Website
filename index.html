@@ -23,6 +23,7 @@
     --warn-fg: #5E4200;
     --warn-line: #E8C86A;
     --rot: #C62828;
+    --dienst: #2F62A8;
     --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -40,6 +41,7 @@
       --warn-fg: #F1D88F;
       --warn-line: #6B5517;
       --rot: #FF7A6E;
+      --dienst: #8AB4F0;
       color-scheme: dark;
     }
   }
@@ -56,6 +58,7 @@
     --warn-fg: #F1D88F;
     --warn-line: #6B5517;
     --rot: #FF7A6E;
+    --dienst: #8AB4F0;
     color-scheme: dark;
   }
 
@@ -91,7 +94,7 @@
   .notice strong { font-weight: 600; }
   .wrap[data-view="start"] .short { display: none; }
   .wrap:not([data-view="start"]) .full { display: none; }
-  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox { display: none; }
+  .wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox { display: none; }
   .tskbox .label { display: block; }
   .tskbox .hint { margin-top: 6px; }
 
@@ -352,6 +355,16 @@
   .u-tag.art-urlaub.geplant { border-color: var(--accent); }
   .u-tag.art-dza.geplant { border-color: var(--warn-fg); }
   .u-tag.art-sonder.geplant { border-color: var(--fg); }
+  .u-tag.dienst::before { content: ""; position: absolute; top: 4px; left: 50%; width: 16px; height: 3px; margin-left: -8px; border-radius: 2px; background: var(--dienst); }
+  .u-legende .l-di::before { height: 4px; width: 16px; border: 0; border-radius: 2px; background: var(--dienst); vertical-align: 3px; }
+  a.knopf { text-decoration: none; }
+  .duz-tab td, .duz-tab th { min-width: 0; }
+  .duz-tab th[scope="row"] { min-width: 0; text-transform: none; letter-spacing: 0; font-size: .85rem; }
+  .duz-tab tr.aktiv th, .duz-tab tr.aktiv td { background: var(--soft); }
+  .duz-tab thead th { font-size: .78rem; color: var(--muted); font-weight: 600; text-align: right; background: var(--soft); }
+  .duz-tab thead th:first-child { text-align: left; }
+  .duz-tab td.zahl { text-align: right; }
+  .duz-tab tr.summe td, .duz-tab tr.summe th { font-weight: 700; }
   .u-tag.auswahl { outline: 3px solid var(--accent); outline-offset: 1px; }
   .u-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
   .u-legende span::before { content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--line); }
@@ -480,6 +493,7 @@
   <symbol id="i-rank" viewBox="0 0 24 24"><path d="M5 8l7-5 7 5M5 14l7-5 7 5M5 20l7-5 7 5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
   <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
   <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8-4.3-4.1 5.9-.8z"/></symbol>
   <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
@@ -525,6 +539,10 @@
       <a class="tile" href="#vergleich">
         <span class="box"><svg class="ic"><use href="#i-vgl"/></svg></span>
         <span><span class="tt">Vergleich</span><span class="td">Zwei oder mehr Dienstgrade nebeneinander vergleichen</span></span>
+      </a>
+      <a class="tile" href="#duz">
+        <span class="box"><svg class="ic"><use href="#i-clock"/></svg></span>
+        <span><span class="tt">DuZ-Rechner</span><span class="td">Dienste zu ungünstigen Zeiten eintragen, Zulage je Monat, Quartal und Jahr</span></span>
       </a>
       <a class="tile" href="#urlaub">
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
@@ -643,24 +661,9 @@
         </div>
         <p class="hint">Nachts, samstags, an Sonn- oder Feiertagen.</p>
         <div class="stack frage-inhalt" id="frage-duz-inhalt" hidden>
-        <p class="hint" style="margin-top:0">Trag deine Dienste mit Datum und Arbeitszeit ein. Der Rechner teilt die Stunden selbst auf: Sonn- und Feiertage, Samstage 13 bis 20 Uhr und nachts 20 bis 6 Uhr. Bereitschaftsdienst zählt voll mit, Rufbereitschaft und Reisezeiten nicht.</p>
-        <div class="u-felder">
-          <div><label class="label" for="duz-monat" style="display:block">Monat</label><input type="month" id="duz-monat"></div>
-          <div><label class="label" for="duz-land" style="display:block">Bundesland (Feiertage)</label><select id="duz-land"></select></div>
-        </div>
-        <div class="u-felder">
-          <div><label class="label" for="duz-start-tag" style="display:block">Beginn: Tag</label><input type="date" id="duz-start-tag"></div>
-          <div><label class="label" for="duz-start-zeit" style="display:block">Beginn: Uhrzeit</label><input type="time" id="duz-start-zeit" step="300"></div>
-        </div>
-        <div class="u-felder">
-          <div><label class="label" for="duz-ende-tag" style="display:block">Ende: Tag</label><input type="date" id="duz-ende-tag"></div>
-          <div><label class="label" for="duz-ende-zeit" style="display:block">Ende: Uhrzeit</label><input type="time" id="duz-ende-zeit" step="300"></div>
-        </div>
-        <p class="hint" style="margin-top:0">Beispiel: Dienst von Sonntag 22:00 bis Montag 06:00, dann Sonntag als Beginn-Tag und Montag als End-Tag wählen. Ein Dienst darf bis zu 7 Tage dauern.</p>
-        <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="duz-add">Dienst hinzufügen</button></div>
-        <p class="u-meldung" id="duz-meldung" aria-live="polite"></p>
-        <div class="liste" id="duz-liste"></div>
-        <dl class="info" id="duz-summe"></dl>
+        <div class="u-felder"><div><label class="label" for="duz-r-monat" style="display:block">Monat</label><input type="month" id="duz-r-monat"></div></div>
+        <p id="duz-r-kurz"></p>
+        <div class="dg-aktionen"><a class="knopf sekundaer" href="#duz"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Dienste eintragen und Übersicht</a></div>
         <p class="hint" id="duz-info"></p>
         </div>
       </fieldset>
@@ -730,6 +733,63 @@
     <div id="dg-liste" class="view"></div>
   </section>
 
+  <!-- DUZ -->
+  <section class="view" id="view-duz" aria-label="DuZ-Rechner" hidden>
+    <p class="hint" id="duz-fuer"></p>
+    <section class="panel">
+      <h2>Monat und Feiertage</h2>
+        <div class="u-felder">
+          <div><label class="label" for="duz-monat" style="display:block">Monat</label><input type="month" id="duz-monat"></div>
+          <div><label class="label" for="duz-land" style="display:block">Bundesland (Feiertage)</label><select id="duz-land"></select></div>
+        </div>
+    </section>
+    <section class="panel">
+      <h2>Dienst eintragen</h2>
+      <p class="hint">Der Rechner teilt die Stunden selbst auf: Sonn- und Feiertage, Samstage 13 bis 20 Uhr und nachts 20 bis 6 Uhr. Bereitschaftsdienst zählt voll mit, Rufbereitschaft und Reisezeiten nicht.</p>
+        <div class="u-felder">
+          <div><label class="label" for="duz-start-tag" style="display:block">Beginn: Tag</label><input type="date" id="duz-start-tag"></div>
+          <div><label class="label" for="duz-start-zeit" style="display:block">Beginn: Uhrzeit</label><input type="time" id="duz-start-zeit" step="300"></div>
+        </div>
+        <div class="u-felder">
+          <div><label class="label" for="duz-ende-tag" style="display:block">Ende: Tag</label><input type="date" id="duz-ende-tag"></div>
+          <div><label class="label" for="duz-ende-zeit" style="display:block">Ende: Uhrzeit</label><input type="time" id="duz-ende-zeit" step="300"></div>
+        </div>
+        <p class="hint" style="margin-top:0">Beispiel: Dienst von Sonntag 22:00 bis Montag 06:00, dann Sonntag als Beginn-Tag und Montag als End-Tag wählen. Ein Dienst darf bis zu 7 Tage dauern.</p>
+        <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="duz-add">Dienst hinzufügen</button></div>
+        <p class="u-meldung" id="duz-meldung" aria-live="polite"></p>
+    </section>
+    <section class="panel">
+      <h2 id="duz-liste-titel">Dienste im Monat</h2>
+        <div class="liste" id="duz-liste"></div>
+        <dl class="info" id="duz-summe"></dl>
+      <p id="duz-v-betrag"></p>
+    </section>
+    <section class="panel">
+      <h2>Übersicht</h2>
+      <div class="seg" id="duz-zeitraum" role="radiogroup" aria-label="Zeitraum">
+        <label><input type="radio" name="duz-zeitraum" value="monat" checked><span>Monat</span></label>
+        <label><input type="radio" name="duz-zeitraum" value="quartal"><span>Quartal</span></label>
+        <label><input type="radio" name="duz-zeitraum" value="jahr"><span>Jahr</span></label>
+      </div>
+      <div class="vgl-scroll"><table class="vgl duz-tab" id="duz-tabelle"></table></div>
+      <p class="hint">Die Zulage gibt es je Kalendermonat erst ab mehr als <span id="duz-grenze"></span> Stunden zu ungünstigen Zeiten. Monate darunter zählen mit 0 €.</p>
+    </section>
+    <section class="panel">
+      <h2>Kalender</h2>
+      <label class="check" for="duz-kal-zeigen">
+        <input type="checkbox" id="duz-kal-zeigen">
+        <span class="t">Dienste im Kalender des Urlaubsplaners anzeigen<span class="sub">Tage mit Dienst bekommen dort einen blauen Balken.</span></span>
+      </label>
+      <div class="dg-aktionen"><a class="knopf sekundaer" href="#urlaub"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>Zum Kalender</a></div>
+      <p class="hint" id="duz-export-hinweis" hidden>In dieser Vorschau sind Downloads nicht möglich. Der Export funktioniert auf der Website unter xva1n.github.io/Website.</p>
+      <div class="dg-aktionen" id="duz-export-knoepfe">
+        <button type="button" class="knopf primaer" id="duz-export-monat">Dienste des Monats als .ics</button>
+        <button type="button" class="knopf sekundaer" id="duz-export-alle">Alle Dienste als .ics</button>
+      </div>
+      <p class="hint">Deine Dienste werden nur in diesem Browser auf diesem Gerät gespeichert.</p>
+    </section>
+  </section>
+
   <!-- URLAUB -->
   <section class="view" id="view-urlaub" aria-label="Urlaubsplaner" hidden>
     <section class="panel">
@@ -770,7 +830,8 @@
         <button type="button" id="u-monat-vor" aria-label="Nächster Monat">›</button>
       </div>
       <div class="u-kal" id="u-kal" role="grid"></div>
-      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span></div>
+      <div class="u-legende"><span class="l-ug">Erholungsurlaub</span><span class="l-dza">Dienstzeitausgleich</span><span class="l-so">Sonderurlaub</span><span class="l-gepl">Geplant (gestrichelt)</span><span class="l-ft">Feiertag</span><span class="l-di" id="u-leg-dienst" hidden>Dienst</span></div>
+      <label class="check" for="u-dienste-zeigen"><input type="checkbox" id="u-dienste-zeigen"><span class="t">Dienste aus dem DuZ-Rechner anzeigen</span></label>
       <p class="hint" style="margin-top:0">Gefüllt heißt genehmigt, gestrichelt heißt geplant, jeweils in der Farbe der Art.</p>
       <p class="hint" id="u-feiertage-monat"></p>
     </section>
@@ -1177,7 +1238,8 @@
     frageStelle: false,
     frageDuz: false,
     frageAvz: false,
-    duzMonat: ''
+    duzMonat: '',
+    duzZeitraum: 'monat'
   };
 
   function sichtbar(d) { return !!d.n[state.tsk]; }
@@ -1272,7 +1334,7 @@
   }
 
   /* ===== Reiter ===== */
-  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubsplaner' };
+  var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubsplaner', duz: 'DuZ-Rechner' };
 
   function show(v) {
     var titel = null, tab = v;
@@ -1283,14 +1345,15 @@
     }
     if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
     // Werkzeuge erreicht man über Start, deshalb ist dort der Reiter Start aktiv
-    if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub'].indexOf(v) >= 0) tab = 'start';
-    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
+    if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz'].indexOf(v) >= 0) tab = 'start';
+    ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
     document.querySelector('.wrap').setAttribute('data-view', v);
     aktuelleAnsicht = v;
     renderLeiste();
     renderSeitenStern();
     if (v === 'favoriten') renderFavoriten();
     if (v === 'urlaub') renderUrlaub();
+    if (v === 'duz') render();
     $('titel').textContent = titel || VIEWS[v];
     var tabs = document.querySelectorAll('.tabbar a');
     for (var i = 0; i < tabs.length; i++) {
@@ -1505,7 +1568,8 @@
     dienstgrade: ['Dienstgrade', 'i-rank', 'Alle Dienstgrade mit Besoldungsgruppe'],
     zulagen: ['Zulagen', 'i-plus', 'Führungszulagen, Stellenzulagen, Auslandsverwendung'],
     vergleich: ['Vergleich', 'i-vgl', 'Dienstgrade nebeneinander vergleichen'],
-    urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'] };
+    urlaub: ['Urlaubsplaner', 'i-cal', 'Urlaub planen, Resttage und Kalender-Export'],
+    duz: ['DuZ-Rechner', 'i-clock', 'Dienste zu ungünstigen Zeiten, Übersicht je Monat, Quartal und Jahr'] };
   var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat',
     'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
   function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
@@ -1868,6 +1932,48 @@
       ['Sonn- und Feiertage', h.so, S.sonnFeiertag], ['Samstage 13–20 Uhr', h.sa, S.samstag], ['Nachts 20–6 Uhr', h.na, S.nacht]
     ].map(function (z) { return '<dt>' + z[0] + '</dt><dd>' + zahlDe(z[1]) + ' Std. × ' + eur.format(z[2]) + ' = ' + eur.format(Math.round(z[1] * z[2] * 100) / 100) + '</dd>'; }).join('') : '';
   }
+  function monatName(m) { return MONATE[+m.slice(5) - 1] + ' ' + m.slice(0, 4); }
+  // Betrag eines Monats nach § 3 Abs. 1 (Besoldungsordnung A, mehr als Mindeststunden)
+  function duzMonatBetrag(monat, d, land) {
+    var h = duzMonatAuswerten(monat, land), S = D.duz.saetze, std = h.so + h.sa + h.na;
+    var betrag = Math.round((h.so * S.sonnFeiertag + h.sa * S.samstag + h.na * S.nacht) * 100) / 100, grund = '';
+    if (std && d.bg.charAt(0) !== D.duz.nurOrdnung) { betrag = 0; grund = 'ordnung'; }
+    else if (std && std <= D.duz.mindestStunden) { betrag = 0; grund = 'grenze'; }
+    return { h: h, std: std, betrag: betrag, grund: grund };
+  }
+  function duzStdZelle(h, std) {
+    return '<td class="zahl">' + zahlDe(std) + (std ? '<span class="klein">' + [['So/Ft', h.so], ['Sa', h.sa], ['Nacht', h.na]].filter(function (x) { return x[1]; })
+      .map(function (x) { return x[0] + ' ' + zahlDe(x[1]); }).join(' · ') + '</span>' : '') + '</td>';
+  }
+  function renderDuzSeite(d, land) {
+    var m = state.duzMonat;
+    $('duz-fuer').textContent = 'Berechnet für ' + d.name + ' (' + bgLabel(d.bg) + '). Den Dienstgrad änderst du im Rechner.' +
+      (d.bg.charAt(0) !== D.duz.nurOrdnung ? ' In Besoldungsordnung B gibt es keine Zulage für Dienst zu ungünstigen Zeiten.' : '');
+    $('duz-liste-titel').textContent = 'Dienste im ' + monatName(m);
+    var mb = duzMonatBetrag(m, d, land);
+    $('duz-v-betrag').innerHTML = '<strong>Zulage ' + monatName(m) + ': ' + eur.format(mb.betrag) + '</strong>' +
+      (mb.grund === 'grenze' ? ' (erst ab mehr als ' + D.duz.mindestStunden + ' Stunden, eingetragen sind ' + zahlDe(mb.std) + ')' : '') +
+      (mb.grund === 'ordnung' ? ' (nur Besoldungsordnung A)' : '');
+    $('duz-grenze').textContent = D.duz.mindestStunden;
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="duz-zeitraum"]'), function (r) { r.checked = r.value === state.duzZeitraum; });
+    // Monate des gewählten Zeitraums
+    var j = +m.slice(0, 4), mi = +m.slice(5) - 1, monate = [];
+    if (state.duzZeitraum === 'monat') monate = [mi];
+    else if (state.duzZeitraum === 'quartal') { var q = Math.floor(mi / 3) * 3; monate = [q, q + 1, q + 2]; }
+    else monate = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    var sum = { so: 0, sa: 0, na: 0, std: 0, betrag: 0 };
+    var zeilen = monate.map(function (k) {
+      var mm = j + '-' + p2(k + 1), r = duzMonatBetrag(mm, d, land);
+      sum.so += r.h.so; sum.sa += r.h.sa; sum.na += r.h.na; sum.std += r.std; sum.betrag += r.betrag;
+      return '<tr' + (mm === m ? ' class="aktiv"' : '') + '><th scope="row">' + MONATE[k] + '</th>' + duzStdZelle(r.h, r.std) +
+        '<td class="zahl">' + eur.format(r.betrag) + (r.grund === 'grenze' ? '<span class="klein">unter Grenze</span>' : '') + (r.grund === 'ordnung' ? '<span class="klein">nur Ordnung A</span>' : '') + '</td></tr>';
+    });
+    var titel = state.duzZeitraum === 'monat' ? monatName(m) : state.duzZeitraum === 'quartal' ? (Math.floor(mi / 3) + 1) + '. Quartal ' + j : 'Jahr ' + j;
+    $('duz-tabelle').innerHTML = '<caption class="hint" style="caption-side:top;text-align:left;padding:8px 10px">' + titel + ' · Stunden und Zulage</caption>' +
+      '<thead><tr><th scope="col">Monat</th><th scope="col">Stunden</th><th scope="col">Zulage</th></tr></thead><tbody>' +
+      zeilen.join('') + (monate.length > 1 ? '<tr class="summe"><th scope="row">Summe</th>' + duzStdZelle(sum, sum.std) + '<td class="zahl">' + eur.format(Math.round(sum.betrag * 100) / 100) + '</td></tr>' : '') + '</tbody>';
+    $('duz-kal-zeigen').checked = !!UZ.diensteZeigen;
+  }
   function stdText(minOderStd, istMin) { var h = istMin ? minOderStd / 60 : minOderStd; return zahlDe(h) + ' Std.'; }
 
   /* ===== Darstellung des Rechners ===== */
@@ -2020,6 +2126,10 @@
     if (!state.duzMonat) state.duzMonat = iso(new Date()).slice(0, 7);
     var dzLand = UZ.land, dzH = duzMonatAuswerten(state.duzMonat, dzLand);
     renderDuzListe(dzLand, dzH);
+    renderDuzSeite(d, dzLand);
+    $('duz-r-monat').value = state.duzMonat;
+    var dzAnz = DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, state.duzMonat); }).length;
+    $('duz-r-kurz').textContent = monatName(state.duzMonat) + ': ' + (dzAnz ? dzAnz + (dzAnz === 1 ? ' Dienst, ' : ' Dienste, ') + zahlDe(dzH.so + dzH.sa + dzH.na) + ' Std. zu ungünstigen Zeiten.' : 'noch keine Dienste eingetragen.');
     var duzStd = dzF * (dzH.so + dzH.sa + dzH.na);
     var duz = Math.round(dzF * (dzH.so * DZ.saetze.sonnFeiertag + dzH.sa * DZ.saetze.samstag + dzH.na * DZ.saetze.nacht) * 100) / 100;
     var duzInfo = 'Sätze je Stunde: Sonn- und Feiertage ' + eur.format(DZ.saetze.sonnFeiertag) + ', Samstage ' + eur.format(DZ.saetze.samstag) + ', nachts ' + eur.format(DZ.saetze.nacht) + ' (' + DZ.fundstelle + ', gültig ab ' + DZ.gueltigAb + ').';
@@ -2136,7 +2246,7 @@
     state.gebiet = e.target.value;
     render();
   });
-  [['fue', 'frageFue', 'fuehrung'], ['stelle', 'frageStelle', 'stelle'], ['duz', 'frageDuz', 'duz-start-tag'], ['avz', 'frageAvz', 'gebiet']].forEach(function (q) {
+  [['fue', 'frageFue', 'fuehrung'], ['stelle', 'frageStelle', 'stelle'], ['duz', 'frageDuz', 'duz-r-monat'], ['avz', 'frageAvz', 'gebiet']].forEach(function (q) {
     Array.prototype.forEach.call(document.querySelectorAll('input[name="frage-' + q[0] + '"]'), function (r) {
       r.addEventListener('change', function (e) {
         state[q[1]] = e.target.value === 'ja';
@@ -2451,6 +2561,7 @@
       var j = JSON.parse(localStorage.getItem(U_KEY) || 'null');
       if (j && typeof j === 'object') {
         if (UD.bundeslaender[j.land]) u.land = j.land;
+        u.diensteZeigen = !!j.diensteZeigen;
         ['anspruch', 'rest', 'zusatz'].forEach(function (k) { if (j[k] && typeof j[k] === 'object') u[k] = j[k]; });
         if (Array.isArray(j.eintraege)) u.eintraege = j.eintraege.filter(function (e) { return e && /^\d{4}-\d{2}-\d{2}$/.test(e.von) && /^\d{4}-\d{2}-\d{2}$/.test(e.bis) && ARTEN[e.art]; });
       }
@@ -2507,6 +2618,10 @@
   function jahrWert(k, j) { var v = UZ[k][j]; return typeof v === 'number' && v >= 0 ? v : (k === 'anspruch' ? UD.standardAnspruch : 0); }
   function zahl(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
 
+  // Dienste, die an diesem Tag stattfinden (Ende genau um 0 Uhr zählt nicht mehr)
+  function diensteAm(s) {
+    return DUZ_DIENSTE.filter(function (x) { return x.start.slice(0, 10) <= s && (s < x.ende.slice(0, 10) || (s === x.ende.slice(0, 10) && x.ende.slice(11) !== '00:00')); });
+  }
   function tagKlassen(d) {
     var s = iso(d), c = ['u-tag'], e = eintragAm(s);
     var w = d.getDay();
@@ -2515,7 +2630,9 @@
     if (s === iso(heute)) c.push('heute');
     if (e) c.push('art-' + e.art, e.status);
     if (uAnsicht.auswahlStart === s) c.push('auswahl');
-    return { cls: c.join(' '), e: e };
+    var di = UZ.diensteZeigen ? diensteAm(s) : [];
+    if (di.length) c.push('dienst');
+    return { cls: c.join(' '), e: e, di: di };
   }
 
   function renderUrlaub() {
@@ -2552,7 +2669,8 @@
     for (var t = 1; t <= tageImMonat; t++) {
       var d = new Date(j, m, t), k = tagKlassen(d), ft = ftName(d);
       var label = WT_LANG[d.getDay()] + ', ' + t + '. ' + MONATE[m] + (ft ? ', Feiertag ' + ft : '') +
-        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '');
+        (k.e ? ', ' + ARTEN[k.e.art] + ' ' + k.e.status : '') + (uAnsicht.auswahlStart === iso(d) ? ', Beginn ausgewählt' : '') +
+        (k.di.length ? ', Dienst ' + k.di.map(function (x) { return dtKurz(x.start) + ' bis ' + dtKurz(x.ende); }).join(' und ') : '');
       html += '<button type="button" class="' + k.cls + '" data-tag="' + iso(d) + '" aria-label="' + label + '"' + (ft ? ' title="' + ft + '"' : '') + '>' + t + '</button>';
     }
     $('u-kal').innerHTML = html;
@@ -2599,6 +2717,8 @@
         '<span class="mn">' + name + (ut ? '<small>' + tageText(ut) + '</small>' : '') + '</span><span class="g" aria-hidden="true">' + g + '</span></button>';
     }).join('');
 
+    $('u-dienste-zeigen').checked = !!UZ.diensteZeigen;
+    $('u-leg-dienst').hidden = !UZ.diensteZeigen;
     uVorschau();
     renderSeitenStern();
   }
@@ -2633,7 +2753,7 @@
   }
   function uMeldung(t, fehler) { var el = $('u-vorschau'); el.className = 'u-meldung' + (fehler ? ' fehler' : ''); el.textContent = t; }
 
-  function icsText(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+  function icsText(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
   function icsExport(nurJahr) {
     var liste = UZ.eintraege.filter(function (e) { return !nurJahr || (+e.von.slice(0, 4) <= nurJahr && +e.bis.slice(0, 4) >= nurJahr); });
     if (!liste.length) { uMeldung('Keine Einträge zum Exportieren.', true); return; }
@@ -2748,6 +2868,40 @@
   }
   $('u-export-jahr').addEventListener('click', function () { icsExport(uAnsicht.jahr); });
   $('u-export-alle').addEventListener('click', function () { icsExport(0); });
+
+  // DuZ-Seite und Verknüpfung mit dem Kalender
+  $('duz-r-monat').addEventListener('change', function (e) {
+    if (/^\d{4}-\d{2}$/.test(e.target.value)) { state.duzMonat = e.target.value; render(); }
+  });
+  $('duz-zeitraum').addEventListener('change', function (e) { state.duzZeitraum = e.target.value; render(); });
+  function diensteZeigen(an) { UZ.diensteZeigen = an; uSpeichern(); render(); renderUrlaub(); }
+  $('duz-kal-zeigen').addEventListener('change', function (e) { diensteZeigen(e.target.checked); });
+  $('u-dienste-zeigen').addEventListener('change', function (e) { diensteZeigen(e.target.checked); });
+  function duzIcs(liste, dateiname) {
+    if (!liste.length) { duzMeldung('Keine Dienste zum Exportieren.', true); return; }
+    var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    var z = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MeinKamerad//DuZ//DE', 'CALSCALE:GREGORIAN'];
+    liste.forEach(function (x) {
+      var r = duzDienstAuswerten(x, '', UZ.land);
+      z.push('BEGIN:VEVENT', 'UID:' + x.id + '@meinkamerad', 'DTSTAMP:' + stamp,
+        'DTSTART:' + x.start.replace(/[-:]/g, '') + '00', 'DTEND:' + x.ende.replace(/[-:]/g, '') + '00',
+        'SUMMARY:Dienst', 'DESCRIPTION:' + icsText(stdText(r.dauer, true) + ', davon ' + stdText(r.so + r.sa + r.na, true) + ' zu ungünstigen Zeiten'),
+        'END:VEVENT');
+    });
+    z.push('END:VCALENDAR');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([z.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' }));
+    a.download = dateiname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    duzMeldung(liste.length + (liste.length === 1 ? ' Dienst' : ' Dienste') + ' exportiert.');
+  }
+  $('duz-export-monat').addEventListener('click', function () { duzIcs(DUZ_DIENSTE.filter(function (x) { return duzImMonat(x, state.duzMonat); }), 'dienste-' + state.duzMonat + '.ics'); });
+  $('duz-export-alle').addEventListener('click', function () { duzIcs(DUZ_DIENSTE.slice(), 'dienste.ics'); });
+  if (window.claude && typeof window.claude.use === 'function') {
+    $('duz-export-knoepfe').hidden = true;
+    $('duz-export-hinweis').hidden = false;
+  }
 
   window.addEventListener('hashchange', route);
 
