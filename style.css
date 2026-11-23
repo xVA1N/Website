@@ -91,7 +91,7 @@ p { margin: 0; }
 .notice strong { font-weight: 600; }
 .wrap[data-view="start"] .short { display: none; }
 .wrap:not([data-view="start"]) .full { display: none; }
-.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox { display: none; }
+.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox, .wrap[data-view="assessment"] .tskbox, .wrap[data-view="lexikon"] .tskbox { display: none; }
 .tskbox .label { display: block; }
 .tskbox .hint { margin-top: 6px; }
 
@@ -610,7 +610,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .ms-code { margin: 10px 0 0; font-size: .82rem; color: var(--muted); text-align: center; }
 .ms-code span { font-family: var(--font-mono); color: var(--fg); overflow-wrap: anywhere; }
 .p-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; box-sizing: border-box; }
-.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand { display: none; }
+.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand, .wrap[data-view="assessment"] #rechtsstand, .wrap[data-view="lexikon"] #rechtsstand { display: none; }
 
 /* Lagekarte */
 .warn-lage { margin: 0; }
@@ -823,3 +823,85 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .sk-v-bild svg { max-height: 27px; max-width: 60px; }
 .sk-v-fach-hinweis { grid-column: 1 / -1; margin: 2px 4px; font-size: .8rem; color: #58635B; }
 .sk-v-wahl { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+.sk-v-groesse { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 0 2px; }
+.sk-v-groesse span { flex: 1; font-weight: 700; font-size: .9rem; }
+.sk-v-groesse b { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+.sk-v-groesse .sk-v-x:disabled { opacity: .35; }
+
+/* Assessment Trainer */
+.at-staende { display: grid; gap: 10px; }
+.at-stand { display: grid; grid-template-columns: 110px 1fr 52px; align-items: center; gap: 4px 10px; }
+.at-stand > span { font-weight: 700; }
+.at-stand > b { text-align: right; font-variant-numeric: tabular-nums; }
+.at-stand > small { grid-column: 1 / -1; margin-top: -6px; color: var(--muted); font-size: .8rem; }
+.at-stand-balken { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+.at-stand-balken div { height: 100%; border-radius: 999px; background: var(--accent); }
+.at-verlauf { display: grid; gap: 6px; }
+.at-verlauf-zeile { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: .9rem; }
+.at-verlauf-zeile small { grid-column: 1 / -1; color: var(--muted); }
+.at-kopf { display: flex; align-items: center; gap: 10px; }
+.at-kopf > span:first-child { flex: 1; font-weight: 700; }
+.at-kopf .knopf { flex: none; min-height: 38px; }
+.at-uhr { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.at-uhr.knapp { color: #B3261E; font-weight: 700; }
+.at-balken { height: 6px; margin: 10px 0 14px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+.at-balken div { height: 100%; background: var(--accent); transition: width .2s; }
+.at-bereich { margin: 0 0 6px; color: var(--muted); font-size: .85rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.at-frage { font-size: 1.08rem; line-height: 1.45; margin-bottom: 14px; }
+.at-reihe { margin-top: 10px; font-family: var(--font-mono); font-size: 1.2rem; overflow-wrap: anywhere; }
+.at-reihe span { color: var(--muted); }
+.at-optionen { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.at-option { min-height: 54px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+.at-option:hover { border-color: var(--accent); }
+.at-optionen.gesperrt .at-option { cursor: default; }
+.at-option.richtig { background: #DDEED8; border-color: #3E7B34; color: #1F4A18; }
+.at-option.falsch { background: #F7DAD6; border-color: #B3261E; color: #7A1A14; }
+.at-feedback { margin-top: 12px; padding: 10px 12px; border-radius: 10px; font-size: .95rem; }
+.at-feedback.ok { background: #E7F2E3; color: #1F4A18; }
+.at-feedback.nein { background: #FBE7E4; color: #7A1A14; }
+.at-dzeile { display: flex; flex-wrap: wrap; gap: 2px 6px; margin-top: 10px; }
+.at-d { display: inline-grid; grid-template-rows: 12px auto 12px; justify-items: center; min-width: 18px; font-family: var(--font-mono); }
+.at-d b { font-size: 1.35rem; line-height: 1; font-weight: 500; }
+.at-d i { font-style: normal; font-size: .75rem; line-height: 12px; letter-spacing: -1px; }
+.at-paare { display: grid; gap: 4px; margin-top: 10px; font-family: var(--font-mono); font-size: 1.1rem; }
+.at-paar { display: flex; gap: 18px; }
+.at-gesamt { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 10px 0 14px; }
+.at-gesamt b { font-size: 1.6rem; }
+.at-gesamt span { color: var(--muted); }
+#at-ergebnis .at-stand { margin-bottom: 8px; }
+.at-fehler { padding-left: 20px; display: grid; gap: 12px; }
+.at-fehler-bereich { display: block; color: var(--muted); font-size: .8rem; font-weight: 700; text-transform: uppercase; }
+.at-fehler-frage { margin: 2px 0 4px; }
+.at-fehler-frage .at-reihe { font-size: 1rem; margin-top: 4px; }
+.at-fehler-frage .at-dzeile, .at-fehler-frage .at-paare { font-size: .9rem; }
+#view-assessment.at-laeuft > .erklaerung, #view-assessment.at-laeuft > .notice { display: none; }
+.at-satz { margin-top: 10px; font-size: 1.2rem; line-height: 1.5; }
+.at-luecke { display: inline-block; min-width: 56px; padding: 0 4px; border-bottom: 2px solid var(--accent); color: transparent; }
+.at-option { overflow-wrap: anywhere; }
+.at-zeilen { line-height: 1.7; }
+.at-matrix { margin-top: 10px; border-collapse: collapse; font-family: var(--font-mono); font-size: 1.15rem; }
+.at-matrix td { width: 56px; height: 40px; text-align: center; border: 1px solid var(--line); background: var(--surface); }
+.at-zeichen { display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 10px; font-size: 1.35rem; line-height: 1.4; }
+.at-buchstaben { letter-spacing: .12em; word-spacing: .4em; }
+.at-paar-text { font-family: var(--font-text); font-size: .98rem; flex-direction: column; gap: 0; padding: 6px 0; border-bottom: 1px solid var(--line); }
+@media (min-width: 520px) { .at-paar-text { flex-direction: row; gap: 18px; } .at-paar-text span { flex: 1; } }
+
+/* Lexikon */
+.lex-kopf { display: grid; gap: 12px; }
+#lex-suche { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; }
+.lex-liste { display: grid; gap: 14px; }
+.lex-karte { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.lex-bild { margin: 0; background: #fff; border-bottom: 1px solid var(--line); }
+.lex-bild img { display: block; width: 100%; height: auto; }
+.lex-bild figcaption { padding: 4px 10px 6px; color: #5f6368; font-size: .72rem; line-height: 1.35; }
+.lex-bild figcaption a { color: inherit; }
+.lex-ohne { display: grid; place-items: center; height: 72px; color: var(--muted); font-size: .85rem; background: var(--soft); }
+.lex-text { padding: 12px 14px 14px; }
+.lex-text h3 { margin: 0; font-size: 1.15rem; }
+.lex-art { margin: 2px 0 10px; color: var(--muted); font-size: .9rem; }
+.lex-daten { display: grid; grid-template-columns: max-content 1fr; gap: 5px 14px; margin: 0; font-size: .93rem; }
+.lex-daten dt { color: var(--muted); }
+.lex-daten dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lex-quelle { display: inline-block; margin-top: 10px; color: var(--muted); font-size: .8rem; }
+@media (min-width: 760px) { .lex-liste { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 380px) { .lex-daten { grid-template-columns: 1fr; gap: 0; } .lex-daten dd { margin-bottom: 6px; } }

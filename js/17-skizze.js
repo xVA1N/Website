@@ -12,15 +12,20 @@ var SK_MASSSTAEBE = [
 ];
 // Werkzeuge: Art, Name, Form (linie, flaeche, punkt)
 var SK_WERKZEUGE = [
-  ['Linien', [['strasse', 'Straße', 'linie'], ['weg', 'Weg', 'linie'], ['bahn', 'Bahnlinie', 'linie'], ['fluss', 'Fluss, Bach', 'linie'], ['marsch', 'Marschweg', 'linie']]],
-  ['Flächen', [['ort', 'Ortschaft', 'flaeche'], ['nadelwald', 'Nadelwald', 'flaeche'], ['laubwald', 'Laubwald', 'flaeche'], ['mischwald', 'Mischwald', 'flaeche']]],
+  ['Linien', [['strasse', 'Straße', 'linie'], ['weg', 'Weg', 'linie'], ['bahn', 'Bahnlinie', 'linie'], ['fluss', 'Fluss, Bach', 'linie'], ['boeschung', 'Böschung', 'linie'], ['strom', 'Hochspannungsleitung', 'linie'], ['zaun', 'Zaun', 'linie'], ['marsch', 'Marschweg', 'linie']]],
+  ['Flächen', [['ort', 'Ortschaft', 'flaeche'], ['nadelwald', 'Nadelwald', 'flaeche'], ['laubwald', 'Laubwald', 'flaeche'], ['mischwald', 'Mischwald', 'flaeche'], ['see', 'See, Teich', 'flaeche'], ['sumpf', 'Sumpf', 'flaeche']]],
   ['Zeichen', [['kirche', 'Kirche', 'punkt'], ['gebaeude', 'Einzelgebäude', 'punkt'], ['bruecke', 'Brücke', 'punkt'], ['baum', 'Einzelbaum', 'punkt'], ['nadelbaum', 'Nadelbaum', 'punkt'], ['laubbaum', 'Laubbaum', 'punkt'],
-    ['kuppe', 'Kuppe', 'punkt'], ['tp', 'Trig. Punkt', 'punkt'], ['text', 'Text', 'punkt'], ['nord', 'Nordpfeil', 'punkt']]],
+    ['kuppe', 'Kuppe', 'punkt'], ['tp', 'Trig. Punkt', 'punkt'], ['gehoeft', 'Gehöft', 'punkt'], ['friedhof', 'Friedhof', 'punkt'], ['wegkreuz', 'Wegkreuz', 'punkt'],
+    ['turm', 'Turm', 'punkt'], ['sendemast', 'Sendemast', 'punkt'], ['windrad', 'Windrad', 'punkt'], ['hochsitz', 'Hochsitz', 'punkt'], ['strommast', 'Strommast', 'punkt'],
+    ['fabrik', 'Fabrik', 'punkt'], ['gebuesch', 'Gebüsch', 'punkt'], ['text', 'Text', 'punkt'], ['nord', 'Nordpfeil', 'punkt']]],
   // Stellungsskizze: Schützen und Waffen als NATO-Zeichen (APP-6D), Feuer und Sperren. Die vierte Angabe ist eine feste Zahl von Punkten.
   ['Stellung', [['schuetze', 'Schütze (Gewehr)', 'punkt'], ['mg', 'MG', 'punkt'], ['mgs', 'MG schwer', 'punkt'], ['gran', 'Granatwerfer', 'punkt'],
     ['pzf', 'Panzerfaust', 'punkt'], ['pzabw', 'PzAbw-Lenkflugkörper', 'punkt'], ['gruppe', 'Gruppe ••', 'punkt'], ['trupp', 'Trupp •', 'punkt'], ['beob', 'Beobachtungsposten', 'punkt']]],
   ['Feuer', [['hsr', 'Hauptschussrichtung', 'linie', 2], ['feuer', 'Feuerbereich', 'linie', 3], ['ziel', 'Zielpunkt mit Entfernung', 'linie', 2]]],
-  ['Sperren', [['draht', 'Drahtsperre', 'linie'], ['minen', 'Minensperre', 'flaeche'], ['graben', 'Graben', 'linie']]]
+  ['Sperren', [['draht', 'Drahtsperre', 'linie'], ['minen', 'Minensperre', 'flaeche'], ['graben', 'Graben', 'linie']]],
+  // Panoramaskizze: Ansicht des Geländes von der eigenen Stellung aus, Linien weich geschwungen
+  ['Panorama', [['horizont', 'Horizont', 'linie'], ['gelaendelinie', 'Geländelinie', 'linie'], ['waldkulisse', 'Waldrand (Laub)', 'linie'], ['nadelkulisse', 'Waldrand (Nadel)', 'linie'],
+    ['hecke', 'Hecke', 'linie'], ['grenze', 'Feuerbereichsgrenze', 'linie', 2], ['haus', 'Haus', 'punkt'], ['kirchturm', 'Kirche', 'punkt'], ['bruecke_ansicht', 'Brücke', 'punkt'], ['gpunkt', 'Geländepunkt', 'punkt']]]
 ];
 var SK_ART = {};
 SK_WERKZEUGE.forEach(function (g) { g[1].forEach(function (w) { SK_ART[w[0]] = { name: w[1], form: w[2], n: w[3] || 0 }; }); });
@@ -43,14 +48,16 @@ var SK_ARTEN = {
   gelaende: { name: 'Gelände- und Wegeskizze', kurz: 'Geländeskizze', text: 'Gelände mit Straßen, Wäldern und Ortschaften, dazu der Marschweg mit Entfernungen.',
     dock: [['Linien', 'strasse', 'fach'], ['Flächen', 'nadelwald', 'fach'], ['Zeichen', 'kirche', 'fach'], ['Marschweg', 'marsch', 'wz']] },
   stellung: { name: 'Stellungsskizze', kurz: 'Stellungsskizze', text: 'Schützen und Waffen als NATO-Zeichen, Hauptschussrichtung, Feuerbereich, Zielpunkte und Sperren.',
-    dock: [['Stellung', 'schuetze', 'fach'], ['Feuer', 'feuer', 'fach'], ['Gelände', 'nadelwald', 'fach', ['strasse', 'weg', 'fluss', 'ort', 'nadelwald', 'laubwald', 'mischwald', 'gebaeude', 'baum', 'nadelbaum', 'laubbaum', 'kuppe', 'text', 'nord']], ['Sperren', 'draht', 'fach']] },
+    dock: [['Stellung', 'schuetze', 'fach'], ['Feuer', 'feuer', 'fach'], ['Gelände', 'nadelwald', 'fach', ['strasse', 'weg', 'fluss', 'boeschung', 'zaun', 'ort', 'nadelwald', 'laubwald', 'mischwald', 'see', 'sumpf', 'gebaeude', 'gehoeft', 'bruecke', 'baum', 'nadelbaum', 'laubbaum', 'gebuesch', 'kuppe', 'hochsitz', 'turm', 'strommast', 'text', 'nord']], ['Sperren', 'draht', 'fach']] },
   entfernung: { name: 'Entfernungsskizze', kurz: 'Entfernungsskizze', text: 'Eigener Standort und Zielpunkte mit Entfernungen.', bald: true },
-  panorama: { name: 'Panoramaskizze', kurz: 'Panoramaskizze', text: 'Ansicht des Geländes auf einem Foto, mit Geländepunkten und Entfernungen.', bald: true }
+  panorama: { name: 'Panoramaskizze', kurz: 'Panoramaskizze', text: 'Ansicht des Geländes von der eigenen Stellung aus, mit Geländepunkten und Entfernungen.',
+    dock: [['Linien', 'gelaendelinie', 'fach', ['horizont', 'gelaendelinie', 'waldkulisse', 'nadelkulisse', 'hecke', 'strasse', 'weg', 'fluss', 'boeschung', 'strom', 'zaun', 'grenze']],
+      ['Objekte', 'haus', 'fach', ['haus', 'kirchturm', 'bruecke_ansicht', 'fabrik', 'turm', 'sendemast', 'windrad', 'strommast', 'hochsitz', 'wegkreuz', 'baum', 'nadelbaum', 'laubbaum', 'gebuesch', 'text', 'nord']], ['Geländepunkt', 'gpunkt', 'wz']] }
 };
 function skArt(s) { return SK_ARTEN[s && s.art] && !SK_ARTEN[s.art].bald ? s.art : 'gelaende'; }
 function skNeu(name, art) {
   var heute = new Date();
-  return { id: 's' + Date.now(), art: art || 'gelaende', name: name, massstab: 25000, zaehlung: 'teil', datum: heute.toISOString().slice(0, 10), unterschrift: '', erlaeuterung: '',
+  return { id: 's' + Date.now(), art: art || 'gelaende', name: name, massstab: art === 'panorama' ? 0 : 25000, zaehlung: 'teil', datum: heute.toISOString().slice(0, 10), unterschrift: '', erlaeuterung: '',
     elemente: [{ id: 'e' + Date.now(), art: 'nord', pts: [[SK_GX + 148, SK_GY + 18]], winkel: 0 }] };
 }
 function skLaden() {
@@ -86,6 +93,55 @@ function skEntlang(pts, schritt) {
   return aus;
 }
 // Meter je Millimeter auf dem Blatt
+// Weich geschwungene Linie durch alle Punkte (Catmull-Rom als kubische Bézierkurven)
+function skGlatt(pts) {
+  if (pts.length < 3) return skPfad(pts);
+  var d = 'M' + skRund(pts[0][0]) + ',' + skRund(pts[0][1]);
+  for (var i = 0; i < pts.length - 1; i++) {
+    var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += ' C' + skRund(p1[0] + (p2[0] - p0[0]) / 6) + ',' + skRund(p1[1] + (p2[1] - p0[1]) / 6) + ' ' + skRund(p2[0] - (p3[0] - p1[0]) / 6) + ',' + skRund(p2[1] - (p3[1] - p1[1]) / 6) + ' ' + skRund(p2[0]) + ',' + skRund(p2[1]);
+  }
+  return d;
+}
+// Geschlossene weiche Fläche (See, Teich) ohne Ecke am Startpunkt
+function skGlattZu(pts) {
+  var n = pts.length;
+  if (n < 3) return skPfad(pts, true);
+  var d = 'M' + skRund(pts[0][0]) + ',' + skRund(pts[0][1]);
+  for (var i = 0; i < n; i++) {
+    var p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+    d += ' C' + skRund(p1[0] + (p2[0] - p0[0]) / 6) + ',' + skRund(p1[1] + (p2[1] - p0[1]) / 6) + ' ' + skRund(p2[0] - (p3[0] - p1[0]) / 6) + ',' + skRund(p2[1] - (p3[1] - p1[1]) / 6) + ' ' + skRund(p2[0]) + ',' + skRund(p2[1]);
+  }
+  return d + ' Z';
+}
+// Silhouette entlang einer Linie: Bögen (Laubwald, Hecke) oder Zacken (Nadelwald), jeweils nach oben
+function skKulisse(pts, schritt, hoehe, zacken) {
+  var q = skEntlang(pts, schritt), d = '';
+  if (pts.length) q.push({ x: pts[pts.length - 1][0], y: pts[pts.length - 1][1] });
+  for (var i = 1; i < q.length; i++) {
+    var a = q[i - 1], b = q[i], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - hoehe * (zacken ? [1, 0.75, 1.2, 0.9][i % 4] : [1, 0.85, 1.1][i % 3]);
+    d += (i === 1 ? 'M' + skRund(a.x) + ',' + skRund(a.y) : '') + (zacken ? ' L' + skRund(mx) + ',' + skRund(my) + ' L' + skRund(b.x) + ',' + skRund(b.y)
+      : ' Q' + skRund(mx) + ',' + skRund(my - hoehe * 0.6) + ' ' + skRund(b.x) + ',' + skRund(b.y));
+  }
+  return d;
+}
+// Band entlang einer Linie (Straße, Fluss): linke und rechte Kante als Pfade und die Fläche dazwischen.
+// breite: [Anfang, Ende] in mm; welle > 0 lässt die Mittellinie mäandern.
+function skBand(pts, schritt, breite, welle) {
+  var q = skEntlang(pts, schritt), ges = 0, i;
+  for (i = 1; i < pts.length; i++) ges += skLaenge(pts[i - 1], pts[i]);
+  var last = pts[pts.length - 1], vor = q[q.length - 1];
+  if (vor) q.push({ x: last[0], y: last[1], dx: vor.dx, dy: vor.dy });
+  var l = [], r = [];
+  q.forEach(function (k, j) {
+    var t = q.length > 1 ? j / (q.length - 1) : 0, w = (breite[0] + (breite[1] - breite[0]) * t) / 2;
+    var m = welle ? (Math.sin(j * schritt * 0.2) + 0.35 * Math.sin(j * schritt * 0.53 + 1)) * welle * (0.4 + 0.6 * w / Math.max(breite[0], breite[1]) * 2) : 0;
+    var cx = k.x - k.dy * m, cy = k.y + k.dx * m;
+    l.push([cx - k.dy * w, cy + k.dx * w]); r.push([cx + k.dy * w, cy - k.dx * w]);
+  });
+  var links = skGlatt(l), rechts = skGlatt(r);
+  return { links: links, rechts: rechts, flaeche: links + ' L' + skRund(r[r.length - 1][0]) + ',' + skRund(r[r.length - 1][1]) + ' ' + skGlatt(r.slice().reverse()).replace(/^M/, 'L') + ' Z' };
+}
 function skMeterJeMm(s) { return s.massstab / 1000; }
 // Ohne Maßstab (0) gibt es keine berechneten Entfernungen; am Marschweg stehen dann die von Hand eingetragenen
 // Trennen bei Semikolon, Komma mit Leerzeichen oder Leerzeichen zwischen zwei Zahlen; „1,2 km“ und „ca. 800“ bleiben ganz
@@ -110,6 +166,8 @@ function skDefs() {
     // Laubwald eine unten offene Schleife (links eingerollt, rechts kurzer Fuß). Locker und versetzt verteilt.
     '<pattern id="sk-nadel" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 4) + skNadel(9.5, 9.5) + '</pattern>' +
     '<pattern id="sk-laub" width="13" height="11" patternUnits="userSpaceOnUse">' + skLaub(3, 4) + skLaub(9.5, 9.5) + '</pattern>' +
+    '<pattern id="sk-wasser" width="7" height="4" patternUnits="userSpaceOnUse"><path d="M1,2 q1,-1 2,0 t2,0" fill="none" stroke="#2F62A8" stroke-width=".3"/></pattern>' +
+    '<pattern id="sk-sumpf" width="9" height="6" patternUnits="userSpaceOnUse"><path d="M.8,1.5 H3.6 M5.2,1.5 H6.6 M2.6,4.5 H5.4 M7,4.5 H8.4" stroke="' + SK_TINTE + '" stroke-width=".35" stroke-linecap="round"/></pattern>' +
     '<pattern id="sk-minen" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1" fill="none" stroke="' + SK_ROT + '" stroke-width=".4"/></pattern>' +
     '<pattern id="sk-misch" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 4) + skLaub(9.5, 9.5) + '</pattern>' +
     '</defs>';
@@ -160,16 +218,20 @@ function skUmbrechen(t, breite, max) {
 function skElementSvg(s, e, mitTreffer) {
   var a = e.art, p = e.pts, h = '', t = '';
   var tr = function (d, zu) { return mitTreffer ? '<path d="' + d + '" fill="' + (zu ? 'rgba(0,0,0,0.001)' : 'none') + '" stroke="rgba(0,0,0,0.001)" stroke-width="5" pointer-events="all"/>' : ''; };
-  if (a === 'strasse') h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
+  if (a === 'strasse' && p.length > 1) {
+    // Straße als Doppellinie, dazwischen Papierfarbe; in der Panoramaskizze nach hinten schmaler
+    var sb = skBand(p, 0.7, skArt(s) === 'panorama' ? [5, 0.7] : [1.9, 1.9], 0);
+    h = '<path d="' + sb.flaeche + '" fill="#F4F0E6" stroke="none"/><path d="' + sb.links + ' ' + sb.rechts + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
+  }
   else if (a === 'weg') h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".6" stroke-dasharray="2.2 1.4" stroke-linecap="round"/>' + tr(skPfad(p));
   else if (a === 'bahn') {
     h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".9" stroke-linejoin="round"/>';
     skEntlang(p, 3).forEach(function (q, i) { if (i) h += '<line x1="' + skRund(q.x - q.dy * 1.8) + '" y1="' + skRund(q.y + q.dx * 1.8) + '" x2="' + skRund(q.x + q.dy * 1.8) + '" y2="' + skRund(q.y - q.dx * 1.8) + '" stroke="' + SK_TINTE + '" stroke-width=".6"/>'; });
     h += tr(skPfad(p));
-  } else if (a === 'fluss') {
-    var w = skEntlang(p, 0.8).map(function (q, i) { var o = Math.sin(i * 0.8) * 0.9; return [q.x - q.dy * o, q.y + q.dx * o]; });
-    if (p.length) w.push(p[p.length - 1]);
-    h = '<path d="' + skPfad(w) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linejoin="round"/>' + tr(skPfad(p));
+  } else if (a === 'fluss' && p.length > 1) {
+    // Fluss als zwei gewundene Uferlinien mit leicht blauer Fläche; in der Panoramaskizze nach hinten schmaler
+    var fb = skBand(p, 0.6, skArt(s) === 'panorama' ? [5, 0.6] : [1.7, 1.7], 1.5);
+    h = '<path d="' + fb.flaeche + '" fill="rgba(90,150,210,0.28)" stroke="none"/><path d="' + fb.links + ' ' + fb.rechts + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
   } else if (a === 'marsch') {
     h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_BLAU + '" stroke-width=".9" stroke-dasharray=".1 1.5" stroke-linecap="round" stroke-linejoin="round"/>';
     var summe = 0;
@@ -206,7 +268,31 @@ function skElementSvg(s, e, mitTreffer) {
     h = '<path d="M' + zv[0] + ',' + zv[1] + ' L' + zz[0] + ',' + zz[1] + '" stroke="' + SK_BLAU + '" stroke-width=".35"/>' +
       '<path d="M' + (zz[0] - 1.3) + ',' + (zz[1] - 1.3) + ' L' + (zz[0] + 1.3) + ',' + (zz[1] + 1.3) + ' M' + (zz[0] - 1.3) + ',' + (zz[1] + 1.3) + ' L' + (zz[0] + 1.3) + ',' + (zz[1] - 1.3) + '" stroke="' + SK_BLAU + '" stroke-width=".55"/>' +
       (ztext ? '<text x="' + zz[0] + '" y="' + skRund(zz[1] - 2.6) + '" text-anchor="middle" font-size="3.2" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width=".9">' + esc(ztext) + '</text>' : '') + tr(skPfad(p));
-  } else if (a === 'draht') {
+  } else if (a === 'horizont' || a === 'gelaendelinie') {
+    h = '<path d="' + skGlatt(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width="' + (a === 'horizont' ? '.8' : '.5') + '" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
+  } else if (a === 'waldkulisse' || a === 'nadelkulisse' || a === 'hecke') {
+    var kl = a === 'hecke' ? skKulisse(p, 1.6, 0.7, false) : skKulisse(p, a === 'nadelkulisse' ? 2.4 : 3.4, a === 'nadelkulisse' ? 3.2 : 1.6, a === 'nadelkulisse');
+    h = (a !== 'hecke' ? '<path d="' + kl + ' L' + p[p.length - 1][0] + ',' + p[p.length - 1][1] + ' ' + skPfad(p.slice().reverse()).replace('M', 'L') + ' Z" fill="rgba(120,175,90,0.20)" stroke="none"/>' : '') +
+      '<path d="' + kl + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linejoin="round"/>' + tr(skPfad(p));
+  } else if (a === 'grenze' && p.length > 1) {
+    h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_ROT + '" stroke-width=".55" stroke-dasharray="2.2 1.2"/>' + tr(skPfad(p));
+  } else if (a === 'boeschung') {
+    // Böschung: Oberkante mit Schraffurstrichen zur Hangseite (rechts in Zeichenrichtung)
+    h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    skEntlang(p, 1.2).forEach(function (q, i) { var lg = i % 2 ? 1 : 1.7; h += '<line x1="' + skRund(q.x) + '" y1="' + skRund(q.y) + '" x2="' + skRund(q.x - q.dy * lg) + '" y2="' + skRund(q.y + q.dx * lg) + '" stroke="' + SK_TINTE + '" stroke-width=".3"/>'; });
+    h += tr(skPfad(p));
+  } else if (a === 'strom') {
+    // Hochspannungsleitung: dünne Linie, Masten als kleine Punkte mit Querträger
+    h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".3"/>';
+    skEntlang(p, 7).forEach(function (q) { h += '<circle cx="' + skRund(q.x) + '" cy="' + skRund(q.y) + '" r=".55" fill="' + SK_TINTE + '"/><line x1="' + skRund(q.x - q.dy * 1.3) + '" y1="' + skRund(q.y + q.dx * 1.3) + '" x2="' + skRund(q.x + q.dy * 1.3) + '" y2="' + skRund(q.y - q.dx * 1.3) + '" stroke="' + SK_TINTE + '" stroke-width=".35"/>'; });
+    h += tr(skPfad(p));
+  } else if (a === 'zaun') {
+    h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".35"/>';
+    skEntlang(p, 1.8).forEach(function (q, i) { if (i) h += '<line x1="' + skRund(q.x - q.dy * 0.7) + '" y1="' + skRund(q.y + q.dx * 0.7) + '" x2="' + skRund(q.x + q.dy * 0.7) + '" y2="' + skRund(q.y - q.dx * 0.7) + '" stroke="' + SK_TINTE + '" stroke-width=".3"/>'; });
+    h += tr(skPfad(p));
+  } else if (a === 'see') h = '<path d="' + skGlattZu(p) + '" fill="rgba(90,150,210,0.3)" stroke="' + SK_TINTE + '" stroke-width=".45"/><path d="' + skGlattZu(p) + '" fill="url(#sk-wasser)" stroke="none"/>' + tr(skPfad(p, true), true);
+  else if (a === 'sumpf') h = '<path d="' + skPfad(p, true) + '" fill="rgba(110,150,120,0.15)" stroke="' + SK_TINTE + '" stroke-width=".25" stroke-dasharray="1 1"/><path d="' + skPfad(p, true) + '" fill="url(#sk-sumpf)" stroke="none"/>' + tr(skPfad(p, true), true);
+  else if (a === 'draht') {
     h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45"/>';
     skEntlang(p, 4).forEach(function (q, i) { if (i) h += '<path d="M' + skRund(q.x - 1.2) + ',' + skRund(q.y - 1.2) + ' L' + skRund(q.x + 1.2) + ',' + skRund(q.y + 1.2) + ' M' + skRund(q.x - 1.2) + ',' + skRund(q.y + 1.2) + ' L' + skRund(q.x + 1.2) + ',' + skRund(q.y - 1.2) + '" stroke="' + SK_TINTE + '" stroke-width=".45"/>'; });
     h += tr(skPfad(p));
@@ -219,7 +305,7 @@ function skElementSvg(s, e, mitTreffer) {
   else if (a === 'nadelwald' || a === 'laubwald' || a === 'mischwald') {
     h = '<path d="' + skPfad(p, true) + '" fill="rgba(120,175,90,0.20)" stroke="none"/><path d="' + skPfad(p, true) + '" fill="url(#sk-' + { nadelwald: 'nadel', laubwald: 'laub', mischwald: 'misch' }[a] + ')" stroke="' + SK_TINTE + '" stroke-width=".25" stroke-dasharray="1 1"/>' + tr(skPfad(p, true), true);
   } else {
-    var x = p[0][0], y = p[0][1], dreh = e.winkel ? ' rotate(' + e.winkel + ')' : '';
+    var x = p[0][0], y = p[0][1], dreh = (e.winkel ? ' rotate(' + e.winkel + ')' : '') + (e.skala && e.skala !== 1 ? ' scale(' + e.skala + ')' : '');
     if (a === 'kirche') t = '<circle cx="0" cy="0" r="1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-1.5 V-5 M-1.3,-3.6 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
     else if (a === 'gebaeude') t = '<rect x="-1.6" y="-1.2" width="3.2" height="2.4" fill="' + SK_TINTE + '"/>';
     else if (a === 'bruecke') t = '<path d="M-2.4,-3.2 Q-1,0 -2.4,3.2 M2.4,-3.2 Q1,0 2.4,3.2 M-2.4,-3.2 L-3.4,-4 M-2.4,3.2 L-3.4,4 M2.4,-3.2 L3.4,-4 M2.4,3.2 L3.4,4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linecap="round"/>';
@@ -235,7 +321,21 @@ function skElementSvg(s, e, mitTreffer) {
         t = (sechseck ? '<path d="M0,-4.6 L3.98,-2.3 L3.98,2.3 L0,4.6 L-3.98,2.3 L-3.98,-2.3 Z" fill="#80E0FF" stroke="#000" stroke-width=".45" stroke-linejoin="round"/>' : '') +
           '<g transform="scale(' + k + ') translate(' + skRund(-an.x) + ',' + skRund(-an.y) + ')">' + sym.asSVG() + '</g>';
       } else t = '<circle r="3" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
-    } else if (a === 'beob') t = '<path d="M0,-3 L3,2.2 L-3,2.2 Z" fill="none" stroke="' + (e.feind ? SK_ROT : SK_TINTE) + '" stroke-width=".55" stroke-linejoin="round"/><circle cx="0" cy=".5" r=".55" fill="' + (e.feind ? SK_ROT : SK_TINTE) + '"/>';
+    } else if (a === 'gehoeft') t = '<path d="M-2.6,-2 h2.2 v1.6 h-2.2 Z M0.4,-2 h2.2 v1.6 h-2.2 Z M-2.6,0.6 h2.2 v1.6 h-2.2 Z" fill="' + SK_TINTE + '"/>';
+    else if (a === 'friedhof') t = '<rect x="-2.8" y="-2" width="5.6" height="4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/><path d="M-1.2,-1.1 V1.1 M-1.8,-0.4 H-0.6 M1.2,-1.1 V1.1 M0.6,-0.4 H1.8" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
+    else if (a === 'wegkreuz') t = '<path d="M0,-2.8 V1.8 M-1.1,-1.7 H1.1 M-1.3,1.8 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linecap="round"/>';
+    else if (a === 'turm') t = '<path d="M-0.9,2 V-3.4 H0.9 V2 Z M-1.3,-3.4 L0,-5 L1.3,-3.4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    else if (a === 'sendemast') t = '<path d="M0,2 V-5 M0,-4.6 L-2,2 M0,-4.6 L2,2 M-2.4,2 H2.4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/><circle cy="-5" r=".55" fill="' + SK_TINTE + '"/>';
+    else if (a === 'windrad') t = '<path d="M0,2.2 V-2.8 M-1.2,2.2 H1.2 M0,-2.8 V-5.8 M0,-2.8 L2.6,-1.3 M0,-2.8 L-2.6,-1.3" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linecap="round"/><circle cy="-2.8" r=".5" fill="' + SK_TINTE + '"/>';
+    else if (a === 'hochsitz') t = '<path d="M-1.7,2.2 L-0.7,-1.3 M1.7,2.2 L0.7,-1.3 M-1.3,0.7 H1.3 M-1.5,-3.3 L0,-4.4 L1.5,-3.3" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4" stroke-linejoin="round"/><rect x="-1.1" y="-3.3" width="2.2" height="2" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
+    else if (a === 'strommast') t = '<path d="M-1.7,2.2 L0,-5 L1.7,2.2 M-2.8,-3.2 H2.8 M-2.2,-1.2 H2.2 M-1.2,0.6 L1,-1.2 M1.2,0.6 L-1,-1.2 M-2.8,-3.2 V-2.5 M2.8,-3.2 V-2.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".35" stroke-linejoin="round"/>';
+    else if (a === 'fabrik') t = '<path d="M-3.2,2 V-1 L-1.8,-2 V-1 L-0.4,-2 V-1 H1.6 V-5.2 H2.6 V2 Z" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    else if (a === 'gebuesch') t = '<path d="M-2.4,0.9 c-0.9,-0.2 -0.8,-1.7 0.3,-1.6 c0.9,0.1 0.9,1.4 0,1.5 M-0.4,-0.3 c-0.9,-0.2 -0.8,-1.7 0.3,-1.6 c0.9,0.1 0.9,1.4 0,1.5 M1.6,0.9 c-0.9,-0.2 -0.8,-1.7 0.3,-1.6 c0.9,0.1 0.9,1.4 0,1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4" stroke-linecap="round"/>';
+    else if (a === 'bruecke_ansicht') t = '<path d="M-4.4,0 H4.4 M-4.4,0 V2 M4.4,0 V2 M-3.2,2 Q0,-1 3.2,2 M-4.4,-0.9 H4.4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    else if (a === 'haus') t = '<path d="M-2.6,2 V-0.8 L0,-3 L2.6,-0.8 V2 Z M-0.7,2 V0.4 H0.7 V2" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    else if (a === 'kirchturm') t = '<path d="M-1.2,2 V-2.6 L0,-5.6 L1.2,-2.6 V2 M0,-5.6 V-7.2 M-0.7,-6.6 H0.7 M1.2,2 V-0.4 H5 V2 Z" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/>';
+    else if (a === 'gpunkt') t = '<circle r=".75" fill="' + SK_BLAU + '"/>';
+    else if (a === 'beob') t = '<path d="M0,-3 L3,2.2 L-3,2.2 Z" fill="none" stroke="' + (e.feind ? SK_ROT : SK_TINTE) + '" stroke-width=".55" stroke-linejoin="round"/><circle cx="0" cy=".5" r=".55" fill="' + (e.feind ? SK_ROT : SK_TINTE) + '"/>';
     else if (a === 'nadelbaum') t = skNadel(0, 0);
     else if (a === 'laubbaum') t = skLaub(0, 0);
     else if (a === 'baum') t = '<circle cx="0" cy="-2.4" r="1.7" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-0.7 V1.6" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
@@ -244,7 +344,7 @@ function skElementSvg(s, e, mitTreffer) {
     else if (a === 'text') t = '<text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="' + (e.groesse || 3.6) + '" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width=".8">' + esc(e.text || 'Text') + '</text>';
     else if (a === 'nord') t = '<path d="M0,6 V-6 M-1.6,-3.6 L0,-6.4 L1.6,-3.6" fill="none" stroke="' + SK_TINTE + '" stroke-width=".6" stroke-linecap="round" stroke-linejoin="round"/><text x="2.6" y="1.6" font-size="4" font-weight="600" fill="' + SK_TINTE + '">N</text>';
     var gr = a === 'text' ? Math.max(4, String(e.text || 'Text').length * (e.groesse || 3.6) * 0.32) : (a === 'nord' ? 5 : 4.5);
-    if (skIstNato(e)) dreh = '';
+    if (skIstNato(e)) dreh = e.skala && e.skala !== 1 ? ' scale(' + e.skala + ')' : '';
     h = '<g transform="translate(' + skRund(x) + ',' + skRund(y) + ')' + dreh + '">' + t + (mitTreffer ? '<rect x="' + (-gr) + '" y="-5" width="' + (2 * gr) + '" height="' + (a === 'nord' ? 12 : 8) + '" fill="rgba(0,0,0,0.001)" pointer-events="all"/>' : '') + '</g>';
   }
   return h;
@@ -272,7 +372,7 @@ function skNameAnker(e) {
       }
       rest -= l;
     }
-  } else { x = p[0][0] + 3.6; y = p[0][1] + 1.2; anker = 'start'; }
+  } else { var sk = e.skala || 1; x = p[0][0] + 3.6 * sk; y = p[0][1] + 1.2; anker = 'start'; }
   return { x: x, y: y, anker: anker };
 }
 // Verschobene Namen hängen an einem dünnen Strich zum Element, wie auf dem Meldeblatt üblich
@@ -311,7 +411,7 @@ function skSvg(s, bearbeiten) {
     var g = skAuswahl && skElement(skAuswahl);
     if (g && g.pts && g.pts.length) {
       var xs = g.pts.map(function (q) { return q[0]; }), ys = g.pts.map(function (q) { return q[1]; }), pk = SK_ART[g.art] && SK_ART[g.art].form === 'punkt';
-      var rx = pk ? (g.art === 'text' ? Math.max(5, String(g.text || '').length * 1.2 + 2) : 5) : 2, ry = pk ? (g.art === 'nord' ? 7.5 : 5) : 2;
+      var gs = pk ? (g.skala || 1) : 1, rx = (pk ? (g.art === 'text' ? Math.max(5, String(g.text || '').length * 1.2 + 2) : 5) : 2) * gs, ry = (pk ? (g.art === 'nord' ? 7.5 : 5) : 2) * gs;
       h += '<rect x="' + skRund(Math.min.apply(null, xs) - rx) + '" y="' + skRund(Math.min.apply(null, ys) - ry) + '" width="' + skRund(Math.max.apply(null, xs) - Math.min.apply(null, xs) + 2 * rx) + '" height="' + skRund(Math.max.apply(null, ys) - Math.min.apply(null, ys) + 2 * ry) +
         '" fill="none" stroke="#C62828" stroke-width=".4" stroke-dasharray="1.4 1" rx="1" pointer-events="none"/>';
     }
@@ -336,7 +436,7 @@ function skIcon(art, daten) {
     inhalt = '<path d="M3,13 L11,6 L20,9" fill="none" stroke="' + SK_BLAU + '" stroke-width="1.1" stroke-dasharray=".1 1.8" stroke-linecap="round"/>' +
       '<path d="M1.6,11.6 L4.4,14.4 M1.6,14.4 L4.4,11.6" stroke="' + SK_BLAU + '" stroke-width=".8"/><circle cx="11" cy="6" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/><circle cx="20" cy="9" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/>';
   } else {
-    e.pts = f === 'flaeche' ? [[2, 2.5], [21, 1.5], [22.5, 13.5], [2.5, 14]] : art === 'feuer' ? [[12, 15], [3, 2], [21, 2]] : art === 'hsr' ? [[5, 13], [20, 3]] : art === 'ziel' ? [[4, 13.5], [19, 5]]
+    e.pts = f === 'flaeche' ? [[2, 2.5], [21, 1.5], [22.5, 13.5], [2.5, 14]] : /kulisse|hecke|horizont|gelaendelinie/.test(art) ? [[1.5, 12], [8, 8], [15, 10], [22.5, 7]] : art === 'grenze' ? [[12, 2], [12, 14]] : art === 'feuer' ? [[12, 15], [3, 2], [21, 2]] : art === 'hsr' ? [[5, 13], [20, 3]] : art === 'ziel' ? [[4, 13.5], [19, 5]]
       : f === 'linie' ? [[1.5, 12.5], [8, 5], [15, 10], [22.5, 3.5]] : [[12, art === 'nord' ? 8 : (art === 'gruppe' || art === 'trupp' || art === 'nato') ? 9.6 : SK_NATO[art] ? 8 : 9]];
     if (art === 'nord' || art === 'text') e.groesse = 6;
     inhalt = skElementSvg({ massstab: 0, zaehlung: 'teil' }, e, false);
@@ -365,7 +465,7 @@ function skAblageZeigen() {
 function zeigeSkizze() { skAblageZeigen(); }
 function skArtenZeigen() {
   $('sk-ablage').hidden = true; $('sk-arten').hidden = false;
-  var bild = { gelaende: skIcon('nadelwald'), stellung: skIcon('feuer'), entfernung: skIcon('marsch'), panorama: skIcon('kuppe') };
+  var bild = { gelaende: skIcon('nadelwald'), stellung: skIcon('feuer'), entfernung: skIcon('marsch'), panorama: skIcon('waldkulisse') };
   $('sk-arten-liste').innerHTML = Object.keys(SK_ARTEN).map(function (k) {
     var a = SK_ARTEN[k];
     return '<button type="button" class="sk-art" data-sk-art="' + k + '"' + (a.bald ? ' disabled' : '') + '>' + bild[k] + '<span><b>' + esc(a.name) + (a.bald ? ' <em>folgt</em>' : '') + '</b><small>' + esc(a.text) + '</small></span></button>';
@@ -479,6 +579,15 @@ function skSetzen(p) {
     if (skWerkzeug === 'nato' && skNatoWahl) { e.sidc = skNatoWahl.sidc; e.opt = skNatoWahl.opt; e.titel = skNatoWahl.titel; e.feind = skNatoWahl.feind; }
     skMerken();
     skAktiv().elemente.push(e);
+    if (skWerkzeug === 'gpunkt') {
+      // Geländepunkt: Beschriftung über dem Punkt, gleich Namen und Entfernung eintippen
+      e.nameVersatz = [-3.6, -15]; e.name = '';
+      skWerkzeug = null; skAuswahl = e.id;
+      skSpeichern(); skRendern();
+      var gf = $('sk-v-name');
+      if (gf) { gf.placeholder = 'z. B. Steinbrücke 400'; gf.focus(); }
+      return;
+    }
     if (skWerkzeug === 'text') {
       // Text: gleich auswählen und das Eingabefeld öffnen
       e.text = 'Text';
@@ -607,7 +716,7 @@ function skVollLeiste() {
   var e = skAuswahl && skElement(skAuswahl);
   $('sk-v-titel').textContent = skAktiv().name + ' · ' + (skAktiv().massstab ? '1:' + skAktiv().massstab.toLocaleString('de-DE') : 'ohne Maßstab');
   $('sk-v-zurueck').disabled = !skVerlauf.length;
-  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, e && e.feind, skPunkte.length, skFach, skAktiv().massstab, !!window.ms].join('|');
+  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, e && e.feind, e && e.skala, skPunkte.length, skFach, skAktiv().massstab, !!window.ms].join('|');
   if (key === skVollKey) {
     if (e && document.activeElement !== $('sk-v-name') && $('sk-v-name')) $('sk-v-name').value = (e.art === 'text' ? e.text : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '';
     return;
@@ -617,11 +726,13 @@ function skVollLeiste() {
   if (e) {
     var art = e.art === 'nato' ? { name: e.titel || 'Taktisches Zeichen', form: 'punkt' } : SK_ART[e.art] || { name: e.art, form: 'punkt' }, info = e.gesperrt ? 'gesperrt' : 'Ziehen zum Verschieben';
     if (e.art === 'marsch') { var l = 0; for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]); info = skOhneMassstab(skAktiv()) ? 'Entfernungen der Reihe nach eintragen' : 'zusammen ' + skMeter(skAktiv(), l).toLocaleString('de-DE') + ' m'; }
+    else if (e.art === 'gpunkt') info = 'Name und Entfernung eintippen; die Beschriftung lässt sich ziehen';
     else if (e.art === 'ziel') info = skOhneMassstab(skAktiv()) ? 'Ohne Maßstab: Entfernung mit in den Namen schreiben' : 'Entfernung ' + skMeter(skAktiv(), skLaenge(e.pts[0], e.pts[1])).toLocaleString('de-DE') + ' m';
     else if (skIstNato(e) || e.art === 'beob') info = (e.feind ? 'Feind' : 'Eigene Kräfte') + (e.gesperrt ? ' · gesperrt' : ' · Ziehen zum Verschieben');
     else if (art.form !== 'punkt' && !e.gesperrt) info = 'Ziehen verschiebt, Griffe verschieben Punkte';
     h = '<div class="sk-v-kopf">' + skIcon(e.art, e) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
-      (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'marsch' && skOhneMassstab(skAktiv()) ? 'Entfernungen in m, z. B. 800, 400, 1600' : e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', ziel: skOhneMassstab(skAktiv()) ? 'Spitzbaum 600' : 'Spitzbaum', schuetze: 'Schütze 1', mg: 'MG 1', gruppe: '1./371' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '') + '">') +
+      (art.form === 'punkt' && !e.gesperrt ? '<div class="sk-v-groesse"><span>Größe</span><button type="button" class="sk-v-x" data-v="kleiner" aria-label="Kleiner"' + ((e.skala || 1) <= 0.5 ? ' disabled' : '') + '>−</button><b id="sk-v-prozent">' + Math.round((e.skala || 1) * 100) + ' %</b><button type="button" class="sk-v-x" data-v="groesser" aria-label="Größer"' + ((e.skala || 1) >= 3 ? ' disabled' : '') + '>+</button></div>' : '') +
+      (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'marsch' && skOhneMassstab(skAktiv()) ? 'Entfernungen in m, z. B. 800, 400, 1600' : e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', gpunkt: 'Steinbrücke 400', haus: 'Rotes Haus', kirchturm: 'Heudorf', waldkulisse: 'Heckenwinkel', ziel: skOhneMassstab(skAktiv()) ? 'Spitzbaum 600' : 'Spitzbaum', schuetze: 'Schütze 1', mg: 'MG 1', gruppe: '1./371' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '') + '">') +
       '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt && !skIstNato(e) && e.art !== 'beob' ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
       ((skIstNato(e) || e.art === 'beob') && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="feind">' + (e.feind ? 'Eigene' : 'Feind') + '</button>' : '') +
       '<button type="button" class="sk-v-knopf" data-v="sperren">' + (e.gesperrt ? 'Entsperren' : 'Sperren') + '</button>' +
@@ -629,7 +740,7 @@ function skVollLeiste() {
       '<button type="button" class="sk-v-knopf primaer" data-v="auswahlfertig">Fertig</button></div>';
   } else if (skWerkzeug) {
     var f = SK_ART[skWerkzeug].form, hinweis = skWerkzeug === 'text' ? 'Auf das Blatt tippen, dann Text eingeben' : f === 'punkt' ? 'Auf das Blatt tippen, mehrmals möglich'
-      : ({ hsr: 'Stellung, dann die Richtung antippen', feuer: 'Stellung, dann linke und rechte Grenze antippen', ziel: 'Stellung, dann das Ziel antippen' }[skWerkzeug] ||
+      : ({ hsr: 'Stellung, dann die Richtung antippen', grenze: 'Oberes und unteres Ende antippen', gpunkt: 'Auf das Objekt tippen, dann Namen eintippen', feuer: 'Stellung, dann linke und rechte Grenze antippen', ziel: 'Stellung, dann das Ziel antippen' }[skWerkzeug] ||
         (skWerkzeug === 'marsch' ? 'Start, dann die Wegpunkte antippen' : f === 'flaeche' ? 'Umriss Punkt für Punkt antippen' : 'Punkte nacheinander antippen')) + (skPunkte.length ? ' · ' + skPunkte.length + ' gesetzt' : '');
     h = '<div class="sk-v-kopf">' + skIcon(skWerkzeug, skWerkzeug === 'nato' ? skNatoWahl : null) + '<div><b>' + esc(skWerkzeug === 'nato' && skNatoWahl ? skNatoWahl.titel : SK_ART[skWerkzeug].name) + '</b><small>' + hinweis + '</small></div><button type="button" class="sk-v-x" data-v="abbrechen" aria-label="Werkzeug beenden">✕</button></div>' +
       '<div class="sk-v-knoepfe">' + (f === 'punkt' ? '' : '<button type="button" class="sk-v-knopf" data-v="punktzurueck"' + (skPunkte.length ? '' : ' disabled') + '>↶ Punkt zurück</button>') +
@@ -676,6 +787,10 @@ $('sk-voll').addEventListener('click', function (ev) {
   else if (v === 'punktzurueck') skPunktZurueck();
   else if (v === 'drehen') skDrehen();
   else if (v === 'sperren') skSperren();
+  else if (v === 'kleiner' || v === 'groesser') {
+    var ge = skAuswahl && skElement(skAuswahl);
+    if (ge) { skMerken(); ge.skala = Math.max(0.5, Math.min(3, Math.round(((ge.skala || 1) + (v === 'groesser' ? 0.5 : -0.5)) * 10) / 10)); skSpeichern(); skRendern(); }
+  }
   else if (v === 'baukasten') { skBaukastenFuer = SK.aktiv; skSchliessen(); go('symbole'); $('ms-in-skizze').hidden = false; $('ms-vorschau').scrollIntoView({ block: 'center' }); }
   else if (v === 'feind') { var fe = skAuswahl && skElement(skAuswahl); if (fe) { skMerken(); fe.feind = !fe.feind; skSpeichern(); skRendern(); } }
   else if (v === 'loeschen') skLoeschen();
