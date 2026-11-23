@@ -13,7 +13,7 @@ var SK_MASSSTAEBE = [
 // Werkzeuge: Art, Name, Form (linie, flaeche, punkt)
 var SK_WERKZEUGE = [
   ['Linien', [['strasse', 'Straße', 'linie'], ['weg', 'Weg', 'linie'], ['bahn', 'Bahnlinie', 'linie'], ['fluss', 'Fluss, Bach', 'linie'], ['marsch', 'Marschweg', 'linie']]],
-  ['Flächen', [['ort', 'Ortschaft', 'flaeche'], ['nadelwald', 'Nadelwald', 'flaeche'], ['laubwald', 'Laubwald', 'flaeche']]],
+  ['Flächen', [['ort', 'Ortschaft', 'flaeche'], ['nadelwald', 'Nadelwald', 'flaeche'], ['laubwald', 'Laubwald', 'flaeche'], ['mischwald', 'Mischwald', 'flaeche']]],
   ['Zeichen', [['kirche', 'Kirche', 'punkt'], ['gebaeude', 'Einzelgebäude', 'punkt'], ['bruecke', 'Brücke', 'punkt'], ['baum', 'Einzelbaum', 'punkt'],
     ['kuppe', 'Kuppe', 'punkt'], ['tp', 'Trig. Punkt', 'punkt'], ['text', 'Text', 'punkt'], ['nord', 'Nordpfeil', 'punkt']]]
 ];
@@ -64,12 +64,23 @@ function skMeterJeMm(s) { return s.massstab / 1000; }
 function skMeter(s, mm) { var m = mm * skMeterJeMm(s); return m < 1000 ? Math.round(m / 10) * 10 : Math.round(m / 50) * 50; }
 
 /* ===== Zeichnen ===== */
+function skNadel(x, y) {
+  return '<path d="M' + (x - 1.1) + ',' + (y + 0.7) + ' L' + (x - 0.2) + ',' + (y - 1.9) + ' L' + (x + 1.4) + ',' + (y + 1.6) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+function skLaub(x, y) {
+  return '<path d="M' + (x - 0.5) + ',' + (y + 1.1) + ' C' + (x - 2) + ',' + (y + 0.7) + ' ' + (x - 2) + ',' + (y - 1.8) + ' ' + x + ',' + (y - 1.8) +
+    ' C' + (x + 1.9) + ',' + (y - 1.8) + ' ' + (x + 1.9) + ',' + (y + 0.5) + ' ' + (x + 0.7) + ',' + (y + 1.3) + ' L' + (x + 1.9) + ',' + (y + 1.4) +
+    '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round"/>';
+}
 function skDefs() {
   return '<defs>' +
     '<clipPath id="sk-raster-clip"><rect x="' + SK_GX + '" y="' + SK_GY + '" width="' + SK_GW + '" height="' + SK_GH + '"/></clipPath>' +
     '<pattern id="sk-schraffur" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="2.2" stroke="' + SK_TINTE + '" stroke-width=".45"/></pattern>' +
-    '<pattern id="sk-nadel" width="9" height="8" patternUnits="userSpaceOnUse"><path d="M1,3.2 L2.5,0.4 L4,3.2 M5.5,7.4 L7,4.6 L8.5,7.4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linejoin="round"/></pattern>' +
-    '<pattern id="sk-laub" width="9" height="8" patternUnits="userSpaceOnUse"><path d="M1,3.4 H1.8 C0.7,2.6 1.1,0.5 2.5,0.5 C3.9,0.5 4.3,2.6 3.2,3.4 H4 M5.5,7.6 H6.3 C5.2,6.8 5.6,4.7 7,4.7 C8.4,4.7 8.8,6.8 7.7,7.6 H8.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45"/></pattern>' +
+    // Handgezeichnete Waldzeichen wie im Meldeblock: Nadelwald ein spitzes Λ mit kürzerem linken Schenkel,
+    // Laubwald eine unten offene Schleife (links eingerollt, rechts kurzer Fuß). Locker und versetzt verteilt.
+    '<pattern id="sk-nadel" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 4) + skNadel(9.5, 9.5) + '</pattern>' +
+    '<pattern id="sk-laub" width="13" height="11" patternUnits="userSpaceOnUse">' + skLaub(3, 4) + skLaub(9.5, 9.5) + '</pattern>' +
+    '<pattern id="sk-misch" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 4) + skLaub(9.5, 9.5) + '</pattern>' +
     '</defs>';
 }
 function skBlatt(s) {
@@ -146,8 +157,8 @@ function skElementSvg(s, e, mitTreffer) {
     });
     h += tr(skPfad(p));
   } else if (a === 'ort') h = '<path d="' + skPfad(p, true) + '" fill="url(#sk-schraffur)" stroke="' + SK_TINTE + '" stroke-width=".7" stroke-linejoin="round"/>' + tr(skPfad(p, true), true);
-  else if (a === 'nadelwald' || a === 'laubwald') {
-    h = '<path d="' + skPfad(p, true) + '" fill="rgba(60,60,50,0.10)" stroke="none"/><path d="' + skPfad(p, true) + '" fill="url(#sk-' + (a === 'nadelwald' ? 'nadel' : 'laub') + ')" stroke="' + SK_TINTE + '" stroke-width=".25" stroke-dasharray="1 1"/>' + tr(skPfad(p, true), true);
+  else if (a === 'nadelwald' || a === 'laubwald' || a === 'mischwald') {
+    h = '<path d="' + skPfad(p, true) + '" fill="rgba(60,60,50,0.10)" stroke="none"/><path d="' + skPfad(p, true) + '" fill="url(#sk-' + { nadelwald: 'nadel', laubwald: 'laub', mischwald: 'misch' }[a] + ')" stroke="' + SK_TINTE + '" stroke-width=".25" stroke-dasharray="1 1"/>' + tr(skPfad(p, true), true);
   } else {
     var x = p[0][0], y = p[0][1], dreh = e.winkel ? ' rotate(' + e.winkel + ')' : '';
     if (a === 'kirche') t = '<circle cx="0" cy="0" r="1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-1.5 V-5 M-1.3,-3.6 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5"/>';

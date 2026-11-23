@@ -75,7 +75,7 @@ Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mi
 
 ## Skizzen
 
-Die Seite „Skizzen“ (`js/17-skizze.js`) bildet die Skizzenseite des Meldeblocks nach: Raster 16 × 12 cm, Maßstäbe 1:10.000, 1:25.000 und 1:50.000 (die nicht benutzten werden durchgestrichen), Erläuterungen, Datum und Unterschrift. Gezeichnet werden Straßen, Wege, Bahnlinien, Flüsse, Ortschaften, Nadel- und Laubwald, Einzelzeichen (Kirche, Einzelgebäude, Brücke, Einzelbaum, Kuppe, Trigonometrischer Punkt), Text und Nordpfeil. Der Marschweg trägt an jedem Wegpunkt die Entfernung, berechnet über den Maßstab, wahlweise je Teilstrecke oder gesamt. Elemente lassen sich verschieben, drehen, sperren und löschen, Skizzen als PNG speichern. Alles bleibt im Browser (`meinkamerad-skizzen`).
+Die Seite „Skizzen“ (`js/17-skizze.js`) bildet die Skizzenseite des Meldeblocks nach: Raster 16 × 12 cm, Maßstäbe 1:10.000, 1:25.000 und 1:50.000 (die nicht benutzten werden durchgestrichen), Erläuterungen, Datum und Unterschrift. Gezeichnet werden Straßen, Wege, Bahnlinien, Flüsse, Ortschaften, Nadel-, Laub- und Mischwald, Einzelzeichen (Kirche, Einzelgebäude, Brücke, Einzelbaum, Kuppe, Trigonometrischer Punkt), Text und Nordpfeil. Der Marschweg trägt an jedem Wegpunkt die Entfernung, berechnet über den Maßstab, wahlweise je Teilstrecke oder gesamt. Elemente lassen sich verschieben, drehen, sperren und löschen, Skizzen als PNG speichern. Alles bleibt im Browser (`meinkamerad-skizzen`).
 
 ## Zeichen aus Foto erkennen (Testphase)
 
