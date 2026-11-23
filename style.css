@@ -678,3 +678,11 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-sicht input { accent-color: var(--accent); }
 .leaflet-tooltip.lage-stufe { background: rgba(255, 255, 255, .95); border: 0; box-shadow: none; padding: 0 4px; font-weight: 800; font-size: 13px; letter-spacing: .02em; color: #111; }
 .leaflet-tooltip.lage-stufe::before { display: none; }
+
+/* Aufklappbare Erklärungen */
+details.erklaerung > summary h2 { font-size: 1rem; }
+.erkl-text { display: grid; gap: 8px; font-size: .92rem; line-height: 1.55; }
+.erkl-text p, .erkl-text ul, .erkl-text ol { margin: 0; }
+.erkl-text ul, .erkl-text ol { padding-left: 20px; display: grid; gap: 4px; }
+.erkl-text h3 { margin: 8px 0 0; font-size: .92rem; font-weight: 600; }
+.erkl-text p:not(.hint), .erkl-text li { color: var(--fg); }

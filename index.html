@@ -568,6 +568,32 @@
   <!-- MEHR -->
   <!-- TAKTISCHE ZEICHEN -->
   <section class="view" id="view-symbole" aria-label="Taktische Zeichen" hidden>
+    <details class="panel erklaerung">
+      <summary><h2>Erklärung: Was ist APP-6?</h2></summary>
+      <div class="erkl-text">
+        <p><strong>APP-6</strong> ist der NATO-Standard für militärische Symbole (Allied Procedural Publication 6, „Military Symbology“). Die Bundeswehr nutzt ihn für taktische Zeichen auf Lagekarten und in Führungssystemen. Diese Seite folgt der Ausgabe <strong>APP-6D</strong>.</p>
+        <h3>So ist ein Zeichen aufgebaut</h3>
+        <ul>
+          <li><strong>Rahmen</strong> zeigt die Zugehörigkeit: Rechteck blau für eigene Kräfte, Raute rot für Feind, Quadrat grün für neutral, Kleeblatt gelb für unbekannt. Ein gestrichelter Rahmen heißt geplant oder vermutet.</li>
+          <li><strong>Symbol im Rahmen</strong> zeigt, was es ist, zum Beispiel das Kreuz für Infanterie oder das Oval für Panzer.</li>
+          <li><strong>Zusatzzeichen</strong> oben und unten im Rahmen verfeinern das, etwa Gebirge, Luftlande oder Kette.</li>
+          <li><strong>Größe</strong> steht über dem Rahmen: Punkte für Trupp bis Zug, Striche für Kompanie bis Regiment, X für Brigade und mehr.</li>
+          <li><strong>Textfelder</strong> rundherum tragen Bezeichnung (T), übergeordnete Einheit (M), Zusatzinformation (H) und weitere Angaben. Die Buchstaben sind die Feldnamen aus APP-6.</li>
+        </ul>
+        <h3>Der Code</h3>
+        <p>Jedes Zeichen hat einen 20-stelligen Code, er steht unter der Vorschau. Er setzt sich zusammen aus: Version (10), Kontext (Wirklichkeit, Übung, Simulation), Zugehörigkeit, Symbolsatz (zum Beispiel 10 für Landeinheiten, 15 für Ausrüstung), Status, Stab/Task Force/Täuschung, Größe oder Beweglichkeit, dem sechsstelligen Eintrag und den zwei Zusatzzeichen. Mit dem Code lässt sich ein Zeichen eindeutig weitergeben.</p>
+        <h3>So gehst du vor</h3>
+        <ol>
+          <li>Symbolsatz wählen, zum Beispiel Landeinheiten.</li>
+          <li>Eintrag wählen oder im Suchfeld suchen, auf Deutsch, Englisch oder mit dem Code.</li>
+          <li>Zugehörigkeit, Größe, Zusätze und Beschriftung einstellen. Die Vorschau zeigt das Ergebnis sofort.</li>
+          <li>Als SVG oder PNG laden oder mit „Auf Lagekarte setzen“ auf die Karte übernehmen.</li>
+        </ol>
+        <h3>Was enthalten ist</h3>
+        <p>Alle 1.287 Einzelzeichen aus APP-6D in 13 Symbolsätzen mit den originalen englischen Bezeichnungen und Codes, dazu die Zusatzzeichen der Sektoren 1 und 2. Bei häufigen Landeinheiten steht eine deutsche Übersetzung davor. Sie ist frei übersetzt und nicht amtlich, maßgeblich ist der Originalname.</p>
+        <p class="hint">Gezeichnet werden die Zeichen mit der freien Bibliothek milsymbol, die Liste stammt aus den APP-6D-Tabellen des Pakets stanag-app6. Die Seite ist kein amtliches Hilfsmittel.</p>
+      </div>
+    </details>
     <section class="panel ms-vorschau-panel">
       <div class="ms-vorschau" id="ms-vorschau" aria-live="polite"><p class="hint">Zeichen wird geladen …</p></div>
       <p class="ms-code">Code (APP-6D): <span id="ms-code"></span></p>
@@ -634,6 +660,29 @@
 
   <!-- LAGEKARTE -->
   <section class="view" id="view-lage" aria-label="Lagekarte" hidden>
+    <details class="panel erklaerung">
+      <summary><h2>Erklärung: So funktioniert die Lagekarte</h2></summary>
+      <div class="erkl-text">
+        <h3>Grundlage</h3>
+        <p>Jede Lagekarte hat eine Grundlage: die <strong>topografische Karte</strong> (OpenTopoMap, mit Höhenlinien), die <strong>Straßenkarte</strong> (OpenStreetMap) oder ein <strong>eigenes Bild</strong>, zum Beispiel ein Foto einer Übungskarte. Das eigene Bild funktioniert ohne Internet. Du kannst beliebig viele Lagekarten anlegen und zwischen ihnen wechseln.</p>
+        <h3>Taktische Zeichen setzen</h3>
+        <p>Im Baukasten ein Zeichen zusammenstellen und „Auf Lagekarte setzen“ tippen. Es erscheint in der Kartenmitte. Gedrückt halten und ziehen verschiebt es. Antippen öffnet ein Fenster mit Sperren, Bearbeiten und Löschen. Gesperrte Zeichen tragen ein Schloss und lassen sich nicht mehr verändern.</p>
+        <h3>Führungszeichen zeichnen</h3>
+        <p>Unter „Zeichnen“ ein Führungszeichen nach APP-6D auswählen, etwa Phasenlinie, Angriffsachse oder Verfügungsraum, und „APP-6 Zeichnen“ tippen. Dann die Punkte nacheinander auf die Karte tippen und „Fertig“. Bei Richtungen und Achsen kommt die Spitze an den letzten Punkt. Für eigene Skizzen gibt es freie Linien, Pfeile und Räume.</p>
+        <ul>
+          <li><strong>Linien</strong> wie PL (Phasenlinie), LD (Ablauflinie) oder LOA (Grenze des Vorgehens) tragen ihr Kürzel und den Namen an beiden Enden.</li>
+          <li><strong>Gefechtsstreifengrenzen</strong> zeigen die Ebene in der Mitte, die Bezeichnungen der Nachbarn stehen links und rechts in Zeichenrichtung.</li>
+          <li><strong>Hauptangriff</strong> hat eine doppelte Spitze, <strong>Nebenangriff</strong> eine einfache, <strong>geplant</strong> ist gestrichelt, <strong>Feind</strong> rot.</li>
+          <li><strong>Räume</strong> wie AA (Verfügungsraum) oder OBJ (Angriffsziel) tragen ihr Kürzel und den Namen in der Mitte.</li>
+        </ul>
+        <h3>Koordinaten</h3>
+        <p>Auf den Online-Karten zeigt das Fadenkreuz die Mitte, unten links steht deren Koordinate in <strong>MGRS</strong> (UTMREF), etwa „32U NB 12345 67890“: Zone und Breitenband, 100-km-Quadrat, dann Rechts- und Hochwert auf den Meter. „Gehe zu Koordinate“ springt zu einer MGRS-Angabe oder zu Breite und Länge.</p>
+        <h3>Anzeigen und Weitergeben</h3>
+        <p>Unter „Anzeigen“ blendest du eigene Kräfte, Feind und Sonstiges ein oder aus. „Als Datei speichern“ gibt eine Lagekarte samt Bild als Datei weiter, „Datei einlesen“ fügt sie als neue Lagekarte hinzu. Alles bleibt im Browser dieses Geräts.</p>
+        <h3>Grenzen</h3>
+        <p>APP-6D kennt mehrere hundert Führungszeichen, enthalten sind 36 gängige mit originalen Namen und Codes. Sie sind nach der Beschreibung der Norm nachgezeichnet, Maße und Einzelheiten können abweichen. Die Sperrlinie ist vereinfacht. Deutsche Bezeichnungen sind frei übersetzt.</p>
+      </div>
+    </details>
     <p class="notice warn-lage" role="note"><strong>Nur für Ausbildung und Übung.</strong> Keine echten Lagen, Stellungen oder eingestuften Inhalte (VS-NfD) eintragen. Bei Online-Karten erfährt der Kartenanbieter, welchen Ausschnitt du ansiehst.</p>
     <section class="panel">
       <div class="u-felder einspaltig p-felder"><div><label class="label" for="lage-wahl" style="display:block">Lagekarte</label><select id="lage-wahl"></select></div></div>
