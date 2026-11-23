@@ -286,7 +286,6 @@ function skFelderZeigen() {
   $('sk-datum').value = s.datum || '';
   $('sk-unterschrift').value = s.unterschrift || '';
   $('sk-erlaeuterung').value = s.erlaeuterung || '';
-  $('sk-karte-weg').disabled = SK.liste.length < 2;
 }
 function skWerkzeugeZeigen() {
   $('sk-werkzeuge').innerHTML = SK_WERKZEUGE.map(function (g) {
@@ -497,15 +496,16 @@ $('sk-karte-neu').addEventListener('click', function () {
   SK.liste.push(s); SK.aktiv = s.id; skVerlauf = []; $('sk-zurueck').disabled = true; skAuswahl = null; skSpeichern(); skAllesZeigen();
 });
 $('sk-karte-name').addEventListener('click', function () {
-  var s = skAktiv(), n = window.prompt('Name der Skizze', s.name);
-  if (n && n.trim()) { s.name = n.trim().slice(0, 40); skSpeichern(); skFelderZeigen(); }
+  var s = skAktiv();
+  inlineAbfrage(this.parentNode, { text: 'Neuer Name der Skizze', wert: s.name, ok: 'Speichern', fertig: function (n) { s.name = n; skSpeichern(); skFelderZeigen(); } });
 });
 $('sk-karte-weg').addEventListener('click', function () {
-  if (SK.liste.length < 2) return;
-  var s = skAktiv();
-  if (!window.confirm('Skizze „' + s.name + '“ löschen?')) return;
-  SK.liste = SK.liste.filter(function (x) { return x.id !== s.id; });
-  SK.aktiv = SK.liste[0].id; skVerlauf = []; $('sk-zurueck').disabled = true; skAuswahl = null; skSpeichern(); skAllesZeigen();
+  var s = skAktiv(), letzte = SK.liste.length < 2;
+  inlineAbfrage(this.parentNode, { text: 'Skizze „' + s.name + '“ wirklich löschen?' + (letzte ? ' Es bleibt eine leere Skizze.' : ''), ok: 'Löschen', gefahr: true, fertig: function () {
+    SK.liste = SK.liste.filter(function (x) { return x.id !== s.id; });
+    if (!SK.liste.length) SK.liste.push(skNeu('Skizze 1'));
+    SK.aktiv = SK.liste[0].id; skVerlauf = []; skAuswahl = null; skPunkte = []; skSpeichern(); skAllesZeigen();
+  } });
 });
 document.querySelectorAll('input[name="sk-massstab"]').forEach(function (r) { r.addEventListener('change', function () { skMerken(); skAktiv().massstab = +r.value; skSpeichern(); skRendern(); }); });
 document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.addEventListener('change', function () { skAktiv().zaehlung = r.value; skSpeichern(); skRendern(); }); });

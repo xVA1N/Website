@@ -167,7 +167,6 @@ function zeigeLage() {
 function renderLageWahl() {
   $('lage-wahl').innerHTML = LAGE_ALLE.karten.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
   $('lage-wahl').value = LAGE.id;
-  $('lage-karte-weg').disabled = LAGE_ALLE.karten.length < 2;
 }
 function lageWechseln(id) {
   var k = LAGE_ALLE.karten.filter(function (x) { return x.id === id; })[0];
@@ -700,20 +699,18 @@ $('lage-karte-neu').addEventListener('click', function () {
   lageMeldung('Neue Lagekarte „' + k.name + '“ angelegt. Den Namen kannst du mit „Umbenennen“ ändern.');
 });
 $('lage-karte-name').addEventListener('click', function () {
-  var n = window.prompt('Name der Lagekarte', LAGE.name);
-  if (n === null) return;
-  n = n.trim().slice(0, 40);
-  if (!n) return;
-  LAGE.name = n; lageSpeichern(); renderLageWahl();
+  inlineAbfrage(this.parentNode, { text: 'Neuer Name der Lagekarte', wert: LAGE.name, ok: 'Speichern', fertig: function (n) { LAGE.name = n; lageSpeichern(); renderLageWahl(); } });
 });
 $('lage-karte-weg').addEventListener('click', function () {
-  if (LAGE_ALLE.karten.length < 2) return;
-  if (!window.confirm('Lagekarte „' + LAGE.name + '“ mit allen Zeichen und Formen löschen?')) return;
-  try { localStorage.removeItem(lageBildKey()); } catch (e) { /* egal */ }
-  var weg = LAGE.id;
-  LAGE_ALLE.karten = LAGE_ALLE.karten.filter(function (k) { return k.id !== weg; });
-  lageWechseln(LAGE_ALLE.karten[0].id);
-  lageMeldung('Lagekarte gelöscht.');
+  var letzte = LAGE_ALLE.karten.length < 2;
+  inlineAbfrage(this.parentNode, { text: 'Lagekarte „' + LAGE.name + '“ mit allen Zeichen und Formen wirklich löschen?' + (letzte ? ' Es bleibt eine leere Lagekarte.' : ''), ok: 'Löschen', gefahr: true, fertig: function () {
+    try { localStorage.removeItem(lageBildKey()); } catch (e) { /* egal */ }
+    var weg = LAGE.id;
+    if (letzte) LAGE_ALLE.karten.push(lageNeu('Lage 1'));
+    LAGE_ALLE.karten = LAGE_ALLE.karten.filter(function (k) { return k.id !== weg; });
+    lageWechseln(LAGE_ALLE.karten[0].id);
+    lageMeldung('Lagekarte gelöscht.');
+  } });
 });
 $('lage-werkzeug').addEventListener('click', function (e) {
   var b = e.target.closest('button[data-lage-typ]');

@@ -777,3 +777,10 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
   .sk-v-wahl { min-height: 52px; }
   .sk-v-fach { max-height: 60vh; }
 }
+
+/* Abfrage direkt auf der Seite (Umbenennen, Löschen) */
+.inline-abfrage { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+.inline-abfrage p { margin: 0 0 8px; font-weight: 500; }
+.inline-abfrage input { width: 100%; box-sizing: border-box; min-height: 44px; margin-bottom: 8px; padding: 0 12px; font: inherit; font-size: 16px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.inline-abfrage .dg-aktionen { margin: 0; }
+.knopf.gefahr { background: #B3261E; border-color: #B3261E; color: #FFFFFF; }
