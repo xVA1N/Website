@@ -730,7 +730,7 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .sk-blatt .sk-el { cursor: pointer; touch-action: none; }
 .sk-blatt .sk-el.gesperrt { cursor: default; }
 .sk-blatt .sk-el.gewaehlt { filter: drop-shadow(0 0 1px #C62828); }
-.sk-blatt .sk-griff { cursor: move; touch-action: none; }
+.sk-blatt .sk-griff, .sk-blatt .sk-name { cursor: move; touch-action: none; }
 .sk-textfeld { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; resize: vertical; }
 .sk-auswahl { position: static; }
 

@@ -176,6 +176,46 @@ function skElementSvg(s, e, mitTreffer) {
   }
   return h;
 }
+// Name eines Elements (z. B. Südwald, Schlierhof): bei Flächen in der Mitte, bei Linien neben der Mitte, bei Zeichen rechts daneben
+// Ankerpunkt des Namens (ohne Verschiebung)
+function skNameAnker(e) {
+  var p = e.pts, f = SK_ART[e.art] ? SK_ART[e.art].form : 'punkt', x, y, anker = 'middle';
+  if (f === 'flaeche') {
+    x = 0; y = 0;
+    p.forEach(function (q) { x += q[0]; y += q[1]; });
+    x /= p.length; y /= p.length;
+  } else if (f === 'linie') {
+    var ges = 0, i;
+    for (i = 1; i < p.length; i++) ges += skLaenge(p[i - 1], p[i]);
+    var rest = ges / 2;
+    for (i = 1; i < p.length; i++) {
+      var l = skLaenge(p[i - 1], p[i]);
+      if (rest <= l || i === p.length - 1) {
+        var t = l ? rest / l : 0, dx = l ? (p[i][0] - p[i - 1][0]) / l : 1, dy = l ? (p[i][1] - p[i - 1][1]) / l : 0;
+        if (dy > 0 || (dy === 0 && dx < 0)) { dx = -dx; dy = -dy; }
+        x = p[i - 1][0] + (p[i][0] - p[i - 1][0]) * t + dy * 3.2;
+        y = p[i - 1][1] + (p[i][1] - p[i - 1][1]) * t - dx * 3.2;
+        break;
+      }
+      rest -= l;
+    }
+  } else { x = p[0][0] + 3.6; y = p[0][1] + 1.2; anker = 'start'; }
+  return { x: x, y: y, anker: anker };
+}
+// Verschobene Namen hängen an einem dünnen Strich zum Element, wie auf dem Meldeblatt üblich
+function skNameSvg(e, mitTreffer) {
+  if (!e.name || e.art === 'text' || !e.pts || !e.pts.length) return '';
+  var a = skNameAnker(e), x = a.x, y = a.y, anker = a.anker, h = '';
+  if (e.nameVersatz) {
+    x += e.nameVersatz[0]; y += e.nameVersatz[1]; anker = 'middle';
+    var ax = a.anker === 'start' ? a.x - 3.6 : a.x, ay = a.anker === 'start' ? a.y - 1.2 : a.y, dx = ax - x, dy = ay - y, l = Math.sqrt(dx * dx + dy * dy);
+    if (l > 5) h += '<line x1="' + skRund(x + dx / l * 3) + '" y1="' + skRund(y + dy / l * 3) + '" x2="' + skRund(ax - dx / l * 0.8) + '" y2="' + skRund(ay - dy / l * 0.8) + '" stroke="' + SK_BLAU + '" stroke-width=".4" stroke-linecap="round" pointer-events="none"/>';
+  }
+  var breite = String(e.name).length * 1.9 + 2;
+  h += '<text x="' + skRund(x) + '" y="' + skRund(y) + '" text-anchor="' + anker + '" dominant-baseline="middle" font-size="3.6" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width="1.1" stroke-linejoin="round" pointer-events="none">' + esc(e.name) + '</text>';
+  if (mitTreffer) h += '<rect class="sk-name" data-sk-name="' + e.id + '" x="' + skRund(anker === 'start' ? x - 1 : x - breite / 2) + '" y="' + skRund(y - 3) + '" width="' + skRund(breite) + '" height="6" fill="rgba(0,0,0,0.001)" pointer-events="all"/>';
+  return h;
+}
 function skSvg(s, bearbeiten) {
   var h = skDefs() + skBlatt(s) + '<g clip-path="url(#sk-raster-clip)">';
   // Flächen unten, dann Linien, dann Zeichen
@@ -183,6 +223,8 @@ function skSvg(s, bearbeiten) {
   s.elemente.slice().sort(function (a, b) { return rang(a) - rang(b); }).forEach(function (e) {
     h += '<g class="sk-el' + (bearbeiten && skAuswahl === e.id ? ' gewaehlt' : '') + (e.gesperrt ? ' gesperrt' : '') + '" data-sk="' + e.id + '">' + skElementSvg(s, e, bearbeiten) + '</g>';
   });
+  // Namen ganz oben, damit sie lesbar und greifbar bleiben
+  s.elemente.forEach(function (e) { h += skNameSvg(e, bearbeiten); });
   h += '</g>';
   if (bearbeiten) {
     // Begonnene Linie oder Fläche
@@ -254,8 +296,10 @@ function skAuswahlZeigen() {
   $('sk-auswahl-text').textContent = art.name + info + (e.gesperrt ? ' · gesperrt' : '');
   $('sk-auswahl-sperren').textContent = e.gesperrt ? 'Entsperren' : 'Sperren';
   $('sk-auswahl-drehen').hidden = art.form !== 'punkt' || e.gesperrt;
-  $('sk-auswahl-text-wrap').hidden = e.art !== 'text' || e.gesperrt;
-  if (e.art === 'text' && document.activeElement !== $('sk-auswahl-eingabe')) $('sk-auswahl-eingabe').value = e.text || '';
+  $('sk-auswahl-text-wrap').hidden = !!e.gesperrt;
+  $('sk-auswahl-eingabe').placeholder = e.art === 'text' ? 'Text' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', strasse: 'nach Oststadt' }[e.art] || 'Spitzbaum');
+  $('sk-auswahl-name-label').textContent = e.art === 'text' ? 'Text' : 'Name (Beschriftung)';
+  if (document.activeElement !== $('sk-auswahl-eingabe')) $('sk-auswahl-eingabe').value = (e.art === 'text' ? e.text : e.name) || '';
   $('sk-auswahl-weg').disabled = !!e.gesperrt;
 }
 function skAllesZeigen() { skFelderZeigen(); skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); }
@@ -272,9 +316,14 @@ var skZug = null;
 $('sk-blatt').addEventListener('pointerdown', function (ev) {
   if (ev.button > 0) return;
   var p = skPunktAus(ev), griff = ev.target.closest('.sk-griff'), el = ev.target.closest('.sk-el');
-  skZug = { start: p, x: ev.clientX, y: ev.clientY, bewegt: false, id: ev.pointerId, treffer: !!(griff || el) };
+  skZug = { start: p, x: ev.clientX, y: ev.clientY, bewegt: false, id: ev.pointerId, treffer: !!(griff || el || ev.target.closest('.sk-name')) };
   if (skWerkzeug) return;
-  if (griff && skAuswahl) { skZug.griff = +griff.getAttribute('data-i'); skZug.e = skElement(skAuswahl); }
+  var name = ev.target.closest('.sk-name');
+  if (name) {
+    var ne = skElement(name.getAttribute('data-sk-name'));
+    if (skAuswahl !== ne.id) { skAuswahl = ne.id; skRendern(); }
+    if (!ne.gesperrt) { skZug.e = ne; skZug.name = (ne.nameVersatz || [0, 0]).slice(); }
+  } else if (griff && skAuswahl) { skZug.griff = +griff.getAttribute('data-i'); skZug.e = skElement(skAuswahl); }
   else if (el) {
     var id = el.getAttribute('data-sk');
     if (skAuswahl !== id) { skAuswahl = id; skRendern(); }
@@ -288,7 +337,8 @@ $('sk-blatt').addEventListener('pointermove', function (ev) {
   if (!skZug.bewegt && Math.abs(ev.clientX - skZug.x) + Math.abs(ev.clientY - skZug.y) < 6) return;
   skZug.bewegt = true;
   var p = skPunktAus(ev);
-  if (skZug.griff !== undefined) skZug.e.pts[skZug.griff] = p;
+  if (skZug.name) skZug.e.nameVersatz = [skRund(skZug.name[0] + p[0] - skZug.start[0]), skRund(skZug.name[1] + p[1] - skZug.start[1])];
+  else if (skZug.griff !== undefined) skZug.e.pts[skZug.griff] = p;
   else {
     var dx = p[0] - skZug.start[0], dy = p[1] - skZug.start[1];
     skZug.e.pts = skZug.alt.map(function (q) { return [skRund(q[0] + dx), skRund(q[1] + dy)]; });
@@ -375,9 +425,12 @@ $('sk-auswahl-drehen').addEventListener('click', function () {
 });
 $('sk-auswahl-eingabe').addEventListener('input', function () {
   var e = skAuswahl && skElement(skAuswahl);
-  if (!e || e.art !== 'text') return;
-  e.text = this.value.slice(0, 40); skSpeichern(); skRendern();
+  if (!e) return;
+  if (e.art === 'text') e.text = this.value.slice(0, 40); else e.name = this.value.slice(0, 40);
+  skSpeichern(); skRendern();
 });
+// Vor dem Ändern des Namens den Stand merken, damit Rückgängig den alten Namen zurückholt
+$('sk-auswahl-eingabe').addEventListener('focus', function () { if (skAuswahl) skMerken(); });
 $('sk-auswahl-fertig').addEventListener('click', function () { skAuswahl = null; skRendern(); });
 $('sk-zurueck').addEventListener('click', function () {
   var alt = skVerlauf.pop();

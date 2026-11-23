@@ -1,4 +1,4 @@
-// Zeichnet eine Beispielskizze und prüft Verschieben, Löschen, Rückgängig, Export und Speicher. Seite über python3 -m http.server 8765 starten, dann: node werkzeuge/skizze-test.js
+// Zeichnet eine Beispielskizze und prüft Namen (auch Verschieben mit Strich), Verschieben, Löschen, Rückgängig, Export und Speicher. Seite über python3 -m http.server 8765 starten, dann: node werkzeuge/skizze-test.js
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: false });
@@ -12,6 +12,7 @@ const { chromium } = require('playwright');
   await p.click('input[name="sk-massstab"][value="10000"] + span');
   await zeichne('nadelwald', [[0.2, 0.2], [0.2, 4.5], [4, 5.5], [9, 4.8], [10.5, 3], [11.8, 0.2]]);
   await zeichne('laubwald', [[9.3, 11.8], [9.3, 10], [12, 9.6], [15.8, 10.3], [15.8, 11.8]]);
+  await zeichne('mischwald', [[6.5, 11.8], [6.5, 9.4], [8.6, 9.2], [8.8, 11.8]]);
   await zeichne('ort', [[1.2, 8.8], [1.3, 7.4], [3.5, 6.8], [4.2, 8.2], [3.2, 9.2]]);
   await zeichne('strasse', [[0, 5], [5.5, 2], [11.5, 0]]);
   await zeichne('strasse', [[5.5, 2], [6, 5.8], [8, 7], [10.2, 11.8]]);
@@ -39,6 +40,19 @@ const { chromium } = require('playwright');
   await p.evaluate(() => document.getElementById('sk-blatt').scrollIntoView({ block: 'center' }));
   await p.screenshot({ path: 'sk-seite.png', fullPage: false });
   const blatt = await p.$('.sk-buehne'); await blatt.screenshot({ path: 'sk-blatt.png' });
+  // Namen vergeben: Nadelwald, Ortschaft, Kuppe, Fluss
+  for (const [cx, cy, name] of [[2, 3.6, 'Südwald'], [2.6, 7.6, 'Schlierhof'], [12, 3.4, 'Kahler Berg'], [11.3, 11.3, 'Nordwald']]) {
+    await tippe(cx, cy); await p.fill('#sk-auswahl-eingabe', name); await p.click('#sk-auswahl-fertig');
+  }
+  // Namen der Ortschaft herausziehen (nach oben rechts), Strich prüfen
+  { const box = await p.$eval('rect.sk-name[data-sk-name]', () => 0).catch(() => 0);
+    const id = await p.evaluate(() => SK.liste[0].elemente.find(e => e.name === 'Schlierhof').id);
+    const r = await p.$eval(`rect.sk-name[data-sk-name="${id}"]`, el => { const b = el.getBoundingClientRect(); return [b.x + b.width / 2, b.y + b.height / 2]; });
+    const [zx, zy] = await pos(4.6, 10.3);
+    await p.mouse.move(r[0], r[1]); await p.mouse.down(); await p.mouse.move(r[0] + 6, r[1] - 6, { steps: 3 }); await p.mouse.move(zx, zy, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(200);
+    console.log('Versatz Schlierhof:', await p.evaluate(() => SK.liste[0].elemente.find(e => e.name === 'Schlierhof').nameVersatz)); }
+  console.log('Namen:', await p.evaluate(() => SK.liste[0].elemente.filter(e => e.name).map(e => e.art + '=' + e.name).join(', ')));
+  await p.evaluate(() => { SK.liste[0].elemente = SK.liste[0].elemente.filter(e => !(e.art === 'text' && /Südwald|Schlierhof|Nordwald/.test(e.text))); skSpeichern(); skRendern(); });
   // Löschen + Rückgängig
   await tippe(12.5, 5); console.log('gewählt:', await p.textContent('#sk-auswahl-text'));
   await p.click('#sk-auswahl-weg'); const nachWeg = await p.evaluate(() => SK.liste[0].elemente.length);

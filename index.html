@@ -820,7 +820,7 @@
         <h3>Marschweg</h3>
         <p>Den Startpunkt (Kreuz) und dann die Wegpunkte antippen. Jeder Wegpunkt bekommt einen Kreis und die Entfernung in Metern, berechnet über den Maßstab und auf 10 m (ab 1.000 m auf 50 m) gerundet. Wahlweise steht dort die Länge der Teilstrecke oder die Gesamtentfernung ab dem Start. Pfeile zeigen die Marschrichtung.</p>
         <h3>Ändern</h3>
-        <p>Ein Element antippen wählt es aus. Gedrückt halten und ziehen verschiebt es, bei Linien und Flächen lassen sich die einzelnen Punkte an ihren Griffen verschieben. Gewählte Zeichen lassen sich drehen, sperren oder löschen. „Rückgängig“ nimmt den letzten Schritt zurück.</p>
+        <p>Ein Element antippen wählt es aus. Gedrückt halten und ziehen verschiebt es, bei Linien und Flächen lassen sich die einzelnen Punkte an ihren Griffen verschieben. Jedes gewählte Element kann einen Namen bekommen, etwa „Südwald“ oder „Schlierhof“; er steht bei Flächen in der Mitte, bei Linien daneben und bei Zeichen rechts daneben und lässt sich jederzeit ändern. Einen Namen kann man mit dem Finger wegziehen, dann verbindet ihn ein dünner Strich mit seinem Element. Gewählte Zeichen lassen sich drehen, sperren oder löschen. „Rückgängig“ nimmt den letzten Schritt zurück.</p>
         <h3>Speichern und Weitergeben</h3>
         <p>Skizzen bleiben im Browser dieses Geräts. „Als Bild speichern“ erzeugt eine PNG-Datei zum Ausdrucken oder Versenden.</p>
       </div>
@@ -873,7 +873,7 @@
     <div class="sk-buehne"><svg id="sk-blatt" class="sk-blatt" viewBox="0 0 222 160" font-family="IBM Plex Sans, Arial, sans-serif" role="img" aria-label="Skizze auf dem Meldeblatt"></svg></div>
     <div class="lage-leiste sk-auswahl" id="sk-auswahl" hidden>
       <span id="sk-auswahl-text"></span>
-      <div class="p-felder" id="sk-auswahl-text-wrap" hidden><input type="text" id="sk-auswahl-eingabe" maxlength="40" autocomplete="off" aria-label="Text ändern"></div>
+      <div class="p-felder" id="sk-auswahl-text-wrap" hidden><label class="label" for="sk-auswahl-eingabe" id="sk-auswahl-name-label" style="display:block">Name (Beschriftung)</label><input type="text" id="sk-auswahl-eingabe" maxlength="40" autocomplete="off"></div>
       <div class="lage-leiste-knoepfe">
         <button type="button" class="knopf sekundaer" id="sk-auswahl-drehen">Drehen 15°</button>
         <button type="button" class="knopf sekundaer" id="sk-auswahl-sperren">Sperren</button>
