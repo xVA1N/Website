@@ -57,9 +57,33 @@ function fotoRaster(m, b, h, box) {
   }
   return out;
 }
+// Störungen entfernen: zusammenhängende Tintenflächen, die den Rand des Ausschnitts berühren (Papierkanten, Tischrand, Schatten),
+// und winzige Flecken. Ein sauber eingerahmtes Zeichen berührt den Rand nicht.
+function fotoSaeubern(m, b, h) {
+  var lab = new Int32Array(b * h), stapel = new Int32Array(b * h), n = 0, minFlaeche = Math.max(4, b * h * 0.00008);
+  for (var start = 0; start < b * h; start++) {
+    if (!m[start] || lab[start]) continue;
+    n++; var oben = 0, anzahl = 0, rand = false;
+    stapel[oben++] = start; lab[start] = n;
+    var pixel = [];
+    while (oben) {
+      var q = stapel[--oben], qx = q % b, qy = (q - qx) / b;
+      pixel.push(q); anzahl++;
+      if (qx === 0 || qy === 0 || qx === b - 1 || qy === h - 1) rand = true;
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+        var nx = qx + dx, ny = qy + dy;
+        if (nx < 0 || ny < 0 || nx >= b || ny >= h) continue;
+        var z = ny * b + nx;
+        if (m[z] && !lab[z]) { lab[z] = n; stapel[oben++] = z; }
+      }
+    }
+    if (rand || anzahl < minFlaeche) for (var k = 0; k < pixel.length; k++) m[pixel[k]] = 0;
+  }
+  return m;
+}
 // Ganze Aufbereitung: Canvas-Ausschnitt -> { daten (FOTO_N²), box } oder null, wenn keine Zeichnung gefunden wurde
 function fotoAufbereiten(ctx, x, y, b, h) {
-  var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), box = fotoBox(m, b, h);
+  var g = fotoGrau(ctx, x, y, b, h), m = fotoSaeubern(fotoTinte(g, b, h), b, h), box = fotoBox(m, b, h);
   if (!box || box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return null;
   return { daten: fotoRaster(m, b, h, box), box: box };
 }
