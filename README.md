@@ -75,7 +75,7 @@ Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mi
 
 ## Zeichen aus Foto erkennen (Probe)
 
-Auf der Seite „Taktische Zeichen“ lässt sich ein gezeichnetes oder gedrucktes Zeichen fotografieren. Nach dem Eingrenzen mit dem Finger erkennt ein kleines Netz im Browser Rahmen (eigene, Feind, neutral, unbekannt), Größe und 45 häufige Landeinheiten und schlägt drei Zeichen vor. Beschriftungen links (Bezeichnung) und rechts (übergeordnete Einheit) liest die Texterkennung Tesseract.js (`vendor/tesseract/`, Apache-2.0, offline) und schlägt sie zum Übernehmen vor. Das Foto verlässt das Gerät nicht. Bildaufbereitung und Netz stehen in `js/foto-kern.js` und `vendor/foto-netz.js`, die Bedienung in `js/16-foto.js`, die Trainingswerkzeuge in `werkzeuge/foto-training/`.
+Auf der Seite „Taktische Zeichen“ lässt sich ein gezeichnetes oder gedrucktes Zeichen fotografieren. Nach dem Eingrenzen mit dem Finger erkennt ein kleines Netz im Browser Rahmen (eigene, Feind, neutral, unbekannt), Größe und 45 häufige Landeinheiten und schlägt drei Zeichen vor. Beschriftungen links (Bezeichnung) und rechts (übergeordnete Einheit) liest zuerst ein eigenes Ziffernnetz für Handschrift und Druck (`vendor/foto-ziffern.js`, trainiert mit MNIST), bei Buchstaben die Texterkennung Tesseract.js (`vendor/tesseract/`, Apache-2.0, offline). Ein „+“ oder „−“ oben rechts wird als Stärke übernommen. Das Foto verlässt das Gerät nicht. Bildaufbereitung und Netz stehen in `js/foto-kern.js` und `vendor/foto-netz.js`, die Bedienung in `js/16-foto.js`, die Trainingswerkzeuge in `werkzeuge/foto-training/`.
 
 ## Lagekarte
 

@@ -14,6 +14,12 @@ Die Fotoerkennung auf der Seite „Taktische Zeichen“ nutzt ein kleines Erkenn
 
 Die Bildaufbereitung trennt Text links (Bezeichnung, Feld T) und rechts (übergeordnete Einheit, Feld M) vom Zeichen. Gelesen wird mit Tesseract.js 7.0.0 (Apache-2.0) und den englischen Sprachdaten (`vendor/tesseract/`, offline, nur bei Bedarf geladen). Danach korrigiert `js/16-foto.js` typische Verwechslungen: links nach dem Muster „Kompanie./Bataillon“, rechts durch Abgleich mit einer Liste gängiger Abkürzungen (`FOTO_GATTUNG`, `FOTO_EBENE`).
 
+## Ziffern (handgeschrieben und gedruckt)
+
+Ziffern neben dem Zeichen liest zuerst ein eigenes kleines Netz (`vendor/foto-ziffern.js`, 11 Klassen: 0–9 und /). Trainiert mit MNIST (70.000 handgeschriebene Ziffern, CC BY-SA 3.0, Y. LeCun und C. Cortes) und gedruckten Ziffern in verschiedenen Schriften (`ziffern/gen_ziff.js`, `ziffern/train_ziff.py`). Die Aufbereitung `fotoGlyphe` in `js/foto-kern.js` entspricht der von MNIST. Ergebnis: 99,1 % auf den MNIST-Testziffern, 99,3 % auf zurückgehaltenen Druckziffern. Ist das Netz unsicher oder kommen Buchstaben vor, liest Tesseract.
+
+Ein „+“ oder „−“ oben rechts am Rahmen wird an der Form erkannt (Plus mit leeren Ecken, nicht Teil einer Reihe von Größenzeichen) und als Stärke (Feld F) übernommen.
+
 ## Stand
 
-Auf 300 unabhängig erzeugten Test-Fotos: Rahmen 99,7 %, Symbol 99,7 % (unter den drei Vorschlägen 100 %), Größe 99,3 %. Beschriftungen auf 100 Test-Fotos mit verwackelter Druckschrift: links 71 %, rechts 57 % exakt richtig (die Abkürzungsliste enthält die im Test verwendeten Abkürzungen, das schönt den Wert rechts). Handschrift liest Tesseract deutlich schlechter. Echte Handzeichnungen von Menschen weichen stärker ab (andere Proportionen, Handschrift bei Buchstaben, Schraffuren), dort ist die Trefferquote voraussichtlich niedriger und nicht gemessen.
+Auf 300 unabhängig erzeugten Test-Fotos: Rahmen 99,7 %, Symbol 99,7 % (unter den drei Vorschlägen 100 %), Größe 99,3 %. Beschriftungen auf 100 Test-Fotos mit verwackelter Druckschrift: links 92 %, rechts 52 % exakt richtig (die Abkürzungsliste enthält die im Test verwendeten Abkürzungen, das schönt den Wert rechts). Handschrift liest Tesseract deutlich schlechter. Echte Handzeichnungen von Menschen weichen stärker ab (andere Proportionen, Handschrift bei Buchstaben, Schraffuren), dort ist die Trefferquote voraussichtlich niedriger und nicht gemessen.
