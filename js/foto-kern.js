@@ -116,7 +116,32 @@ function fotoTexteTrennen(teile, b) {
     if (cx < k.x0) links.push(t);
     else if (cx > k.x1) rechts.push(t);
   });
-  return { zeichen: k, links: links, rechts: rechts, staerke: staerke };
+  return { zeichen: k, links: fotoTextKette(links, k, -1), rechts: fotoTextKette(rechts, k, 1), staerke: staerke };
+}
+// Text als Kette vom Rahmen nach außen: Schriftzeichen (mindestens halb so hoch wie das höchste Teil auf dieser Seite) gehören dazu, wenn sie dicht
+// am Rahmen oder am vorigen Zeichen stehen. Kleine Teile (Punkte, Striche) nur innerhalb dieser Zeile. Alles andere sind Flecken,
+// Maserung oder Schmutz und wird verworfen.
+function fotoTextKette(teile, k, seite) {
+  var zh = k.y1 - k.y0, grenze = seite < 0 ? k.x0 : k.x1, abstand = function (t) { return seite < 0 ? grenze - t.x1 : t.x0 - grenze; };
+  var hmax = 0;
+  teile.forEach(function (t) { hmax = Math.max(hmax, t.y1 - t.y0 + 1); });
+  var gross = teile.filter(function (t) { var th = t.y1 - t.y0 + 1; return th >= zh * 0.1 && th >= hmax * 0.5; }).sort(function (a, c) { return seite < 0 ? c.x1 - a.x1 : a.x0 - c.x0; });
+  var kette = [], y0 = Infinity, y1 = -Infinity;
+  for (var i = 0; i < gross.length; i++) {
+    var t = gross[i];
+    if (abstand(t) > zh * (kette.length ? 0.6 : 0.8)) break;
+    kette.push(t); grenze = seite < 0 ? Math.min(grenze, t.x0) : Math.max(grenze, t.x1);
+    y0 = Math.min(y0, t.y0); y1 = Math.max(y1, t.y1);
+  }
+  if (!kette.length) return [];
+  var aussen = grenze, innen = seite < 0 ? k.x0 : k.x1;
+  teile.forEach(function (t) {
+    if (kette.indexOf(t) >= 0) return;
+    var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2;
+    var drin = seite < 0 ? cx > aussen - zh * 0.3 && cx < innen : cx < aussen + zh * 0.3 && cx > innen;
+    if (drin && cy >= y0 && cy <= y1) kette.push(t);
+  });
+  return kette;
 }
 // Form der Stärke-Angabe: waagerechter Strich (−) oder Kreuz (+)
 function fotoStaerke(t, b) {
@@ -179,6 +204,14 @@ function fotoAufbereiten(ctx, x, y, b, h) {
   var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), teile = fotoTeile(m, b, h), tr = fotoTexteTrennen(teile, b);
   var staerke = tr.staerke ? fotoStaerke(tr.staerke, b) : '';
   tr.links.concat(tr.rechts, staerke ? [tr.staerke] : []).forEach(function (t) { t.pixel.forEach(function (q) { m[q] = 0; }); });
+  // Flecken abseits des Zeichens (Maserung, Schmutz, nicht gelesener Text) zählen nicht zum Zeichen
+  var k = tr.zeichen;
+  if (k) {
+    var zb = k.x1 - k.x0, zh = k.y1 - k.y0;
+    teile.forEach(function (t) {
+      if (t.x1 < k.x0 - zb * 0.15 || t.x0 > k.x1 + zb * 0.15 || t.y1 < k.y0 - zh * 0.9 || t.y0 > k.y1 + zh * 0.3) t.pixel.forEach(function (q) { m[q] = 0; });
+    });
+  }
   var box = fotoBox(m, b, h);
   if (!box || box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return null;
   return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, staerke: staerke, breite: b, ctx: ctx, ox: x, oy: y };
