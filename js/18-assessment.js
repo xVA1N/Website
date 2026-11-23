@@ -33,6 +33,23 @@ function atFalscheZahlen(c, schritt) {
   return atMische([c + schritt, c - schritt, c + 2 * schritt, c - 2 * schritt, c + 10, c - 10, c * 10, Math.round(c / 10)])
     .filter(function (x) { return x > 0 && x !== c; }).map(atZahl);
 }
+// Abwechslung: aus einem gemischten Stapel ziehen; jeder Eintrag kommt erst wieder, wenn alle anderen dran waren.
+// Die Stapel werden mit dem Stand gespeichert, so geht die Abwechslung über Durchgänge hinweg weiter.
+var atStapelOhneSpeicher = { stapel: {}, letzte: {} };
+function atZiehe(key, alle) {
+  var d = typeof AT !== 'undefined' ? AT : atStapelOhneSpeicher;
+  if (!d.stapel) d.stapel = {};
+  if (!d.letzte) d.letzte = {};
+  var stapel = (d.stapel[key] || []).filter(function (x) { return alle.indexOf(x) >= 0; });
+  if (!stapel.length) {
+    stapel = atMische(alle);
+    // Nicht direkt mit dem zuletzt gezogenen weitermachen
+    if (stapel.length > 1 && stapel[stapel.length - 1] === d.letzte[key]) { var t = stapel[0]; stapel[0] = stapel[stapel.length - 1]; stapel[stapel.length - 1] = t; }
+  }
+  var x = stapel.pop();
+  d.stapel[key] = stapel; d.letzte[key] = x;
+  return x;
+}
 function atAufgabe(bereich, typ, frage, auswahl, erklaerung) {
   return { bereich: bereich, typ: typ, frage: frage, optionen: auswahl.optionen, richtig: auswahl.richtig, erklaerung: erklaerung };
 }
@@ -93,6 +110,46 @@ var AT_MATHE = {
     return atAufgabe('mathe', 'Textaufgabe', 'Für ' + atZahl(strecke) + ' km braucht eine Kolonne mit ' + v + ' km/h wie lange?',
       atAuswahl(minuten + ' min', [(minuten + 15) + ' min', Math.max(5, minuten - 15) + ' min', Math.round(strecke / v * 100) + ' min']), 'Zeit = ' + atZahl(strecke) + ' km ÷ ' + v + ' km/h = ' + atZahl(minuten / 60) + ' h = ' + minuten + ' min');
   },
+  massstab: function (s) {
+    var m = atWahl(s === 0 ? [10000, 25000] : [10000, 25000, 50000]), cm = s === 0 ? atZ(2, 9) : atZ(2, 18) / 2, meter = cm * m / 100;
+    if (s === 2 && Math.random() < 0.5) {
+      return atAufgabe('mathe', 'Kartenmaßstab', 'Auf einer Karte <b>1:' + atZahl(m) + '</b> sind zwei Punkte im Gelände <b>' + atZahl(meter) + ' m</b> voneinander entfernt. Wie viele Zentimeter sind das auf der Karte?',
+        atAuswahl(atZahl(cm) + ' cm', [atZahl(cm * 10) + ' cm', atZahl(cm / 10) + ' cm', atZahl(cm * 2) + ' cm', atZahl(cm + 1) + ' cm']), '1 cm auf der Karte sind ' + atZahl(m / 100) + ' m, also ' + atZahl(meter) + ' ÷ ' + atZahl(m / 100) + ' = ' + atZahl(cm) + ' cm');
+    }
+    return atAufgabe('mathe', 'Kartenmaßstab', 'Auf einer Karte <b>1:' + atZahl(m) + '</b> messen Sie <b>' + atZahl(cm) + ' cm</b>. Wie weit ist das im Gelände?',
+      atAuswahl(atZahl(meter) + ' m', [atZahl(meter * 10) + ' m', atZahl(meter / 10) + ' m', atZahl(cm * m / 1000) + ' m', atZahl(meter + m / 100) + ' m']), '1 cm auf der Karte sind ' + atZahl(m / 100) + ' m, also ' + atZahl(cm) + ' × ' + atZahl(m / 100) + ' = ' + atZahl(meter) + ' m');
+  },
+  uhrzeit: function (s) {
+    var start = atZ(5, s === 2 ? 22 : 17) * 60 + atWahl([0, 15, 30, 45, 10, 50]), dauer = atZ(1, s === 0 ? 3 : 5) * 60 + atWahl(s === 0 ? [0, 30] : [15, 25, 40, 45, 55]), ende = (start + dauer) % 1440;
+    var hm = function (x) { x = ((x % 1440) + 1440) % 1440; return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0') + ' Uhr'; };
+    var dz = Math.floor(dauer / 60) + ' h' + (dauer % 60 ? ' ' + dauer % 60 + ' min' : '');
+    return atAufgabe('mathe', 'Uhrzeit', 'Abmarsch ist um <b>' + hm(start) + '</b>. Der Marsch dauert <b>' + dz + '</b>. Wann ist die Ankunft?',
+      atAuswahl(hm(ende), [hm(ende + 60), hm(ende - 60), hm(ende + 15), hm(ende - 30), hm(ende + 30)]), hm(start).replace(' Uhr', '') + ' + ' + dz + ' = ' + hm(ende) + (start + dauer >= 1440 ? ' (über Mitternacht)' : ''));
+  },
+  gleichung: function (s) {
+    var x = atZ(2, 12), a = atZ(2, 9), b = atZ(1, 20), c, frage;
+    if (s === 0) { frage = 'x + ' + b + ' = ' + (x + b); c = 'x = ' + (x + b) + ' − ' + b + ' = ' + x; }
+    else if (s === 1) { frage = a + 'x + ' + b + ' = ' + (a * x + b); c = a + 'x = ' + (a * x) + ', also x = ' + (a * x) + ' ÷ ' + a + ' = ' + x; }
+    else { var k = atZ(1, a - 1), dd = a * x + b - k * x, kx = function (n) { return (n === 1 ? '' : n) + 'x'; }; frage = a + 'x + ' + b + ' = ' + kx(k) + ' + ' + dd; c = kx(a - k) + ' = ' + (dd - b) + ', also x = ' + x; }
+    return atAufgabe('mathe', 'Gleichung', 'Löse nach x auf: <div class="at-reihe">' + frage + '</div>', atAuswahl('x = ' + x, ['x = ' + (x + 1), 'x = ' + (x - 1), 'x = ' + (x + 2), 'x = ' + (x * 2)]), c);
+  },
+  flaeche: function (s) {
+    var l = atZ(3, [12, 40, 400][s]), b = atZ(2, [9, 25, 250][s]);
+    if (s === 2) { var ha = l * b / 10000; l = atZ(2, 8) * 100; b = atZ(1, 6) * 50; ha = l * b / 10000;
+      return atAufgabe('mathe', 'Fläche', 'Ein Übungsgelände ist <b>' + l + ' m</b> lang und <b>' + b + ' m</b> breit. Wie viele Hektar sind das?', atAuswahl(atZahl(ha) + ' ha', [atZahl(ha * 10) + ' ha', atZahl(ha / 10) + ' ha', atZahl(ha + 1) + ' ha', atZahl((l + b) * 2 / 100) + ' ha']), l + ' × ' + b + ' = ' + atZahl(l * b) + ' m², ÷ 10.000 = ' + atZahl(ha) + ' ha'); }
+    if (Math.random() < 0.5) return atAufgabe('mathe', 'Fläche', 'Ein Rechteck ist ' + l + ' m lang und ' + b + ' m breit. Wie groß ist die <b>Fläche</b>?', atAuswahl(atZahl(l * b) + ' m²', [atZahl(2 * (l + b)) + ' m²', atZahl(l * b + l) + ' m²', atZahl(l + b) + ' m²', atZahl(l * b - b) + ' m²']), 'Fläche = Länge × Breite = ' + l + ' × ' + b + ' = ' + atZahl(l * b) + ' m²');
+    return atAufgabe('mathe', 'Umfang', 'Ein Rechteck ist ' + l + ' m lang und ' + b + ' m breit. Wie lang ist der <b>Umfang</b>?', atAuswahl(atZahl(2 * (l + b)) + ' m', [atZahl(l * b) + ' m', atZahl(l + b) + ' m', atZahl(2 * l + b) + ' m', atZahl(4 * l) + ' m']), 'Umfang = 2 × (Länge + Breite) = 2 × ' + (l + b) + ' = ' + atZahl(2 * (l + b)) + ' m');
+  },
+  durchschnitt: function (s) {
+    var n = [3, 4, 5][s], schnitt = atZ(10, [30, 80, 200][s]), werte = [], i, summe = 0;
+    for (i = 0; i < n - 1; i++) { var w = schnitt + atZ(-9, 9); werte.push(w); summe += w; }
+    var letzter = schnitt * n - summe;
+    if (letzter <= 0) { letzter = schnitt; werte = werte.map(function () { return schnitt; }); }
+    werte.push(letzter);
+    var was = atWahl([['Schießergebnisse', 'Ringe'], ['Liegestütze an ' + n + ' Tagen', 'Stück'], ['Marschzeiten', 'min']]);
+    return atAufgabe('mathe', 'Durchschnitt', 'Wie hoch ist der <b>Durchschnitt</b>? ' + was[0] + ': <div class="at-reihe">' + werte.join('<span>,</span> ') + '</div>',
+      atAuswahl(atZahl(schnitt) + ' ' + was[1], atFalscheZahlen(schnitt, 2).map(function (x) { return x + ' ' + was[1]; })), 'Summe ' + werte.reduce(function (a, b) { return a + b; }, 0) + ' ÷ ' + n + ' = ' + schnitt);
+  },
   bruch: function (s) {
     var n = atWahl([2, 3, 4, 5, 8]), z = atZ(1, n - 1), g = n * atZ(2, [6, 12, 25][s]), w = g / n * z;
     return atAufgabe('mathe', 'Bruchrechnen', 'Wie viel sind <b>' + z + '/' + n + '</b> von <b>' + atZahl(g) + '</b>?', atAuswahl(atZahl(w), atFalscheZahlen(w, g / n)),
@@ -104,7 +161,7 @@ var AT_MATHE = {
 // Zahlenreihen: Regel, Folge und eine kurze Erklärung
 function atReihe(s) {
   var a = atZ(1, 12), d = atZ(2, 9), q = atWahl([2, 3]), r = [], i, regel;
-  var typen = [['plus', 'minus', 'mal'], ['wechsel', 'wachsend', 'malplus', 'plus', 'quadrat'], ['zwei', 'fibo', 'wechselop', 'wachsend2', 'malminus']][s], t = atWahl(typen);
+  var typen = [['plus', 'minus', 'mal'], ['wechsel', 'wachsend', 'malplus', 'plus', 'quadrat'], ['zwei', 'fibo', 'wechselop', 'wachsend2', 'malminus']][s], t = atZiehe('reihe/' + s, typen);
   if (t === 'plus') { for (i = 0; i < 7; i++) r.push(a + i * d); regel = 'Jeweils +' + d; }
   else if (t === 'minus') { a = atZ(60, 99); for (i = 0; i < 7; i++) r.push(a - i * d); regel = 'Jeweils −' + d; }
   else if (t === 'mal') { a = atZ(1, 4); for (i = 0; i < 7; i++) r.push(a * Math.pow(q, i)); regel = 'Jeweils ×' + q; }
@@ -119,7 +176,41 @@ function atReihe(s) {
   else { var f = atZ(2, 6); r.push(a); for (i = 1; i < 7; i++) r.push(i % 2 ? r[i - 1] + f : r[i - 1] * 2); regel = 'Abwechselnd +' + f + ' und ×2'; }
   return { reihe: r.slice(0, 6), loesung: r[6], regel: regel };
 }
+var AT_TAGE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+var AT_FANTASIE = ['Plimps', 'Trubs', 'Zorks', 'Melbs', 'Quiren', 'Dranks', 'Fleps', 'Gorms'];
 var AT_LOGIK = {
+  wochentag: function (s) {
+    var heute = atZ(0, 6), n = atZ(3, [10, 40, 100][s]), vor = s > 0 && Math.random() < 0.4, ziel = ((heute + (vor ? -n : n)) % 7 + 7) % 7;
+    return atAufgabe('logik', 'Wochentage', 'Heute ist <b>' + AT_TAGE[heute] + '</b>. Welcher Tag ist ' + (vor ? 'vor' : 'in') + ' <b>' + n + ' Tagen</b>' + (vor ? ' gewesen' : '') + '?',
+      atAuswahl(AT_TAGE[ziel], [AT_TAGE[(ziel + 1) % 7], AT_TAGE[(ziel + 6) % 7], AT_TAGE[(ziel + 2) % 7], AT_TAGE[(ziel + 5) % 7]]), n + ' Tage = ' + Math.floor(n / 7) + (Math.floor(n / 7) === 1 ? ' Woche' : ' Wochen') + ' und ' + (n % 7) + (n % 7 === 1 ? ' Tag; ' : ' Tage; ') + (n % 7) + ' Tage ' + (vor ? 'zurück' : 'weiter') + ' von ' + AT_TAGE[heute] + ' ist ' + AT_TAGE[ziel] + '.');
+  },
+  symbole: function (s) {
+    var a = atZ(2, 9), b = atZ(1, 9), c = atZ(1, 6), z = ['▲', '■', '●'];
+    var zeilen = [z[0] + ' + ' + z[0] + ' = ' + (2 * a), z[0] + ' + ' + z[1] + ' = ' + (a + b)], frage = z[1], loes = b, weg = z[0] + ' = ' + a + ', also ' + z[1] + ' = ' + (a + b) + ' − ' + a + ' = ' + b;
+    if (s === 1) { frage = z[0] + ' × ' + z[1]; loes = a * b; weg += ', also ' + z[0] + ' × ' + z[1] + ' = ' + a * b; }
+    if (s === 2) { zeilen.push(z[1] + ' + ' + z[2] + ' + ' + z[2] + ' = ' + (b + 2 * c)); frage = z[0] + ' + ' + z[1] + ' + ' + z[2]; loes = a + b + c; weg += ', ' + z[2] + ' = ' + c + ', Summe ' + (a + b + c); }
+    return atAufgabe('logik', 'Symbolgleichung', 'Jedes Zeichen steht für eine Zahl. Was ergibt <b>' + frage + '</b>?<div class="at-reihe at-zeilen">' + zeilen.join('<br>') + '</div>', atAuswahl(String(loes), atFalscheZahlen(loes, 1)), weg);
+  },
+  matrix: function (s) {
+    var regel = atWahl(s === 0 ? ['summe'] : s === 1 ? ['summe', 'produkt', 'differenz'] : ['produkt', 'summeplus', 'differenz']), zeilen = [], i, plus = atZ(1, 5);
+    var f = { summe: function (x, y) { return x + y; }, produkt: function (x, y) { return x * y; }, differenz: function (x, y) { return x - y; }, summeplus: function (x, y) { return x + y + plus; } }[regel];
+    for (i = 0; i < 3; i++) { var x = atZ(regel === 'differenz' ? 10 : 2, regel === 'produkt' ? 9 : 30), y = atZ(1, regel === 'produkt' ? 9 : regel === 'differenz' ? x - 1 : 20); zeilen.push([x, y, f(x, y)]); }
+    var loes = zeilen[2][2], text = { summe: 'Die dritte Zahl ist die Summe der beiden ersten', produkt: 'Die dritte Zahl ist das Produkt der beiden ersten', differenz: 'Die dritte Zahl ist die Differenz der beiden ersten', summeplus: 'Die dritte Zahl ist die Summe der beiden ersten plus ' + plus }[regel];
+    return atAufgabe('logik', 'Zahlenmatrix', 'Welche Zahl fehlt? Jede Zeile folgt derselben Regel.<table class="at-matrix">' + zeilen.map(function (z, j) { return '<tr><td>' + z[0] + '</td><td>' + z[1] + '</td><td>' + (j === 2 ? '<b>?</b>' : z[2]) + '</td></tr>'; }).join('') + '</table>',
+      atAuswahl(String(loes), atFalscheZahlen(loes, Math.max(1, Math.round(loes * 0.1)))), text + ': ' + zeilen[2][0] + ' und ' + zeilen[2][1] + ' → ' + loes + '.');
+  },
+  schluss: function (s) {
+    var w = atMische(AT_FANTASIE), A = w[0], B = w[1], C = w[2], name = atWahl(['Kalo', 'Rimo', 'Tess', 'Venn']);
+    var vorlagen = [
+      ['Alle ' + A + ' sind ' + B + '. Alle ' + B + ' sind ' + C + '.', 'Sind alle ' + A + ' auch ' + C + '?', 0, 'Wenn alle ' + A + ' zu den ' + B + ' gehören und alle ' + B + ' zu den ' + C + ', gehören auch alle ' + A + ' zu den ' + C + '.'],
+      ['Alle ' + A + ' sind ' + B + '. ' + name + ' ist ein ' + A.replace(/s$/, '') + '.', 'Ist ' + name + ' ein ' + B.replace(/s$/, '') + '?', 0, name + ' gehört zu den ' + A + ', und alle ' + A + ' sind ' + B + '.'],
+      ['Alle ' + A + ' sind ' + B + '. ' + name + ' ist ein ' + B.replace(/s$/, '') + '.', 'Ist ' + name + ' ein ' + A.replace(/s$/, '') + '?', 2, 'Es gibt vielleicht ' + B + ', die keine ' + A + ' sind. Ob ' + name + ' dazugehört, ist offen.'],
+      ['Alle ' + A + ' sind ' + B + '. Einige ' + B + ' sind ' + C + '.', 'Sind einige ' + A + ' auch ' + C + '?', 2, 'Die ' + B + ', die ' + C + ' sind, könnten genau die sein, die keine ' + A + ' sind.'],
+      ['Kein ' + A.replace(/s$/, '') + ' ist ein ' + B.replace(/s$/, '') + '. Alle ' + C + ' sind ' + A + '.', 'Ist irgendein ' + C.replace(/s$/, '') + ' ein ' + B.replace(/s$/, '') + '?', 1, 'Alle ' + C + ' gehören zu den ' + A + ', und kein ' + A.replace(/s$/, '') + ' ist ein ' + B.replace(/s$/, '') + '.']
+    ].slice(0, [3, 4, 5][s]);
+    var v = atWahl(vorlagen), opt = ['Ja, das folgt sicher.', 'Nein, das ist sicher falsch.', 'Das lässt sich nicht sicher sagen.', 'Nur, wenn es mehr ' + A + ' als ' + B + ' gibt.'];
+    return { bereich: 'logik', typ: 'Schlussfolgern', frage: 'Was folgt aus den Aussagen? (Die Wörter sind erfunden.)<div class="at-satz">' + esc(v[0]) + '</div><p><b>' + esc(v[1]) + '</b></p>', optionen: opt, richtig: v[2], erklaerung: v[3] };
+  },
   zahlenreihe: function (s) {
     var z = atReihe(s);
     return atAufgabe('logik', 'Zahlenreihe', 'Welche Zahl setzt die Reihe fort?<div class="at-reihe">' + z.reihe.map(atZahl).join('<span>,</span> ') + '<span>,</span> <b>?</b></div>',
@@ -147,7 +238,34 @@ var AT_LOGIK = {
 };
 
 /* ===== Konzentration ===== */
+var AT_ORTE = [['Müller', '53113 Bonn'], ['Schmidt', '24937 Flensburg'], ['Becker', '93055 Regensburg'], ['Wagner', '26871 Papenburg'], ['Hoffmann', '72488 Sigmaringen'], ['Schulz', '19288 Ludwigslust'], ['Koch', '56070 Koblenz'], ['Richter', '01099 Dresden'], ['Klein', '66111 Saarbrücken'], ['Wolf', '34117 Kassel']];
 var AT_KONZ = {
+  symbolzaehlen: function (s) {
+    var n = [24, 32, 40][s], satz = s === 0 ? ['★', '☆', '●'] : s === 1 ? ['★', '☆', '✦', '✧'] : ['★', '☆', '✦', '✧', '✶'], ziel = 0, h = '';
+    for (var i = 0; i < n; i++) { var x = atWahl(satz); if (x === '★') ziel++; h += '<span>' + x + '</span>'; }
+    return atAufgabe('konzentration', 'Zeichen zählen', 'Wie oft kommt der <b>gefüllte fünfzackige Stern ★</b> vor?<div class="at-zeichen">' + h + '</div>', atAuswahl(String(ziel), [ziel + 1, Math.max(0, ziel - 1), ziel + 2, Math.max(0, ziel - 2), ziel + 3].map(String)), 'Richtig ist ' + ziel + '. Zeilenweise zählen und ähnliche Zeichen (☆, ✦) nicht mitzählen.');
+  },
+  buchstaben: function (s) {
+    var n = [30, 40, 50][s], satz = s === 0 ? 'bdpq' : 'bdpqgo', ziel = 0, t = '';
+    for (var i = 0; i < n; i++) { var x = satz[atZ(0, satz.length - 1)]; if (x === 'b') ziel++; t += x; }
+    return atAufgabe('konzentration', 'Buchstaben zählen', 'Wie oft kommt das <b>b</b> vor?<div class="at-reihe at-buchstaben">' + t.replace(/(.{10})/g, '$1 ') + '</div>', atAuswahl(String(ziel), [ziel + 1, Math.max(0, ziel - 1), ziel + 2, Math.max(0, ziel - 2)].map(String)), 'Richtig ist ' + ziel + '. Achtung bei d, p und q, die wie gespiegelte b aussehen.');
+  },
+  listen: function (s) {
+    var paare = atMische(AT_ORTE).slice(0, [4, 5, 5][s]), gleich = 0, h = '';
+    paare.forEach(function (p) {
+      var a = p[0] + ', ' + p[1], b = a;
+      if (Math.random() < 0.5) {
+        var art = atZ(0, 2);
+        if (art === 0) b = p[0].replace('ü', 'ue').replace('o', 'oo').replace('e', 'ee').slice(0, p[0].length + 1) + ', ' + p[1];
+        else if (art === 1) { var plz = p[1].slice(0, 5).split(''), k = atZ(0, 3), t = plz[k]; plz[k] = plz[k + 1]; plz[k + 1] = t; if (plz.join('') === p[1].slice(0, 5)) plz[4] = String((+plz[4] + 1) % 10); b = p[0] + ', ' + plz.join('') + p[1].slice(5); }
+        else b = p[0] + ', ' + p[1].slice(0, 6) + p[1].slice(6).replace(/[aeiou]/, function (v) { return v === 'a' ? 'e' : 'a'; });
+      }
+      if (a === b) gleich++;
+      h += '<div class="at-paar at-paar-text"><span>' + esc(a) + '</span><span>' + esc(b) + '</span></div>';
+    });
+    return atAufgabe('konzentration', 'Listen vergleichen', 'Wie viele Zeilen sind links und rechts <b>genau gleich</b>?<div class="at-paare">' + h + '</div>',
+      atAuswahl(String(gleich), [0, 1, 2, 3, 4, 5].filter(function (x) { return x !== gleich && x <= paare.length; }).map(String)), (gleich === 1 ? 'Eine Zeile ist' : gleich + ' Zeilen sind') + ' gleich. Typische Abweichungen: vertauschte Ziffern in der Postleitzahl, ein Buchstabe im Namen oder Ort.');
+  },
   // Durchstreichtest: „d“ mit genau zwei Strichen zählen
   dstriche: function (s) {
     var n = [12, 16, 20][s], ziel = 0, h = '';
@@ -268,13 +386,9 @@ var AT_ENGLISCH = [
   [2, 'The report must ___ finished by Friday.', 'be', ['been', 'being', 'is'], 'Passiv nach Modalverb: must be + Partizip.'],
   [2, 'She told me that she ___ the day before.', 'had arrived', ['arrives', 'arriving', 'has arrive'], 'Indirekte Rede, Vorvergangenheit: had arrived.']
 ];
-var atEnglischZuletzt = [];
 var AT_SPRACHE = {
   lueckentext: function (s) {
-    var pool = AT_ENGLISCH.map(function (x, i) { return i; }).filter(function (i) { return AT_ENGLISCH[i][0] === s && atEnglischZuletzt.indexOf(i) < 0; });
-    if (!pool.length) { atEnglischZuletzt = []; pool = AT_ENGLISCH.map(function (x, i) { return i; }).filter(function (i) { return AT_ENGLISCH[i][0] === s; }); }
-    var i = atWahl(pool), e = AT_ENGLISCH[i];
-    atEnglischZuletzt.push(i); if (atEnglischZuletzt.length > 25) atEnglischZuletzt.shift();
+    var alle = AT_ENGLISCH.map(function (x, j) { return j; }).filter(function (j) { return AT_ENGLISCH[j][0] === s; }), e = AT_ENGLISCH[atZiehe('englisch/' + s, alle)];
     var satz = esc(e[1]).replace('___', '<span class="at-luecke">_____</span>');
     return atAufgabe('englisch', 'Lückentext', 'Setze das passende Wort ein:<div class="at-satz" lang="en">' + satz + '</div>', atAuswahl(e[2], e[3]), e[4] + ' → ' + e[1].replace('___', e[2]));
   }
@@ -283,7 +397,7 @@ var AT_GEN = { mathe: AT_MATHE, logik: AT_LOGIK, konzentration: AT_KONZ, englisc
 function atNeueAufgabe(bereich, stufe) {
   var g = AT_GEN[bereich], typen = Object.keys(g);
   if (bereich === 'mathe' && stufe === 0) typen = typen.filter(function (t) { return t !== 'bruch'; });
-  return g[atWahl(typen)](stufe);
+  return g[atZiehe('typ/' + bereich + '/' + stufe, typen)](stufe);
 }
 
 /* ===== Speicher und Stand ===== */
@@ -331,8 +445,10 @@ function atStarten(modus) {
     for (i = 0; i < 4; i++) aufgaben.push(atNeueAufgabe('konzentration', stufe));
     for (i = 0; i < 4; i++) aufgaben.push(atNeueAufgabe('englisch', stufe));
     aufgaben = atMische(aufgaben);
+    atSpeichern();
   } else {
-    for (i = 0; i < 10; i++) aufgaben.push(atNeueAufgabe(bereich === 'gemischt' ? atWahl(Object.keys(AT_BEREICHE)) : bereich, stufe));
+    for (i = 0; i < 10; i++) aufgaben.push(atNeueAufgabe(bereich === 'gemischt' ? atZiehe('bereich', Object.keys(AT_BEREICHE)) : bereich, stufe));
+    atSpeichern();
   }
   atLauf = { modus: modus, aufgaben: aufgaben, nr: 0, antworten: [], start: Date.now(), limit: modus === 'test' ? 15 * 60 : 0, aufgabeStart: Date.now(),
     titel: modus === 'test' ? 'Testsimulation' : 'Üben: ' + (AT_BEREICHE[bereich] || 'Gemischt') + ', ' + AT_STUFEN[stufe] };

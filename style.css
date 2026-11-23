@@ -878,3 +878,10 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .at-satz { margin-top: 10px; font-size: 1.2rem; line-height: 1.5; }
 .at-luecke { display: inline-block; min-width: 56px; padding: 0 4px; border-bottom: 2px solid var(--accent); color: transparent; }
 .at-option { overflow-wrap: anywhere; }
+.at-zeilen { line-height: 1.7; }
+.at-matrix { margin-top: 10px; border-collapse: collapse; font-family: var(--font-mono); font-size: 1.15rem; }
+.at-matrix td { width: 56px; height: 40px; text-align: center; border: 1px solid var(--line); background: var(--surface); }
+.at-zeichen { display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 10px; font-size: 1.35rem; line-height: 1.4; }
+.at-buchstaben { letter-spacing: .12em; word-spacing: .4em; }
+.at-paar-text { font-family: var(--font-text); font-size: .98rem; flex-direction: column; gap: 0; padding: 6px 0; border-bottom: 1px solid var(--line); }
+@media (min-width: 520px) { .at-paar-text { flex-direction: row; gap: 18px; } .at-paar-text span { flex: 1; } }
