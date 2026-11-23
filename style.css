@@ -714,3 +714,22 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .msfav-zeichen .bild svg { max-width: 110px; max-height: 52px; }
 .msfav-zeichen .name { font-size: .8rem; line-height: 1.25; overflow-wrap: anywhere; }
 .msfav-weg { position: absolute; top: 2px; right: 2px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; }
+
+/* Skizzen auf dem Meldeblatt */
+.sk-werkzeuge { display: grid; gap: 10px; }
+.sk-gruppe .label { display: block; margin-bottom: 4px; }
+.sk-knoepfe { display: flex; flex-wrap: wrap; gap: 6px; }
+.sk-wz { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); font: inherit; font-weight: 500; cursor: pointer; }
+.sk-wz[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.sk-werkzeugleiste { display: flex; gap: 6px; margin: 0 0 8px; }
+.sk-werkzeugleiste .knopf { flex: 0 0 auto; min-height: 40px; }
+.sk-werkzeugleiste .sk-lupe { width: 44px; padding: 0; font-size: 1.3rem; }
+.sk-werkzeugleiste #sk-zurueck { margin-right: auto; }
+.sk-buehne { overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: #F4F0E6; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
+.sk-blatt { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.sk-blatt .sk-el { cursor: pointer; touch-action: none; }
+.sk-blatt .sk-el.gesperrt { cursor: default; }
+.sk-blatt .sk-el.gewaehlt { filter: drop-shadow(0 0 1px #C62828); }
+.sk-blatt .sk-griff { cursor: move; touch-action: none; }
+.sk-textfeld { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; resize: vertical; }
+.sk-auswahl { position: static; }
