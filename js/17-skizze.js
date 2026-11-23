@@ -112,6 +112,23 @@ function skKulisse(pts, schritt, hoehe, zacken) {
   }
   return d;
 }
+// Band entlang einer Linie (Straße, Fluss): linke und rechte Kante als Pfade und die Fläche dazwischen.
+// breite: [Anfang, Ende] in mm; welle > 0 lässt die Mittellinie mäandern.
+function skBand(pts, schritt, breite, welle) {
+  var q = skEntlang(pts, schritt), ges = 0, i;
+  for (i = 1; i < pts.length; i++) ges += skLaenge(pts[i - 1], pts[i]);
+  var last = pts[pts.length - 1], vor = q[q.length - 1];
+  if (vor) q.push({ x: last[0], y: last[1], dx: vor.dx, dy: vor.dy });
+  var l = [], r = [];
+  q.forEach(function (k, j) {
+    var t = q.length > 1 ? j / (q.length - 1) : 0, w = (breite[0] + (breite[1] - breite[0]) * t) / 2;
+    var m = welle ? (Math.sin(j * schritt * 0.2) + 0.35 * Math.sin(j * schritt * 0.53 + 1)) * welle * (0.4 + 0.6 * w / Math.max(breite[0], breite[1]) * 2) : 0;
+    var cx = k.x - k.dy * m, cy = k.y + k.dx * m;
+    l.push([cx - k.dy * w, cy + k.dx * w]); r.push([cx + k.dy * w, cy - k.dx * w]);
+  });
+  var links = skGlatt(l), rechts = skGlatt(r);
+  return { links: links, rechts: rechts, flaeche: links + ' L' + skRund(r[r.length - 1][0]) + ',' + skRund(r[r.length - 1][1]) + ' ' + skGlatt(r.slice().reverse()).replace(/^M/, 'L') + ' Z' };
+}
 function skMeterJeMm(s) { return s.massstab / 1000; }
 // Ohne Maßstab (0) gibt es keine berechneten Entfernungen; am Marschweg stehen dann die von Hand eingetragenen
 // Trennen bei Semikolon, Komma mit Leerzeichen oder Leerzeichen zwischen zwei Zahlen; „1,2 km“ und „ca. 800“ bleiben ganz
@@ -186,16 +203,20 @@ function skUmbrechen(t, breite, max) {
 function skElementSvg(s, e, mitTreffer) {
   var a = e.art, p = e.pts, h = '', t = '';
   var tr = function (d, zu) { return mitTreffer ? '<path d="' + d + '" fill="' + (zu ? 'rgba(0,0,0,0.001)' : 'none') + '" stroke="rgba(0,0,0,0.001)" stroke-width="5" pointer-events="all"/>' : ''; };
-  if (a === 'strasse') h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
+  if (a === 'strasse' && p.length > 1) {
+    // Straße als Doppellinie, dazwischen Papierfarbe; in der Panoramaskizze nach hinten schmaler
+    var sb = skBand(p, 0.7, skArt(s) === 'panorama' ? [5, 0.7] : [1.9, 1.9], 0);
+    h = '<path d="' + sb.flaeche + '" fill="#F4F0E6" stroke="none"/><path d="' + sb.links + ' ' + sb.rechts + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".45" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
+  }
   else if (a === 'weg') h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".6" stroke-dasharray="2.2 1.4" stroke-linecap="round"/>' + tr(skPfad(p));
   else if (a === 'bahn') {
     h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".9" stroke-linejoin="round"/>';
     skEntlang(p, 3).forEach(function (q, i) { if (i) h += '<line x1="' + skRund(q.x - q.dy * 1.8) + '" y1="' + skRund(q.y + q.dx * 1.8) + '" x2="' + skRund(q.x + q.dy * 1.8) + '" y2="' + skRund(q.y - q.dx * 1.8) + '" stroke="' + SK_TINTE + '" stroke-width=".6"/>'; });
     h += tr(skPfad(p));
-  } else if (a === 'fluss') {
-    var w = skEntlang(p, 0.8).map(function (q, i) { var o = Math.sin(i * 0.8) * 0.9; return [q.x - q.dy * o, q.y + q.dx * o]; });
-    if (p.length) w.push(p[p.length - 1]);
-    h = '<path d="' + skPfad(w) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linejoin="round"/>' + tr(skPfad(p));
+  } else if (a === 'fluss' && p.length > 1) {
+    // Fluss als zwei gewundene Uferlinien mit leicht blauer Fläche; in der Panoramaskizze nach hinten schmaler
+    var fb = skBand(p, 0.6, skArt(s) === 'panorama' ? [5, 0.6] : [1.7, 1.7], 1.5);
+    h = '<path d="' + fb.flaeche + '" fill="rgba(90,150,210,0.28)" stroke="none"/><path d="' + fb.links + ' ' + fb.rechts + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4" stroke-linecap="round" stroke-linejoin="round"/>' + tr(skPfad(p));
   } else if (a === 'marsch') {
     h = '<path d="' + skPfad(p) + '" fill="none" stroke="' + SK_BLAU + '" stroke-width=".9" stroke-dasharray=".1 1.5" stroke-linecap="round" stroke-linejoin="round"/>';
     var summe = 0;
