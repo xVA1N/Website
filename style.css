@@ -875,3 +875,6 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .at-fehler-frage .at-reihe { font-size: 1rem; margin-top: 4px; }
 .at-fehler-frage .at-dzeile, .at-fehler-frage .at-paare { font-size: .9rem; }
 #view-assessment.at-laeuft > .erklaerung, #view-assessment.at-laeuft > .notice { display: none; }
+.at-satz { margin-top: 10px; font-size: 1.2rem; line-height: 1.5; }
+.at-luecke { display: inline-block; min-width: 56px; padding: 0 4px; border-bottom: 2px solid var(--accent); color: transparent; }
+.at-option { overflow-wrap: anywhere; }

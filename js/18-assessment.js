@@ -2,7 +2,7 @@
    Aufgaben werden zufällig erzeugt, Ergebnisse bleiben im Browser. Teil von index.html, Reihenfolge der Skripte beachten. */
 'use strict';
 
-var AT_BEREICHE = { mathe: 'Mathe', logik: 'Logik', konzentration: 'Konzentration' };
+var AT_BEREICHE = { mathe: 'Mathe', logik: 'Logik', konzentration: 'Konzentration', englisch: 'Englisch' };
 var AT_STUFEN = ['leicht', 'mittel', 'schwer'];
 var AT_KEY = 'meinkamerad-assessment';
 
@@ -194,7 +194,92 @@ var AT_KONZ = {
       atAuswahl(atZahl(x), atFalscheZahlen(x, 2)), 'Schritt für Schritt: ' + start + ' ' + text.join(' ') + ' = ' + atZahl(x) + ' (ohne Punkt vor Strich, der Reihe nach).');
   }
 };
-var AT_GEN = { mathe: AT_MATHE, logik: AT_LOGIK, konzentration: AT_KONZ };
+/* ===== Englisch: Lückensätze mit einem einzusetzenden Wort ===== */
+// [Stufe 0–2, Satz mit ___, richtiges Wort, drei falsche, Erklärung]
+var AT_ENGLISCH = [
+  [0, 'My name ___ Paul.', 'is', ['are', 'am', 'be'], '„is“ gehört zu he/she/it und zu einem Namen: My name is …'],
+  [0, 'I ___ a soldier.', 'am', ['is', 'are', 'be'], 'Zu „I“ gehört „am“.'],
+  [0, 'They ___ in the barracks.', 'are', ['is', 'am', 'be'], 'Zu „they“ gehört „are“.'],
+  [0, 'We ___ two dogs.', 'have', ['has', 'having', 'haves'], 'Zu „we“ gehört „have“; „has“ nur bei he/she/it.'],
+  [0, 'She ___ a new car.', 'has', ['have', 'haves', 'having'], 'Bei he/she/it heißt es „has“.'],
+  [0, 'This is ___ apple.', 'an', ['a', 'the', 'any'], 'Vor einem Vokal-Laut steht „an“: an apple.'],
+  [0, 'He is ___ good driver.', 'a', ['an', 'any', 'some'], 'Vor einem Konsonanten-Laut steht „a“.'],
+  [0, 'The map is ___ the table.', 'on', ['in', 'at', 'under the'], '„on“ = auf (einer Fläche).'],
+  [0, 'The keys are ___ my bag.', 'in', ['on', 'at', 'of'], '„in“ = in (etwas drin).'],
+  [0, 'I get up ___ six o’clock.', 'at', ['in', 'on', 'to'], 'Bei Uhrzeiten steht „at“.'],
+  [0, 'My birthday is ___ May.', 'in', ['on', 'at', 'to'], 'Bei Monaten steht „in“.'],
+  [0, 'We meet ___ Monday.', 'on', ['in', 'at', 'to'], 'Bei Wochentagen steht „on“.'],
+  [0, '___ you speak English?', 'Do', ['Does', 'Are', 'Is'], 'Fragen mit „you“ im Präsens bildet man mit „Do“.'],
+  [0, '___ he work here?', 'Does', ['Do', 'Is', 'Are'], 'Bei he/she/it fragt man mit „Does“.'],
+  [0, 'I can’t find ___ phone.', 'my', ['me', 'I', 'mine'], 'Vor einem Nomen steht das besitzanzeigende „my“.'],
+  [0, 'Please give ___ the map.', 'me', ['my', 'I', 'mine'], 'Als Objekt („mir“) steht „me“.'],
+  [0, 'There are three ___ in the room.', 'men', ['man', 'mans', 'mens'], 'Mehrzahl von „man“ ist „men“.'],
+  [0, 'Turn ___ at the next corner.', 'left', ['leave', 'lift', 'last'], '„turn left“ = links abbiegen.'],
+  [0, 'Water is ___ for you.', 'good', ['well', 'goods', 'better than'], 'Nach „is“ steht das Adjektiv „good“.'],
+  [0, 'How ___ are you? – I am 20.', 'old', ['many', 'much', 'age'], 'Nach dem Alter fragt man „How old …?“'],
+  [0, 'It is cold. Close the ___, please.', 'window', ['weather', 'water', 'winter'], '„window“ = Fenster.'],
+  [0, 'I am hungry. I want to ___ something.', 'eat', ['drink', 'sleep', 'wear'], '„eat“ = essen.'],
+  [0, 'The soldiers ___ every morning.', 'run', ['runs', 'running', 'is run'], 'Zu „the soldiers“ (they) gehört die Grundform „run“.'],
+  [0, 'He ___ coffee every day.', 'drinks', ['drink', 'drinking', 'drinked'], 'Bei he/she/it im Präsens: -s anhängen.'],
+  [0, 'This bag is very ___. I can’t carry it.', 'heavy', ['light', 'easy', 'small'], '„heavy“ = schwer (Gewicht).'],
+  [1, 'Yesterday I ___ to the doctor.', 'went', ['go', 'goes', 'gone'], '„yesterday“ verlangt die Vergangenheit: go → went.'],
+  [1, 'We ___ the film last night.', 'saw', ['see', 'seen', 'sees'], 'Vergangenheit von „see“ ist „saw“.'],
+  [1, 'She ___ a letter right now.', 'is writing', ['writes', 'wrote', 'write'], '„right now“ verlangt die Verlaufsform: is writing.'],
+  [1, 'Look! It ___.', 'is raining', ['rains', 'rained', 'rain'], '„Look!“ zeigt etwas, das gerade passiert: Verlaufsform.'],
+  [1, 'He didn’t ___ the answer.', 'know', ['knew', 'knows', 'known'], 'Nach „didn’t“ steht die Grundform.'],
+  [1, 'My brother is ___ than me.', 'taller', ['tall', 'tallest', 'more tall'], 'Vergleich mit „than“: -er anhängen.'],
+  [1, 'This is the ___ day of my life.', 'best', ['good', 'better', 'most good'], 'Superlativ von „good“ ist „best“.'],
+  [1, 'This test is ___ difficult than the last one.', 'more', ['most', 'much', 'many'], 'Bei langen Adjektiven: more … than.'],
+  [1, '___ do you live? – In Berlin.', 'Where', ['When', 'Who', 'What'], 'Nach dem Ort fragt man mit „Where“.'],
+  [1, '___ is your instructor? – Sergeant Miller.', 'Who', ['Where', 'Which', 'How'], 'Nach einer Person fragt man mit „Who“.'],
+  [1, 'How ___ water do you need?', 'much', ['many', 'lot', 'few'], '„water“ ist nicht zählbar: how much.'],
+  [1, 'How ___ soldiers are in your group?', 'many', ['much', 'lot', 'more'], '„soldiers“ ist zählbar: how many.'],
+  [1, 'Is there ___ milk in the fridge?', 'any', ['a', 'many', 'few'], 'In Fragen steht meist „any“.'],
+  [1, 'I would like ___ tea, please.', 'some', ['any', 'many', 'a few'], 'In Bitten und Angeboten steht „some“.'],
+  [1, 'The train leaves ___ 10 minutes.', 'in', ['on', 'at', 'after'], '„in 10 minutes“ = in 10 Minuten.'],
+  [1, 'I was born ___ 2004.', 'in', ['on', 'at', 'since'], 'Bei Jahreszahlen steht „in“.'],
+  [1, 'You ___ wear a helmet here. It is the rule.', 'must', ['mustn’t', 'can’t', 'don’t'], '„must“ = müssen (Pflicht).'],
+  [1, 'You ___ smoke in the vehicle. It is forbidden.', 'mustn’t', ['must', 'needn’t', 'can'], '„mustn’t“ = nicht dürfen (Verbot).'],
+  [1, 'She speaks English very ___.', 'well', ['good', 'nice', 'goodly'], 'Wie man etwas tut: Adverb „well“.'],
+  [1, 'They ___ playing football when it started to rain.', 'were', ['was', 'are', 'did'], 'Verlaufsform der Vergangenheit bei „they“: were + -ing.'],
+  [1, 'I ___ my homework yesterday.', 'did', ['done', 'do', 'does'], 'Vergangenheit von „do“ ist „did“.'],
+  [1, 'The opposite of “early” is ___.', 'late', ['soon', 'fast', 'last'], '„early“ = früh, „late“ = spät.'],
+  [1, 'Can you ___ me the way to the station?', 'tell', ['say', 'speak', 'talk'], 'Jemandem etwas sagen/erklären: „tell someone“.'],
+  [1, 'Our unit ___ to the exercise area tomorrow.', 'is going', ['go', 'went', 'gone'], 'Feste Pläne für die Zukunft: is going.'],
+  [1, 'I’m sorry, I ___ understand.', 'don’t', ['doesn’t', 'not', 'isn’t'], 'Verneinung bei „I“ im Präsens: don’t.'],
+  [2, 'I have lived here ___ 2019.', 'since', ['for', 'from', 'ago'], 'Zeitpunkt (seit 2019) → „since“.'],
+  [2, 'I have lived here ___ five years.', 'for', ['since', 'ago', 'during'], 'Zeitdauer (seit fünf Jahren) → „for“.'],
+  [2, 'She ___ in Hamburg three years ago.', 'lived', ['has lived', 'lives', 'is living'], '„ago“ verlangt die einfache Vergangenheit.'],
+  [2, 'Have you ever ___ to London?', 'been', ['was', 'went', 'go'], 'Present Perfect: have + been.'],
+  [2, 'I ___ already finished my report.', 'have', ['am', 'did', 'was'], '„already“ + Present Perfect: have finished.'],
+  [2, 'If it rains, we ___ stay inside.', 'will', ['would', 'are', 'did'], 'If-Satz Typ 1: if + Präsens, dann will.'],
+  [2, 'If I had more time, I ___ learn Spanish.', 'would', ['will', 'can', 'am'], 'If-Satz Typ 2: if + Vergangenheit, dann would.'],
+  [2, 'The bridge ___ built in 1950.', 'was', ['is', 'has', 'did'], 'Passiv in der Vergangenheit: was built.'],
+  [2, 'English ___ spoken in many countries.', 'is', ['are', 'has', 'does'], 'Passiv im Präsens: is spoken.'],
+  [2, 'The man ___ helped us was very kind.', 'who', ['which', 'where', 'what'], 'Relativpronomen für Personen: „who“.'],
+  [2, 'The vehicle ___ we used was new.', 'which', ['who', 'where', 'whose'], 'Relativpronomen für Dinge: „which“ (oder „that“).'],
+  [2, 'I am looking forward to ___ you.', 'seeing', ['see', 'saw', 'seen'], 'Nach „look forward to“ steht -ing.'],
+  [2, 'He decided ___ the army.', 'to join', ['joining', 'join', 'joined'], 'Nach „decide“ steht „to“ + Grundform.'],
+  [2, 'I don’t mind ___ early.', 'getting up', ['to get up', 'get up', 'got up'], 'Nach „mind“ steht die -ing-Form.'],
+  [2, 'He is used to ___ in the cold.', 'working', ['work', 'worked', 'works'], '„be used to“ (gewohnt sein) + -ing.'],
+  [2, 'By the time we arrived, the bus ___ left.', 'had', ['has', 'was', 'did'], 'Vorvergangenheit: had + Partizip.'],
+  [2, 'You ___ have told me earlier!', 'should', ['shall', 'will', 'can'], '„should have“ = hättest … sollen (Kritik).'],
+  [2, 'Neither my friend ___ I knew the answer.', 'nor', ['or', 'and', 'but'], '„neither … nor“ = weder … noch.'],
+  [2, 'The report must ___ finished by Friday.', 'be', ['been', 'being', 'is'], 'Passiv nach Modalverb: must be + Partizip.'],
+  [2, 'She told me that she ___ the day before.', 'had arrived', ['arrives', 'arriving', 'has arrive'], 'Indirekte Rede, Vorvergangenheit: had arrived.']
+];
+var atEnglischZuletzt = [];
+var AT_SPRACHE = {
+  lueckentext: function (s) {
+    var pool = AT_ENGLISCH.map(function (x, i) { return i; }).filter(function (i) { return AT_ENGLISCH[i][0] === s && atEnglischZuletzt.indexOf(i) < 0; });
+    if (!pool.length) { atEnglischZuletzt = []; pool = AT_ENGLISCH.map(function (x, i) { return i; }).filter(function (i) { return AT_ENGLISCH[i][0] === s; }); }
+    var i = atWahl(pool), e = AT_ENGLISCH[i];
+    atEnglischZuletzt.push(i); if (atEnglischZuletzt.length > 25) atEnglischZuletzt.shift();
+    var satz = esc(e[1]).replace('___', '<span class="at-luecke">_____</span>');
+    return atAufgabe('englisch', 'Lückentext', 'Setze das passende Wort ein:<div class="at-satz" lang="en">' + satz + '</div>', atAuswahl(e[2], e[3]), e[4] + ' → ' + e[1].replace('___', e[2]));
+  }
+};
+var AT_GEN = { mathe: AT_MATHE, logik: AT_LOGIK, konzentration: AT_KONZ, englisch: AT_SPRACHE };
 function atNeueAufgabe(bereich, stufe) {
   var g = AT_GEN[bereich], typen = Object.keys(g);
   if (bereich === 'mathe' && stufe === 0) typen = typen.filter(function (t) { return t !== 'bruch'; });
@@ -239,11 +324,12 @@ function atWert(name) { var r = document.querySelector('input[name="' + name + '
 function atStarten(modus) {
   var aufgaben = [], i, bereich = atWert('at-bereich') || 'gemischt', stufe = +(atWert('at-stufe') || 1);
   if (modus === 'test') {
-    // Testsimulation: 7 Mathe, 7 Logik, 6 Konzentration, Stufe mittel, gemischt
+    // Testsimulation: 6 Mathe, 6 Logik, 4 Konzentration, 4 Englisch, Stufe mittel, gemischt
     stufe = 1;
-    for (i = 0; i < 7; i++) aufgaben.push(atNeueAufgabe('mathe', stufe));
-    for (i = 0; i < 7; i++) aufgaben.push(atNeueAufgabe('logik', stufe));
-    for (i = 0; i < 6; i++) aufgaben.push(atNeueAufgabe('konzentration', stufe));
+    for (i = 0; i < 6; i++) aufgaben.push(atNeueAufgabe('mathe', stufe));
+    for (i = 0; i < 6; i++) aufgaben.push(atNeueAufgabe('logik', stufe));
+    for (i = 0; i < 4; i++) aufgaben.push(atNeueAufgabe('konzentration', stufe));
+    for (i = 0; i < 4; i++) aufgaben.push(atNeueAufgabe('englisch', stufe));
     aufgaben = atMische(aufgaben);
   } else {
     for (i = 0; i < 10; i++) aufgaben.push(atNeueAufgabe(bereich === 'gemischt' ? atWahl(Object.keys(AT_BEREICHE)) : bereich, stufe));

@@ -1,7 +1,7 @@
 // Erzeugt je Aufgabentyp und Stufe 1.500 Aufgaben und prüft: vier verschiedene Antworten, richtige dabei, kein NaN, nichts Negatives. Aufruf: node werkzeuge/assessment-generatoren-test.js [zeigen]
 const fs = require('fs'), vm = require('vm');
 let src = fs.readFileSync(require('path').join(__dirname, '../js/18-assessment.js'), 'utf8'); src = src.slice(0, src.indexOf('/* ===== Speicher'));
-const ctx = { console }; vm.createContext(ctx); vm.runInContext(src.replace("'use strict';", ''), ctx);
+const ctx = { console, esc: (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])) }; vm.createContext(ctx); vm.runInContext(src.replace("'use strict';", ''), ctx);
 const { AT_GEN } = ctx;
 let fehler = {}, n = 0, beispiele = {}, proben = {};
 for (const b of Object.keys(AT_GEN)) for (const t of Object.keys(AT_GEN[b])) for (let s = 0; s < 3; s++) for (let i = 0; i < 1500; i++) {
