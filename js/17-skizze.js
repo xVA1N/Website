@@ -228,8 +228,12 @@ function skElementSvg(s, e, mitTreffer) {
       if (window.ms) {
         var mo = { size: 30, standard: 'APP6', fill: true, colorMode: 'Light' };
         if (e.opt) Object.keys(e.opt).forEach(function (k) { if (k !== 'size') mo[k] = e.opt[k]; });
-        var sym = new window.ms.Symbol(skNatoSidc(e), mo), an = sym.getAnchor(), k = 0.27;
-        t = '<g transform="scale(' + k + ') translate(' + skRund(-an.x) + ',' + skRund(-an.y) + ')">' + sym.asSVG() + '</g>';
+        var code = skNatoSidc(e), sechseck = code.substr(4, 2) === '15' && code.charAt(3) === '3';
+        // Eigene Waffen und Ausrüstung als Sechseck wie auf den Spielsteinen der Ausbildung; Feind bleibt die Raute nach APP-6
+        if (sechseck) { mo.frame = false; mo.fill = false; mo.monoColor = '#000000'; }
+        var sym = new window.ms.Symbol(code, mo), an = sym.getAnchor(), k = 0.27;
+        t = (sechseck ? '<path d="M0,-4.6 L3.98,-2.3 L3.98,2.3 L0,4.6 L-3.98,2.3 L-3.98,-2.3 Z" fill="#80E0FF" stroke="#000" stroke-width=".45" stroke-linejoin="round"/>' : '') +
+          '<g transform="scale(' + k + ') translate(' + skRund(-an.x) + ',' + skRund(-an.y) + ')">' + sym.asSVG() + '</g>';
       } else t = '<circle r="3" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
     } else if (a === 'beob') t = '<path d="M0,-3 L3,2.2 L-3,2.2 Z" fill="none" stroke="' + (e.feind ? SK_ROT : SK_TINTE) + '" stroke-width=".55" stroke-linejoin="round"/><circle cx="0" cy=".5" r=".55" fill="' + (e.feind ? SK_ROT : SK_TINTE) + '"/>';
     else if (a === 'nadelbaum') t = skNadel(0, 0);
