@@ -5,7 +5,60 @@ if (!window.MK_DATEN) throw new Error('daten.js fehlt');
 
 var FOTO_RAHMEN_NAME = { '3': 'Eigene', '6': 'Feind', '4': 'Neutral', '1': 'Unbekannt' };
 var FOTO_FARBE_ZU = { blau: 0, rot: 1, gruen: 2, gelb: 3 }; // Reihenfolge wie die Rahmenklassen 3, 6, 4, 1
-var fotoNetz = null, fotoBild = null, fotoAuswahl = null, fotoMass = 1;
+var fotoNetz = null, fotoBild = null, fotoAuswahl = null, fotoMass = 1, fotoLeser = null, fotoLeserLaedt = null, fotoLauf = 0;
+
+// Texterkennung (Tesseract.js, offline aus vendor/tesseract) für die Beschriftungen links und rechts vom Zeichen
+function fotoLeserLaden() {
+  if (fotoLeser) return Promise.resolve(fotoLeser);
+  if (fotoLeserLaedt) return fotoLeserLaedt;
+  var abs = function (p) { return new URL(p, location.href).href; };
+  fotoLeserLaedt = ladeSkript('vendor/tesseract/tesseract.min.js').then(function () {
+    return window.Tesseract.createWorker('eng', 1, { workerPath: abs('vendor/tesseract/worker.min.js'), corePath: abs('vendor/tesseract/tesseract-core-lstm.wasm.js'),
+      langPath: abs('vendor/tesseract'), gzip: true, cacheMethod: 'none' });
+  }).then(function (w) {
+    return w.setParameters({ tessedit_pageseg_mode: '7', tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./-()+ ' }).then(function () { fotoLeser = w; return w; });
+  });
+  fotoLeserLaedt.catch(function () { fotoLeserLaedt = null; });
+  return fotoLeserLaedt;
+}
+// Nachbearbeitung der gelesenen Texte mit Wissen über übliche Schreibweisen
+// Bezeichnung links: meist „Kompanie./Bataillon“, z. B. 2./371
+function fotoTextT(t) {
+  var z = t.replace(/\s+/g, '').replace(/[Oo]/g, '0').replace(/[Il|]/g, '1').replace(/S/g, '5').replace(/Z/g, '2').replace(/B/g, '8').replace(/,/g, '.');
+  var m = /^(\d{1,2})\.?[\/1J](\d{2,4})$/.exec(z) || /^(\d{1,2})\.(\d{3})$/.exec(z) || /^(\d{1,2})\/(\d{2,4})$/.exec(z) ||
+    /^(\d)\.7(\d{3})$/.exec(z) || /^(\d)(\d{3})$/.exec(z);
+  if (m) return m[1] + './' + m[2];
+  return t;
+}
+// Übergeordnete Einheit rechts: Abkürzung mit einer Liste gängiger Verbandsbezeichnungen abgleichen, Zahl bereinigen
+var FOTO_GATTUNG = ['Pz', 'PzGren', 'Jg', 'GebJg', 'FschJg', 'Pi', 'PzPi', 'GebPi', 'Art', 'PzArt', 'Aufkl', 'PzAufkl', 'Fm', 'FüUstg', 'San', 'Log', 'Instd', 'Nsch',
+  'Trsp', 'ABCAbw', 'FJg', 'Wach', 'Ausb', 'Flak', 'HFlg', 'Lufttrsp', 'Fla', 'EloKa', 'Inf', 'Lw', 'Mar', 'Sich', 'Unterst', 'Stabs', 'Kdo'];
+var FOTO_EBENE = ['Btl', 'Rgt', 'Brig', 'Kp', 'Zg', 'Bttr', 'Staffel', 'Gr', 'Div', 'Kdo'];
+var FOTO_WOERTER = ['Div', 'Brig', 'Rgt', 'Btl', 'Kp', 'Korps', 'KSK', 'Kdo', 'DSK', 'DSO', 'EinsFüKdoBw'];
+FOTO_GATTUNG.forEach(function (g) { FOTO_EBENE.forEach(function (e) { FOTO_WOERTER.push(g + e); }); });
+function fotoAbstand(a, b) {
+  var d = [], i, j;
+  for (i = 0; i <= a.length; i++) { d[i] = [i]; }
+  for (j = 1; j <= b.length; j++) d[0][j] = j;
+  for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function fotoTextM(t) {
+  return t.split(/\s+/).filter(Boolean).map(function (w) {
+    // Überwiegend Ziffern: Zahl, verwechselte Buchstaben zu Ziffern
+    var ziffern = (w.match(/\d/g) || []).length;
+    if (ziffern && ziffern >= w.length / 2) return w.replace(/[OoQD]/g, '0').replace(/[Il|]/g, '1').replace(/[Zz]/g, '2').replace(/[Ss]/g, '5').replace(/B/g, '8');
+    // Sonst Abkürzung: verwechselte Ziffern zu Buchstaben, dann mit der Liste abgleichen
+    var best = null, bd = Infinity, lw = w.replace(/2/g, 'z').replace(/0/g, 'o').replace(/1/g, 'l').replace(/5/g, 's').toLowerCase();
+    FOTO_WOERTER.forEach(function (k) { var dd = fotoAbstand(lw, k.toLowerCase()); if (dd < bd) { bd = dd; best = k; } });
+    if (best && bd <= Math.max(1, Math.floor(best.length / 4))) return best;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+function fotoTextLesen(teile, auf) {
+  return fotoLeserLaden().then(function (w) { return w.recognize(fotoTextBild(teile, auf.ctx, auf.ox, auf.oy)); })
+    .then(function (r) { return String(r.data.text || '').replace(/\s+/g, ' ').trim().slice(0, 30); });
+}
 
 function fotoLaden() {
   if (fotoNetz) return Promise.resolve();
@@ -76,9 +129,13 @@ function fotoAuswerten() {
   var ri = beste(rahmen), gi = beste(e.groesse);
   var symbole = Array.prototype.map.call(e.symbol, function (p, i) { return [p, i]; }).sort(function (x, y) { return y[0] - x[0]; }).slice(0, 3);
   var pz = function (p) { return Math.round(p * 100) + ' %'; };
+  var mitText = auf.links.length || auf.rechts.length;
+  var textFelder = '<div class="foto-texte u-felder p-felder"' + (mitText ? '' : ' hidden') + '>' +
+    '<div><label class="label" for="foto-t" style="display:block">Bezeichnung links (T)</label><input type="text" id="foto-t" maxlength="30" autocomplete="off" placeholder="' + (auf.links.length ? 'wird gelesen …' : 'keine gefunden') + '"></div>' +
+    '<div><label class="label" for="foto-m" style="display:block">Übergeordnete Einheit rechts (M)</label><input type="text" id="foto-m" maxlength="30" autocomplete="off" placeholder="' + (auf.rechts.length ? 'wird gelesen …' : 'keine gefunden') + '"></div></div>';
   var gName = function (code) { var g = MS_GROESSEN.filter(function (x) { return x[0] === code; })[0]; return g ? g[1].replace(/\s*\(.*\)$/, '') : code; };
   $('foto-ergebnis').innerHTML =
-    '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + pz(e.groesse[gi]) + ').</span></div>' +
+    textFelder + '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + pz(e.groesse[gi]) + ').</span></div>' +
     symbole.map(function (sp, n) {
       var code = kl.symbol[sp[1]], sidc = '100' + kl.rahmen[ri] + '1000' + kl.groesse[gi] + code + '0000';
       var name = code === '000000' ? 'Nur Rahmen, ohne Symbol' : msNameKurz('10', code);
@@ -91,6 +148,16 @@ function fotoAuswerten() {
   for (var i = 0; i < FOTO_N * FOTO_N; i++) { var v = 255 - Math.round(auf.daten[i] * 255); id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
   sc.putImageData(id, 0, 0);
   fotoMeldung(symbole[0][0] < 0.4 ? 'Die Erkennung ist unsicher. Prüfe die Vorschläge oder versuche ein deutlicheres, enger zugeschnittenes Foto.' : '');
+  // Beschriftungen lesen (dauert beim ersten Mal einige Sekunden, weil die Texterkennung geladen wird)
+  var lauf = ++fotoLauf;
+  [['foto-t', auf.links], ['foto-m', auf.rechts]].forEach(function (z) {
+    if (!z[1].length) return;
+    fotoTextLesen(z[1], auf).then(function (t) {
+      if (lauf !== fotoLauf || !$(z[0])) return;
+      if (!$(z[0]).value) $(z[0]).value = t ? (z[0] === 'foto-t' ? fotoTextT(t) : fotoTextM(t)) : '';
+      $(z[0]).placeholder = t ? '' : 'nicht lesbar';
+    }, function () { if (lauf === fotoLauf && $(z[0])) $(z[0]).placeholder = 'Texterkennung nicht verfügbar'; });
+  });
 }
 
 // Bedienung
@@ -113,7 +180,10 @@ $('foto-erkennen').addEventListener('click', fotoAuswerten);
 $('foto-ergebnis').addEventListener('click', function (e) {
   var b = e.target.closest('button[data-foto-sidc]');
   if (!b) return;
-  msFormularSetzen({ sidc: b.getAttribute('data-foto-sidc'), opt: { fill: true, colorMode: 'Medium', standard: 'APP6' } });
+  var opt = { fill: true, colorMode: 'Medium', standard: 'APP6' };
+  if ($('foto-t') && $('foto-t').value.trim()) opt.uniqueDesignation = $('foto-t').value.trim();
+  if ($('foto-m') && $('foto-m').value.trim()) opt.higherFormation = $('foto-m').value.trim();
+  msFormularSetzen({ sidc: b.getAttribute('data-foto-sidc'), opt: opt });
   $('ms-vorschau').scrollIntoView({ block: 'center' });
   fotoMeldung('„' + b.getAttribute('data-foto-name') + '“ in den Baukasten übernommen. Dort kannst du alles anpassen.');
 });

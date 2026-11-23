@@ -701,3 +701,4 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .foto-sicht { display: flex; gap: 10px; align-items: center; font-size: .82rem; color: var(--muted); }
 .foto-sicht canvas { width: 64px; height: 64px; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
 #foto-meldung:empty { display: none; }
+.foto-texte { margin-bottom: 4px; }

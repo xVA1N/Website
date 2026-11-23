@@ -57,35 +57,82 @@ function fotoRaster(m, b, h, box) {
   }
   return out;
 }
-// Störungen entfernen: zusammenhängende Tintenflächen, die den Rand des Ausschnitts berühren (Papierkanten, Tischrand, Schatten),
-// und winzige Flecken. Ein sauber eingerahmtes Zeichen berührt den Rand nicht.
-function fotoSaeubern(m, b, h) {
-  var lab = new Int32Array(b * h), stapel = new Int32Array(b * h), n = 0, minFlaeche = Math.max(4, b * h * 0.00008);
+// Zusammenhängende Tintenflächen finden. Flächen, die den Rand des Ausschnitts berühren (Papierkanten, Tischrand, Schatten),
+// und winzige Flecken werden entfernt. Ein sauber eingerahmtes Zeichen berührt den Rand nicht.
+function fotoTeile(m, b, h) {
+  var lab = new Int32Array(b * h), stapel = new Int32Array(b * h), teile = [], minFlaeche = Math.max(4, b * h * 0.00008);
   for (var start = 0; start < b * h; start++) {
     if (!m[start] || lab[start]) continue;
-    n++; var oben = 0, anzahl = 0, rand = false;
-    stapel[oben++] = start; lab[start] = n;
-    var pixel = [];
+    var oben = 0, rand = false, pixel = [], x0 = b, y0 = h, x1 = 0, y1 = 0;
+    stapel[oben++] = start; lab[start] = 1;
     while (oben) {
       var q = stapel[--oben], qx = q % b, qy = (q - qx) / b;
-      pixel.push(q); anzahl++;
+      pixel.push(q);
+      if (qx < x0) x0 = qx; if (qx > x1) x1 = qx; if (qy < y0) y0 = qy; if (qy > y1) y1 = qy;
       if (qx === 0 || qy === 0 || qx === b - 1 || qy === h - 1) rand = true;
       for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
         var nx = qx + dx, ny = qy + dy;
         if (nx < 0 || ny < 0 || nx >= b || ny >= h) continue;
         var z = ny * b + nx;
-        if (m[z] && !lab[z]) { lab[z] = n; stapel[oben++] = z; }
+        if (m[z] && !lab[z]) { lab[z] = 1; stapel[oben++] = z; }
       }
     }
-    if (rand || anzahl < minFlaeche) for (var k = 0; k < pixel.length; k++) m[pixel[k]] = 0;
+    if (rand || pixel.length < minFlaeche) { for (var k = 0; k < pixel.length; k++) m[pixel[k]] = 0; continue; }
+    teile.push({ x0: x0, y0: y0, x1: x1, y1: y1, pixel: pixel });
   }
-  return m;
+  return teile;
 }
-// Ganze Aufbereitung: Canvas-Ausschnitt -> { daten (FOTO_N²), box } oder null, wenn keine Zeichnung gefunden wurde
+// Zeichen und Beschriftung trennen: die großen Linien bilden das Zeichen, kleinere Teile seitlich daneben (auf Höhe des Rahmens)
+// sind Text links (Bezeichnung, Feld T) und rechts (übergeordnete Einheit, Feld M)
+function fotoTexteTrennen(teile) {
+  if (!teile.length) return { zeichen: null, links: [], rechts: [] };
+  var gross = 0;
+  teile.forEach(function (t) { gross = Math.max(gross, t.x1 - t.x0, t.y1 - t.y0); });
+  var z = null;
+  teile.forEach(function (t) {
+    if (Math.max(t.x1 - t.x0, t.y1 - t.y0) < gross * 0.45) return;
+    z = z ? { x0: Math.min(z.x0, t.x0), y0: Math.min(z.y0, t.y0), x1: Math.max(z.x1, t.x1), y1: Math.max(z.y1, t.y1) } : { x0: t.x0, y0: t.y0, x1: t.x1, y1: t.y1 };
+  });
+  var zb = z.x1 - z.x0, zh = z.y1 - z.y0, links = [], rechts = [];
+  teile.forEach(function (t) {
+    var cy = (t.y0 + t.y1) / 2;
+    if (cy < z.y0 + zh * 0.1 || cy > z.y1 + zh * 0.35) return;
+    if (t.x1 < z.x0 - zb * 0.02) links.push(t);
+    else if (t.x0 > z.x1 + zb * 0.02) rechts.push(t);
+  });
+  return { zeichen: z, links: links, rechts: rechts };
+}
+function fotoUmriss(teile) {
+  if (!teile.length) return null;
+  var r = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+  teile.forEach(function (t) { r.x0 = Math.min(r.x0, t.x0); r.y0 = Math.min(r.y0, t.y0); r.x1 = Math.max(r.x1, t.x1); r.y1 = Math.max(r.y1, t.y1); });
+  return r;
+}
+// Textblock für die Texterkennung: Originalausschnitt aus dem Foto, glatt vergrößert auf etwa 56 Pixel Schrifthöhe,
+// in Graustufen mit gestrecktem Kontrast und weißem Rand. Tinte außerhalb des Textblocks wird ausgeblendet.
+function fotoTextBild(teile, ctx, ox, oy) {
+  var r = fotoUmriss(teile), pad = 3, x0 = r.x0 - pad, y0 = r.y0 - pad, w0 = r.x1 - r.x0 + 1 + 2 * pad, h0 = r.y1 - r.y0 + 1 + 2 * pad;
+  var f = Math.max(1, Math.min(6, 56 / h0)), rand = 16, w = Math.round(w0 * f), h = Math.round(h0 * f);
+  var c = document.createElement('canvas'); c.width = w + 2 * rand; c.height = h + 2 * rand;
+  var k = c.getContext('2d', { willReadFrequently: true });
+  k.fillStyle = '#fff'; k.fillRect(0, 0, c.width, c.height);
+  k.imageSmoothingEnabled = true; k.imageSmoothingQuality = 'high';
+  k.drawImage(ctx.canvas, ox + x0, oy + y0, w0, h0, rand, rand, w, h);
+  var id = k.getImageData(rand, rand, w, h), d = id.data, lo = 255, hi = 0;
+  for (var i = 0; i < d.length; i += 4) { var g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; d[i] = g; if (g < lo) lo = g; if (g > hi) hi = g; }
+  var spanne = Math.max(30, hi - lo);
+  for (i = 0; i < d.length; i += 4) { var v = Math.max(0, Math.min(255, (d[i] - lo) / spanne * 255)); v = v > 200 ? 255 : v; d[i] = d[i + 1] = d[i + 2] = v; }
+  k.putImageData(id, rand, rand);
+  return c;
+}
+// Ganze Aufbereitung: Canvas-Ausschnitt -> { daten (FOTO_N²), box, links, rechts } oder null, wenn keine Zeichnung gefunden wurde.
+// links und rechts sind Textblöcke neben dem Zeichen (Teile mit Pixeln), sie zählen nicht zum Zeichen.
 function fotoAufbereiten(ctx, x, y, b, h) {
-  var g = fotoGrau(ctx, x, y, b, h), m = fotoSaeubern(fotoTinte(g, b, h), b, h), box = fotoBox(m, b, h);
+  var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), teile = fotoTeile(m, b, h), tr = fotoTexteTrennen(teile);
+  tr.links.concat(tr.rechts).forEach(function (t) { t.pixel.forEach(function (q) { m[q] = 0; }); });
+  var box = fotoBox(m, b, h);
   if (!box || box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return null;
-  return { daten: fotoRaster(m, b, h, box), box: box };
+  return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, breite: b, ctx: ctx, ox: x, oy: y };
 }
 // Farbe des Zeichens (für die Zugehörigkeit): Anteil kräftig gefärbter Pixel in Blau, Rot, Grün, Gelb
 function fotoFarbe(ctx, x, y, b, h) {
