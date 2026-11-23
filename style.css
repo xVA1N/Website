@@ -823,3 +823,7 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .sk-v-bild svg { max-height: 27px; max-width: 60px; }
 .sk-v-fach-hinweis { grid-column: 1 / -1; margin: 2px 4px; font-size: .8rem; color: #58635B; }
 .sk-v-wahl { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+.sk-v-groesse { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 0 2px; }
+.sk-v-groesse span { flex: 1; font-weight: 700; font-size: .9rem; }
+.sk-v-groesse b { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; }
+.sk-v-groesse .sk-v-x:disabled { opacity: .35; }

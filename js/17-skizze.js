@@ -274,7 +274,7 @@ function skElementSvg(s, e, mitTreffer) {
   else if (a === 'nadelwald' || a === 'laubwald' || a === 'mischwald') {
     h = '<path d="' + skPfad(p, true) + '" fill="rgba(120,175,90,0.20)" stroke="none"/><path d="' + skPfad(p, true) + '" fill="url(#sk-' + { nadelwald: 'nadel', laubwald: 'laub', mischwald: 'misch' }[a] + ')" stroke="' + SK_TINTE + '" stroke-width=".25" stroke-dasharray="1 1"/>' + tr(skPfad(p, true), true);
   } else {
-    var x = p[0][0], y = p[0][1], dreh = e.winkel ? ' rotate(' + e.winkel + ')' : '';
+    var x = p[0][0], y = p[0][1], dreh = (e.winkel ? ' rotate(' + e.winkel + ')' : '') + (e.skala && e.skala !== 1 ? ' scale(' + e.skala + ')' : '');
     if (a === 'kirche') t = '<circle cx="0" cy="0" r="1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-1.5 V-5 M-1.3,-3.6 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
     else if (a === 'gebaeude') t = '<rect x="-1.6" y="-1.2" width="3.2" height="2.4" fill="' + SK_TINTE + '"/>';
     else if (a === 'bruecke') t = '<path d="M-2.4,-3.2 Q-1,0 -2.4,3.2 M2.4,-3.2 Q1,0 2.4,3.2 M-2.4,-3.2 L-3.4,-4 M-2.4,3.2 L-3.4,4 M2.4,-3.2 L3.4,-4 M2.4,3.2 L3.4,4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linecap="round"/>';
@@ -302,7 +302,7 @@ function skElementSvg(s, e, mitTreffer) {
     else if (a === 'text') t = '<text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="' + (e.groesse || 3.6) + '" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width=".8">' + esc(e.text || 'Text') + '</text>';
     else if (a === 'nord') t = '<path d="M0,6 V-6 M-1.6,-3.6 L0,-6.4 L1.6,-3.6" fill="none" stroke="' + SK_TINTE + '" stroke-width=".6" stroke-linecap="round" stroke-linejoin="round"/><text x="2.6" y="1.6" font-size="4" font-weight="600" fill="' + SK_TINTE + '">N</text>';
     var gr = a === 'text' ? Math.max(4, String(e.text || 'Text').length * (e.groesse || 3.6) * 0.32) : (a === 'nord' ? 5 : 4.5);
-    if (skIstNato(e)) dreh = '';
+    if (skIstNato(e)) dreh = e.skala && e.skala !== 1 ? ' scale(' + e.skala + ')' : '';
     h = '<g transform="translate(' + skRund(x) + ',' + skRund(y) + ')' + dreh + '">' + t + (mitTreffer ? '<rect x="' + (-gr) + '" y="-5" width="' + (2 * gr) + '" height="' + (a === 'nord' ? 12 : 8) + '" fill="rgba(0,0,0,0.001)" pointer-events="all"/>' : '') + '</g>';
   }
   return h;
@@ -330,7 +330,7 @@ function skNameAnker(e) {
       }
       rest -= l;
     }
-  } else { x = p[0][0] + 3.6; y = p[0][1] + 1.2; anker = 'start'; }
+  } else { var sk = e.skala || 1; x = p[0][0] + 3.6 * sk; y = p[0][1] + 1.2; anker = 'start'; }
   return { x: x, y: y, anker: anker };
 }
 // Verschobene Namen hängen an einem dünnen Strich zum Element, wie auf dem Meldeblatt üblich
@@ -369,7 +369,7 @@ function skSvg(s, bearbeiten) {
     var g = skAuswahl && skElement(skAuswahl);
     if (g && g.pts && g.pts.length) {
       var xs = g.pts.map(function (q) { return q[0]; }), ys = g.pts.map(function (q) { return q[1]; }), pk = SK_ART[g.art] && SK_ART[g.art].form === 'punkt';
-      var rx = pk ? (g.art === 'text' ? Math.max(5, String(g.text || '').length * 1.2 + 2) : 5) : 2, ry = pk ? (g.art === 'nord' ? 7.5 : 5) : 2;
+      var gs = pk ? (g.skala || 1) : 1, rx = (pk ? (g.art === 'text' ? Math.max(5, String(g.text || '').length * 1.2 + 2) : 5) : 2) * gs, ry = (pk ? (g.art === 'nord' ? 7.5 : 5) : 2) * gs;
       h += '<rect x="' + skRund(Math.min.apply(null, xs) - rx) + '" y="' + skRund(Math.min.apply(null, ys) - ry) + '" width="' + skRund(Math.max.apply(null, xs) - Math.min.apply(null, xs) + 2 * rx) + '" height="' + skRund(Math.max.apply(null, ys) - Math.min.apply(null, ys) + 2 * ry) +
         '" fill="none" stroke="#C62828" stroke-width=".4" stroke-dasharray="1.4 1" rx="1" pointer-events="none"/>';
     }
@@ -674,7 +674,7 @@ function skVollLeiste() {
   var e = skAuswahl && skElement(skAuswahl);
   $('sk-v-titel').textContent = skAktiv().name + ' · ' + (skAktiv().massstab ? '1:' + skAktiv().massstab.toLocaleString('de-DE') : 'ohne Maßstab');
   $('sk-v-zurueck').disabled = !skVerlauf.length;
-  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, e && e.feind, skPunkte.length, skFach, skAktiv().massstab, !!window.ms].join('|');
+  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, e && e.feind, e && e.skala, skPunkte.length, skFach, skAktiv().massstab, !!window.ms].join('|');
   if (key === skVollKey) {
     if (e && document.activeElement !== $('sk-v-name') && $('sk-v-name')) $('sk-v-name').value = (e.art === 'text' ? e.text : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '';
     return;
@@ -689,6 +689,7 @@ function skVollLeiste() {
     else if (skIstNato(e) || e.art === 'beob') info = (e.feind ? 'Feind' : 'Eigene Kräfte') + (e.gesperrt ? ' · gesperrt' : ' · Ziehen zum Verschieben');
     else if (art.form !== 'punkt' && !e.gesperrt) info = 'Ziehen verschiebt, Griffe verschieben Punkte';
     h = '<div class="sk-v-kopf">' + skIcon(e.art, e) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
+      (art.form === 'punkt' && !e.gesperrt ? '<div class="sk-v-groesse"><span>Größe</span><button type="button" class="sk-v-x" data-v="kleiner" aria-label="Kleiner"' + ((e.skala || 1) <= 0.5 ? ' disabled' : '') + '>−</button><b id="sk-v-prozent">' + Math.round((e.skala || 1) * 100) + ' %</b><button type="button" class="sk-v-x" data-v="groesser" aria-label="Größer"' + ((e.skala || 1) >= 3 ? ' disabled' : '') + '>+</button></div>' : '') +
       (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'marsch' && skOhneMassstab(skAktiv()) ? 'Entfernungen in m, z. B. 800, 400, 1600' : e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', gpunkt: 'Steinbrücke 400', haus: 'Rotes Haus', kirchturm: 'Heudorf', waldkulisse: 'Heckenwinkel', ziel: skOhneMassstab(skAktiv()) ? 'Spitzbaum 600' : 'Spitzbaum', schuetze: 'Schütze 1', mg: 'MG 1', gruppe: '1./371' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '') + '">') +
       '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt && !skIstNato(e) && e.art !== 'beob' ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
       ((skIstNato(e) || e.art === 'beob') && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="feind">' + (e.feind ? 'Eigene' : 'Feind') + '</button>' : '') +
@@ -744,6 +745,10 @@ $('sk-voll').addEventListener('click', function (ev) {
   else if (v === 'punktzurueck') skPunktZurueck();
   else if (v === 'drehen') skDrehen();
   else if (v === 'sperren') skSperren();
+  else if (v === 'kleiner' || v === 'groesser') {
+    var ge = skAuswahl && skElement(skAuswahl);
+    if (ge) { skMerken(); ge.skala = Math.max(0.5, Math.min(3, Math.round(((ge.skala || 1) + (v === 'groesser' ? 0.5 : -0.5)) * 10) / 10)); skSpeichern(); skRendern(); }
+  }
   else if (v === 'baukasten') { skBaukastenFuer = SK.aktiv; skSchliessen(); go('symbole'); $('ms-in-skizze').hidden = false; $('ms-vorschau').scrollIntoView({ block: 'center' }); }
   else if (v === 'feind') { var fe = skAuswahl && skElement(skAuswahl); if (fe) { skMerken(); fe.feind = !fe.feind; skSpeichern(); skRendern(); } }
   else if (v === 'loeschen') skLoeschen();
