@@ -25,7 +25,7 @@ const { chromium } = require('playwright');
   await wz('bruecke'); await tippe(14.2, 7.5); await wz('bruecke');
   await wz('baum'); await tippe(12.5, 5); await tippe(13, 4.4); await wz('baum');
   await wz('kuppe'); await tippe(12, 3.4); await wz('kuppe');
-  await wz('text'); await p.fill('#sk-text', 'Südwald'); await tippe(6.5, 2.8); await p.fill('#sk-text', 'Schlierhof'); await tippe(3.5, 9.8); await p.fill('#sk-text', 'Nordwald'); await tippe(12.5, 9); await wz('text');
+  for (const [t, cx, cy] of [['Südwald', 6.5, 2.8], ['Schlierhof', 3.5, 9.8], ['Nordwald', 12.5, 9]]) { await wz('text'); await tippe(cx, cy); await p.keyboard.type(t); await p.click('#sk-auswahl-fertig'); }
   await p.fill('#sk-unterschrift', 'Muster, HG'); await p.fill('#sk-erlaeuterung', 'Marschweg vom Südwald zum Nordwald, Übung.');
   // Ziehen: Nordpfeil verschieben
   await p.evaluate(() => document.getElementById('sk-blatt').scrollIntoView({ block: 'center' }));

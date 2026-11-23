@@ -729,47 +729,51 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .sk-blatt { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
 .sk-blatt .sk-el { cursor: pointer; touch-action: none; }
 .sk-blatt .sk-el.gesperrt { cursor: default; }
-.sk-blatt .sk-el.gewaehlt { filter: drop-shadow(0 0 1px #C62828); }
 .sk-blatt .sk-griff, .sk-blatt .sk-name { cursor: move; touch-action: none; }
 .sk-textfeld { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; resize: vertical; }
 .sk-auswahl { position: static; }
 
-/* Skizzen im Vollbild: Blatt füllt den Bildschirm, Werkzeuge als schmale Leiste */
-html.sk-voll, html.sk-voll body { overflow: hidden; }
-.sk-arbeit.vollbild { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; gap: 6px; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--bg); }
-.sk-arbeit.vollbild .sk-zeichnen { margin: 0; padding: 6px 8px; flex: none; }
-.sk-arbeit.vollbild .sk-zeichnen h2, .sk-arbeit.vollbild .sk-gruppe .label { display: none; }
-.sk-arbeit.vollbild .sk-werkzeuge { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-.sk-arbeit.vollbild .sk-gruppe, .sk-arbeit.vollbild .sk-knoepfe { display: flex; flex-wrap: nowrap; gap: 6px; }
-.sk-arbeit.vollbild .sk-gruppe + .sk-gruppe { border-left: 1px solid var(--line); padding-left: 6px; }
-.sk-arbeit.vollbild .sk-wz { min-height: 36px; padding: 0 10px; white-space: nowrap; font-size: .9rem; }
-.sk-arbeit.vollbild #sk-text-wrap { margin-top: 6px !important; }
-.sk-arbeit.vollbild #sk-meldung:empty { display: none; }
-.sk-arbeit.vollbild .lage-leiste { position: static; margin: 0; padding: 6px 8px; flex: none; }
-.sk-arbeit.vollbild .sk-werkzeugleiste { margin: 0; flex: none; }
-.sk-arbeit.vollbild .sk-werkzeugleiste .knopf { min-height: 36px; }
-.sk-arbeit.vollbild .sk-buehne { flex: 1 1 auto; min-height: 0; margin: 0; }
+/* Skizzen im Vollbild: das Blatt füllt den Bildschirm, zwei Finger zoomen und verschieben.
+   Oben runde Knöpfe, unten ein Dock bzw. die Leiste für das, was gerade gebraucht wird. Hell wie Papier, auch im dunklen Modus. */
 .sk-werkzeugleiste #sk-vollbild { flex: 0 0 auto; }
-
-.sk-quer-hinweis { display: none; }
-.sk-arbeit.vollbild .lage-leiste { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .82rem; }
-.sk-arbeit.vollbild .lage-leiste > span { flex: 1 1 160px; }
-.sk-arbeit.vollbild .lage-leiste-knoepfe { flex: 1 1 auto; flex-wrap: nowrap; }
-.sk-arbeit.vollbild .lage-leiste-knoepfe .knopf { min-height: 34px; padding: 0 8px; font-size: .85rem; flex: 1 1 auto; white-space: nowrap; }
-@media (orientation: portrait) { .sk-arbeit.vollbild .sk-quer-hinweis { display: block; margin: 0; font-size: .8rem; flex: none; } }
-/* Querformat: Werkzeuge und Knöpfe in einer Spalte links, das Blatt bekommt die ganze Höhe */
-@media (orientation: landscape) and (max-height: 600px) {
-  .sk-arbeit.vollbild { display: grid; grid-template-columns: minmax(170px, 230px) 1fr; grid-template-rows: 1fr auto auto auto; column-gap: 8px; }
-  .sk-arbeit.vollbild > * { grid-column: 1; min-width: 0; }
-  .sk-arbeit.vollbild .sk-buehne { grid-column: 2; grid-row: 1 / -1; }
-  .sk-arbeit.vollbild .sk-zeichnen { grid-row: 1; overflow-y: auto; min-height: 0; }
-  .sk-arbeit.vollbild .sk-werkzeuge { flex-direction: column; overflow-x: visible; }
-  .sk-arbeit.vollbild .sk-gruppe, .sk-arbeit.vollbild .sk-knoepfe { flex-wrap: wrap; }
-  .sk-arbeit.vollbild .sk-gruppe + .sk-gruppe { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 6px; }
-  .sk-arbeit.vollbild .sk-wz { min-height: 32px; padding: 0 8px; font-size: .82rem; }
-  .sk-arbeit.vollbild .lage-leiste > span { flex-basis: 100%; }
-  .sk-arbeit.vollbild .lage-leiste-knoepfe { flex-wrap: wrap; }
-  .sk-arbeit.vollbild .sk-werkzeugleiste { flex-wrap: wrap; }
-  .sk-arbeit.vollbild .sk-werkzeugleiste .knopf { min-height: 32px; font-size: .85rem; padding: 0 8px; }
-  .sk-arbeit.vollbild .sk-werkzeugleiste .sk-lupe { width: 36px; }
+html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
+.sk-voll { position: fixed; inset: 0; z-index: 3000; background: #DCD8CD; color: #1A221C; touch-action: none; -webkit-user-select: none; user-select: none; }
+.sk-voll[hidden] { display: none; }
+.sk-v-buehne { position: absolute; inset: 0; }
+.sk-v-buehne .sk-blatt { width: 100% !important; height: 100%; touch-action: none; }
+.sk-v-oben { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.sk-v-oben > * { pointer-events: auto; }
+.sk-v-rund { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .96); color: #1A221C; box-shadow: 0 2px 8px rgba(0, 0, 0, .22); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.sk-v-rund svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.sk-v-rund:disabled { opacity: .4; }
+.sk-v-titel { flex: 1 1 auto; min-width: 0; text-align: center; }
+.sk-v-titel span { display: inline-block; max-width: 100%; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, .85); font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+.sk-v-unten { position: absolute; left: 50%; transform: translateX(-50%); bottom: max(10px, env(safe-area-inset-bottom)); width: min(560px, calc(100% - 20px)); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.sk-v-unten > * { pointer-events: auto; }
+.sk-v-meldung { margin: 0 auto; padding: 8px 14px; border-radius: 999px; background: rgba(26, 34, 28, .88); color: #FFFFFF; font-size: .85rem; text-align: center; }
+.sk-v-karte { background: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 18px rgba(0, 0, 0, .25); padding: 8px; }
+.sk-v-fach { max-height: 46vh; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
+.sk-v-dock { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.sk-v-wahl { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 62px; padding: 6px 4px; border: 0; border-radius: 12px; background: #F1F3EE; color: #1A221C; font: inherit; font-size: .78rem; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer; }
+.sk-v-wahl[aria-pressed="true"] { background: #35553A; color: #FFFFFF; }
+.sk-v-wahl[aria-pressed="true"] .sk-ic { background: #FFFFFF; }
+.sk-ic { display: block; width: 40px; height: 27px; border-radius: 4px; background: #F4F0E6; }
+.sk-v-kopf { display: flex; align-items: center; gap: 10px; padding: 2px 2px 8px; }
+.sk-v-kopf .sk-ic { flex: none; }
+.sk-v-kopf b { font-size: .95rem; }
+.sk-v-kopf small { display: block; color: #58635B; font-size: .8rem; }
+.sk-v-kopf > div { flex: 1 1 auto; min-width: 0; }
+.sk-v-x { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #F1F3EE; color: #1A221C; font-size: 1.1rem; cursor: pointer; }
+.sk-v-name { width: 100%; box-sizing: border-box; min-height: 44px; margin: 0 0 8px; padding: 0 12px; border: 1px solid #CFD6CB; border-radius: 10px; font: inherit; font-size: 16px; color: #1A221C; background: #FFFFFF; -webkit-user-select: text; user-select: text; }
+.sk-v-knoepfe { display: flex; gap: 6px; }
+.sk-v-knopf { flex: 1 1 0; min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; border: 1px solid #35553A; border-radius: 10px; background: #FFFFFF; color: #35553A; font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.sk-v-knopf.primaer { background: #35553A; color: #FFFFFF; }
+.sk-v-knopf.gefahr { border-color: #B3261E; color: #B3261E; }
+.sk-v-knopf:disabled { opacity: .4; }
+.sk-wz { display: inline-flex; align-items: center; gap: 8px; }
+.sk-wz .sk-ic { width: 30px; height: 20px; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .sk-v-unten { left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; width: min(340px, 45vw); }
+  .sk-v-wahl { min-height: 52px; }
+  .sk-v-fach { max-height: 60vh; }
 }

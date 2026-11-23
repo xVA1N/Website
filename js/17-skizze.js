@@ -39,7 +39,7 @@ function skSpeichern() { try { localStorage.setItem(SK_KEY, JSON.stringify(SK));
 function skAktiv() { return SK.liste.filter(function (s) { return s.id === SK.aktiv; })[0]; }
 
 /* ===== Zustand der Bedienung ===== */
-var skVoll = false, skWerkzeug = null, skPunkte = [], skAuswahl = null, skVerlauf = [], skZoom = 1;
+var skVoll = false, skAnsicht = null, skFach = null, skVollKey = '', skFinger = {}, skPinch = null, skWerkzeug = null, skPunkte = [], skAuswahl = null, skVerlauf = [], skZoom = 1;
 function skMerken() { skVerlauf.push(JSON.stringify(skAktiv())); if (skVerlauf.length > 40) skVerlauf.shift(); $('sk-zurueck').disabled = false; }
 function skElement(id) { return skAktiv().elemente.filter(function (e) { return e.id === id; })[0]; }
 
@@ -234,8 +234,14 @@ function skSvg(s, bearbeiten) {
         '<path d="' + skPfad(skPunkte, zu) + '" fill="none" stroke="#C62828" stroke-width=".35" stroke-dasharray="1 1"/>' +
         skPunkte.map(function (q) { return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="1.1" fill="#C62828"/>'; }).join('') + '</g>';
     }
-    // Griffe zum Verschieben einzelner Punkte der gewählten Linie oder Fläche
+    // Gewähltes Element: gestrichelter Rahmen; Griffe zum Verschieben einzelner Punkte bei Linien und Flächen
     var g = skAuswahl && skElement(skAuswahl);
+    if (g && g.pts && g.pts.length) {
+      var xs = g.pts.map(function (q) { return q[0]; }), ys = g.pts.map(function (q) { return q[1]; }), pk = SK_ART[g.art] && SK_ART[g.art].form === 'punkt';
+      var rx = pk ? (g.art === 'text' ? Math.max(5, String(g.text || '').length * 1.2 + 2) : 5) : 2, ry = pk ? (g.art === 'nord' ? 7.5 : 5) : 2;
+      h += '<rect x="' + skRund(Math.min.apply(null, xs) - rx) + '" y="' + skRund(Math.min.apply(null, ys) - ry) + '" width="' + skRund(Math.max.apply(null, xs) - Math.min.apply(null, xs) + 2 * rx) + '" height="' + skRund(Math.max.apply(null, ys) - Math.min.apply(null, ys) + 2 * ry) +
+        '" fill="none" stroke="#C62828" stroke-width=".4" stroke-dasharray="1.4 1" rx="1" pointer-events="none"/>';
+    }
     if (g && !g.gesperrt && SK_ART[g.art] && SK_ART[g.art].form !== 'punkt') {
       h += g.pts.map(function (q, i) { return '<circle class="sk-griff" data-i="' + i + '" cx="' + q[0] + '" cy="' + q[1] + '" r="2.2" fill="rgba(255,255,255,.85)" stroke="#C62828" stroke-width=".5"/>'; }).join('');
     }
@@ -245,12 +251,25 @@ function skSvg(s, bearbeiten) {
 function skRendern() {
   var s = skAktiv();
   $('sk-blatt').innerHTML = skSvg(s, true);
-  if (skVoll) {
-    // Im Vollbild das ganze Blatt in die Bühne einpassen, die Lupe vergrößert von dort aus
-    var b = document.querySelector('#sk-arbeit .sk-buehne'), fit = Math.max(200, Math.min(b.clientWidth, b.clientHeight * SK_B / SK_H) - 2);
-    $('sk-blatt').style.width = Math.round(fit * skZoom) + 'px';
-  } else $('sk-blatt').style.width = (skZoom * 100) + '%';
+  if (skVoll) skAnsichtSetzen();
+  else { $('sk-blatt').setAttribute('viewBox', '0 0 ' + SK_B + ' ' + SK_H); $('sk-blatt').style.width = (skZoom * 100) + '%'; }
+  $('sk-zurueck').disabled = !skVerlauf.length;
   skAuswahlZeigen();
+  if (skVoll) skVollLeiste();
+}
+// Kleines Vorschaubild eines Werkzeugs (für die Knöpfe)
+function skIcon(art) {
+  var f = SK_ART[art] ? SK_ART[art].form : 'punkt', e = { art: art, winkel: 0, text: 'Abc' }, inhalt;
+  if (art === 'marsch') {
+    inhalt = '<path d="M3,13 L11,6 L20,9" fill="none" stroke="' + SK_BLAU + '" stroke-width="1.1" stroke-dasharray=".1 1.8" stroke-linecap="round"/>' +
+      '<path d="M1.6,11.6 L4.4,14.4 M1.6,14.4 L4.4,11.6" stroke="' + SK_BLAU + '" stroke-width=".8"/><circle cx="11" cy="6" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/><circle cx="20" cy="9" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/>';
+  } else {
+    e.pts = f === 'flaeche' ? [[2, 2.5], [21, 1.5], [22.5, 13.5], [2.5, 14]] : f === 'linie' ? [[1.5, 12.5], [8, 5], [15, 10], [22.5, 3.5]] : [[art === 'text' ? 12 : 12, art === 'nord' ? 8 : 9]];
+    if (art === 'nord' || art === 'text') e.groesse = 6;
+    inhalt = skElementSvg({ massstab: 25000, zaehlung: 'teil' }, e, false);
+    if (f === 'punkt' && art !== 'text') inhalt = '<g transform="translate(12,8) scale(' + (art === 'nord' ? 1.05 : 2.1) + ') translate(-12,-' + (art === 'nord' ? 8 : 8.5) + ')">' + inhalt + '</g>';
+  }
+  return '<svg class="sk-ic" viewBox="0 0 24 16" aria-hidden="true">' + inhalt + '</svg>';
 }
 
 /* ===== Bedienfelder ===== */
@@ -268,17 +287,16 @@ function skFelderZeigen() {
 function skWerkzeugeZeigen() {
   $('sk-werkzeuge').innerHTML = SK_WERKZEUGE.map(function (g) {
     return '<div class="sk-gruppe"><span class="label">' + g[0] + '</span><div class="sk-knoepfe">' + g[1].map(function (w) {
-      return '<button type="button" class="sk-wz" data-sk-wz="' + w[0] + '" aria-pressed="' + (skWerkzeug === w[0]) + '">' + w[1] + '</button>';
+      return '<button type="button" class="sk-wz" data-sk-wz="' + w[0] + '" aria-pressed="' + (skWerkzeug === w[0]) + '">' + skIcon(w[0]) + w[1] + '</button>';
     }).join('') + '</div></div>';
   }).join('');
 }
 function skLeisteZeigen() {
   var f = skWerkzeug && SK_ART[skWerkzeug].form;
   $('sk-leiste').hidden = !skWerkzeug;
-  $('sk-text-wrap').hidden = skWerkzeug !== 'text';
   if (!skWerkzeug) return;
   var n = SK_ART[skWerkzeug].name;
-  $('sk-leiste-text').textContent = f === 'punkt' ? n + ': auf das Raster tippen, um es zu setzen. Mehrere nacheinander sind möglich.'
+  $('sk-leiste-text').textContent = skWerkzeug === 'text' ? 'Text: auf das Raster tippen, dann den Text eingeben.' : f === 'punkt' ? n + ': auf das Raster tippen, um es zu setzen. Mehrere nacheinander sind möglich.'
     : n + ': Punkte nacheinander auf das Raster tippen' + (f === 'flaeche' ? ' (Umriss, mindestens drei)' : '') + ', dann „Fertig“.' + (skPunkte.length ? ' Gesetzt: ' + skPunkte.length + '.' : '');
   $('sk-leiste-zurueck').hidden = f === 'punkt';
   $('sk-leiste-zurueck').disabled = !skPunkte.length;
@@ -361,13 +379,17 @@ function skSetzen(p) {
   var f = SK_ART[skWerkzeug].form;
   if (f === 'punkt') {
     var e = { id: 'e' + Date.now(), art: skWerkzeug, pts: [p], winkel: 0 };
-    if (skWerkzeug === 'text') {
-      var t = $('sk-text').value.trim();
-      if (!t) { skMeldung('Bitte zuerst den Text eingeben.', true); $('sk-text').focus(); return; }
-      e.text = t.slice(0, 40);
-    }
     skMerken();
     skAktiv().elemente.push(e);
+    if (skWerkzeug === 'text') {
+      // Text: gleich auswählen und das Eingabefeld öffnen
+      e.text = 'Text';
+      skWerkzeug = null; skAuswahl = e.id;
+      skSpeichern(); skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
+      var feld = skVoll ? $('sk-v-name') : $('sk-auswahl-eingabe');
+      if (feld) { feld.value = ''; feld.placeholder = 'Text eingeben'; feld.focus(); }
+      return;
+    }
     skSpeichern(); skRendern();
     return;
   }
@@ -388,59 +410,75 @@ function skFertig() {
   skWerkzeug = null; skPunkte = [];
   skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
 }
-function skMeldung(t, fehler) { $('sk-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('sk-meldung').textContent = t; }
+var skMeldungUhr = 0;
+function skMeldung(t, fehler) {
+  $('sk-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('sk-meldung').textContent = t;
+  if (!skVoll) return;
+  $('sk-v-meldung').textContent = t; $('sk-v-meldung').hidden = !t;
+  clearTimeout(skMeldungUhr);
+  if (t) skMeldungUhr = setTimeout(function () { $('sk-v-meldung').hidden = true; }, 3500);
+}
 
 $('sk-werkzeuge').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-sk-wz]');
   if (!b) return;
-  var w = b.getAttribute('data-sk-wz');
+  skWerkzeugWaehlen(b.getAttribute('data-sk-wz'));
+  if (skWerkzeug) $('sk-blatt').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+});
+function skWerkzeugWaehlen(w) {
   if (skPunkte.length && skWerkzeug !== w) skPunkte = [];
   skWerkzeug = skWerkzeug === w ? null : w;
   if (!skWerkzeug) skPunkte = [];
-  skAuswahl = null; skMeldung('');
+  skAuswahl = null; skFach = null; skMeldung('');
   skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
-  if (skWerkzeug === 'text') $('sk-text').focus();
-  else if (skWerkzeug && !skVoll) $('sk-blatt').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-});
+}
+function skAbbrechen() { skWerkzeug = null; skPunkte = []; skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); }
+function skPunktZurueck() { skPunkte.pop(); skLeisteZeigen(); skRendern(); }
 $('sk-leiste-fertig').addEventListener('click', skFertig);
-$('sk-leiste-zurueck').addEventListener('click', function () { skPunkte.pop(); skLeisteZeigen(); skRendern(); });
-$('sk-leiste-abbrechen').addEventListener('click', function () { skWerkzeug = null; skPunkte = []; skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); });
+$('sk-leiste-zurueck').addEventListener('click', skPunktZurueck);
+$('sk-leiste-abbrechen').addEventListener('click', skAbbrechen);
 
 // Gewähltes Element
-$('sk-auswahl-weg').addEventListener('click', function () {
+function skLoeschen() {
   if (!skAuswahl) return;
   skMerken();
   skAktiv().elemente = skAktiv().elemente.filter(function (e) { return e.id !== skAuswahl; });
   skAuswahl = null; skSpeichern(); skRendern();
-});
-$('sk-auswahl-sperren').addEventListener('click', function () {
+}
+function skSperren() {
   var e = skAuswahl && skElement(skAuswahl);
   if (!e) return;
   skMerken(); e.gesperrt = !e.gesperrt; skSpeichern(); skRendern();
-});
-$('sk-auswahl-drehen').addEventListener('click', function () {
+}
+function skDrehen() {
   var e = skAuswahl && skElement(skAuswahl);
   if (!e) return;
   skMerken(); e.winkel = ((e.winkel || 0) + 15) % 360; skSpeichern(); skRendern();
-});
-$('sk-auswahl-eingabe').addEventListener('input', function () {
+}
+function skNameAendern(wert) {
   var e = skAuswahl && skElement(skAuswahl);
   if (!e) return;
-  if (e.art === 'text') e.text = this.value.slice(0, 40); else e.name = this.value.slice(0, 40);
+  if (e.art === 'text') e.text = wert.slice(0, 40) || 'Text'; else e.name = wert.slice(0, 40);
   skSpeichern(); skRendern();
-});
-// Vor dem Ändern des Namens den Stand merken, damit Rückgängig den alten Namen zurückholt
-$('sk-auswahl-eingabe').addEventListener('focus', function () { if (skAuswahl) skMerken(); });
-$('sk-auswahl-fertig').addEventListener('click', function () { skAuswahl = null; skRendern(); });
-$('sk-zurueck').addEventListener('click', function () {
+}
+function skAuswahlEnde() { skAuswahl = null; skRendern(); }
+function skRueckgaengig() {
   var alt = skVerlauf.pop();
   if (!alt) return;
   var s = JSON.parse(alt), i = SK.liste.map(function (x) { return x.id; }).indexOf(s.id);
   if (i >= 0) SK.liste[i] = s;
   if (skAuswahl && !skElement(skAuswahl)) skAuswahl = null;
-  $('sk-zurueck').disabled = !skVerlauf.length;
+  skVollKey = '';
   skSpeichern(); skFelderZeigen(); skRendern();
-});
+}
+$('sk-auswahl-weg').addEventListener('click', skLoeschen);
+$('sk-auswahl-sperren').addEventListener('click', skSperren);
+$('sk-auswahl-drehen').addEventListener('click', skDrehen);
+$('sk-auswahl-eingabe').addEventListener('input', function () { skNameAendern(this.value); });
+// Vor dem Ändern des Namens den Stand merken, damit Rückgängig den alten Namen zurückholt
+$('sk-auswahl-eingabe').addEventListener('focus', function () { if (skAuswahl) skMerken(); });
+$('sk-auswahl-fertig').addEventListener('click', skAuswahlEnde);
+$('sk-zurueck').addEventListener('click', skRueckgaengig);
 $('sk-zoom-plus').addEventListener('click', function () { skZoom = Math.min(4, skZoom + 0.5); skRendern(); });
 $('sk-zoom-minus').addEventListener('click', function () { skZoom = Math.max(1, skZoom - 0.5); skRendern(); });
 
@@ -468,19 +506,146 @@ document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.
 });
 
 /* ===== Vollbild ===== */
+// Ausschnitt des Blatts (viewBox) passend zum Seitenverhältnis des Bildschirms
+function skBuehne() { return $('sk-v-buehne').getBoundingClientRect(); }
+// Einpassen zeigt Raster und Maßstäbe möglichst groß; Datum und Unterschrift rechts erreicht man durch Verschieben
+function skEinpassen() {
+  var r = skBuehne(), a = r.height / Math.max(1, r.width), bx = SK_GX - 10, by = 2, bw = SK_GW + 14, bh = SK_GY + SK_GH + 6 - by;
+  var w = Math.max(bw, bh / a);
+  skAnsicht = { x: bx + bw / 2 - w / 2, y: by + bh / 2 - w * a / 2, w: w };
+}
+function skAnsichtSetzen() {
+  if (!skAnsicht) skEinpassen();
+  var r = skBuehne(), h = skAnsicht.w * r.height / Math.max(1, r.width);
+  $('sk-blatt').setAttribute('viewBox', skRund(skAnsicht.x) + ' ' + skRund(skAnsicht.y) + ' ' + skRund(skAnsicht.w) + ' ' + skRund(h));
+}
+function skAnsichtBegrenzen() {
+  var r = skBuehne(), h = skAnsicht.w * r.height / Math.max(1, r.width);
+  skAnsicht.x = Math.max(-skAnsicht.w + 30, Math.min(SK_B - 30, skAnsicht.x));
+  skAnsicht.y = Math.max(-h + 30, Math.min(SK_H - 30, skAnsicht.y));
+}
 function skVollbild(an) {
   skVoll = an;
-  $('sk-arbeit').classList.toggle('vollbild', an);
+  var svg = $('sk-blatt');
+  if (an) $('sk-v-buehne').appendChild(svg); else document.querySelector('#sk-arbeit .sk-buehne').appendChild(svg);
+  $('sk-voll').hidden = !an;
   document.documentElement.classList.toggle('sk-voll', an);
-  $('sk-vollbild').textContent = an ? 'Schließen' : 'Vollbild';
-  skZoom = 1;
+  skFach = null; skVollKey = ''; skAnsicht = null; skZoom = 1; skFinger = {}; skPinch = null;
   skRendern();
-  if (!an) $('sk-arbeit').scrollIntoView({ block: 'start' });
+  if (an) skMeldung('Mit zwei Fingern zoomen und verschieben.');
+  else { skWerkzeugeZeigen(); skLeisteZeigen(); $('sk-arbeit').scrollIntoView({ block: 'start' }); }
 }
-$('sk-vollbild').addEventListener('click', function () { skVollbild(!skVoll); });
+// Untere Leiste: Dock, Werkzeug in Arbeit oder gewähltes Element. Nur neu bauen, wenn sich der Zustand ändert (Eingabefeld behält den Fokus).
+var SK_DOCK = [['Linien', 'strasse'], ['Flächen', 'nadelwald'], ['Zeichen', 'kirche']];
+function skVollLeiste() {
+  var e = skAuswahl && skElement(skAuswahl);
+  $('sk-v-titel').textContent = skAktiv().name + ' · 1:' + skAktiv().massstab.toLocaleString('de-DE');
+  $('sk-v-zurueck').disabled = !skVerlauf.length;
+  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, skPunkte.length, skFach].join('|');
+  if (key === skVollKey) {
+    if (e && document.activeElement !== $('sk-v-name') && $('sk-v-name')) $('sk-v-name').value = (e.art === 'text' ? e.text : e.name) || '';
+    return;
+  }
+  skVollKey = key;
+  var h = '', fach = '';
+  if (e) {
+    var art = SK_ART[e.art] || { name: e.art, form: 'punkt' }, info = e.gesperrt ? 'gesperrt' : 'Ziehen zum Verschieben';
+    if (e.art === 'marsch') { var l = 0; for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]); info = 'zusammen ' + skMeter(skAktiv(), l).toLocaleString('de-DE') + ' m'; }
+    else if (art.form !== 'punkt' && !e.gesperrt) info = 'Ziehen verschiebt, Griffe verschieben Punkte';
+    h = '<div class="sk-v-kopf">' + skIcon(e.art) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
+      (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.name) || '') + '">') +
+      '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
+      '<button type="button" class="sk-v-knopf" data-v="sperren">' + (e.gesperrt ? 'Entsperren' : 'Sperren') + '</button>' +
+      (e.gesperrt ? '' : '<button type="button" class="sk-v-knopf gefahr" data-v="loeschen">Löschen</button>') +
+      '<button type="button" class="sk-v-knopf primaer" data-v="auswahlfertig">Fertig</button></div>';
+  } else if (skWerkzeug) {
+    var f = SK_ART[skWerkzeug].form, hinweis = skWerkzeug === 'text' ? 'Auf das Blatt tippen, dann Text eingeben' : f === 'punkt' ? 'Auf das Blatt tippen, mehrmals möglich'
+      : (skWerkzeug === 'marsch' ? 'Start, dann die Wegpunkte antippen' : f === 'flaeche' ? 'Umriss Punkt für Punkt antippen' : 'Punkte nacheinander antippen') + (skPunkte.length ? ' · ' + skPunkte.length + ' gesetzt' : '');
+    h = '<div class="sk-v-kopf">' + skIcon(skWerkzeug) + '<div><b>' + esc(SK_ART[skWerkzeug].name) + '</b><small>' + hinweis + '</small></div><button type="button" class="sk-v-x" data-v="abbrechen" aria-label="Werkzeug beenden">✕</button></div>' +
+      '<div class="sk-v-knoepfe">' + (f === 'punkt' ? '' : '<button type="button" class="sk-v-knopf" data-v="punktzurueck"' + (skPunkte.length ? '' : ' disabled') + '>↶ Punkt zurück</button>') +
+      '<button type="button" class="sk-v-knopf primaer" data-v="fertig">✓ Fertig</button></div>';
+  } else {
+    h = '<div class="sk-v-dock">' + SK_DOCK.map(function (d) {
+      return '<button type="button" class="sk-v-wahl" data-v-fach="' + d[0] + '" aria-pressed="' + (skFach === d[0]) + '">' + skIcon(d[1]) + d[0] + '</button>';
+    }).join('') + '<button type="button" class="sk-v-wahl" data-v-wz="marsch">' + skIcon('marsch') + 'Marschweg</button></div>';
+    if (skFach) {
+      var g = SK_WERKZEUGE.filter(function (x) { return x[0] === skFach; })[0];
+      fach = g[1].filter(function (w) { return w[0] !== 'marsch'; }).map(function (w) { return '<button type="button" class="sk-v-wahl" data-v-wz="' + w[0] + '">' + skIcon(w[0]) + esc(w[1]) + '</button>'; }).join('');
+    }
+  }
+  $('sk-v-leiste').innerHTML = h;
+  $('sk-v-fach').innerHTML = fach;
+  $('sk-v-fach').hidden = !fach;
+}
+$('sk-voll').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button');
+  if (!b) return;
+  if (b.hasAttribute('data-v-fach')) { var f = b.getAttribute('data-v-fach'); skFach = skFach === f ? null : f; skVollLeiste(); return; }
+  if (b.hasAttribute('data-v-wz')) { skWerkzeugWaehlen(b.getAttribute('data-v-wz')); return; }
+  var v = b.getAttribute('data-v');
+  if (v === 'abbrechen') skAbbrechen();
+  else if (v === 'fertig') skFertig();
+  else if (v === 'punktzurueck') skPunktZurueck();
+  else if (v === 'drehen') skDrehen();
+  else if (v === 'sperren') skSperren();
+  else if (v === 'loeschen') skLoeschen();
+  else if (v === 'auswahlfertig') skAuswahlEnde();
+});
+$('sk-v-leiste').addEventListener('input', function (ev) { if (ev.target.id === 'sk-v-name') skNameAendern(ev.target.value); });
+$('sk-v-leiste').addEventListener('focusin', function (ev) { if (ev.target.id === 'sk-v-name' && skAuswahl) skMerken(); });
+$('sk-v-leiste').addEventListener('keydown', function (ev) { if (ev.target.id === 'sk-v-name' && ev.key === 'Enter') { ev.target.blur(); skAuswahlEnde(); } });
+$('sk-v-zu').addEventListener('click', function () { skVollbild(false); });
+$('sk-v-zurueck').addEventListener('click', skRueckgaengig);
+$('sk-v-einpassen').addEventListener('click', function () { skEinpassen(); skAnsichtSetzen(); });
+$('sk-vollbild').addEventListener('click', function () { skVollbild(true); });
 document.addEventListener('keydown', function (e) { if (skVoll && e.key === 'Escape') skVollbild(false); });
-window.addEventListener('resize', function () { if (skVoll) skRendern(); });
+window.addEventListener('resize', function () { if (skVoll) { skAnsichtBegrenzen(); skAnsichtSetzen(); } });
 window.addEventListener('hashchange', function () { if (skVoll) skVollbild(false); });
+
+// Zwei Finger: zoomen und verschieben. Ein Finger auf freiem Papier verschiebt ebenfalls (auch mit Werkzeug, ein kurzes Tippen setzt dann den Punkt).
+function skFingerMitte() {
+  var f = Object.keys(skFinger).map(function (k) { return skFinger[k]; }).slice(0, 2);
+  return { x: (f[0].x + f[1].x) / 2, y: (f[0].y + f[1].y) / 2, d: Math.max(1, Math.sqrt(Math.pow(f[0].x - f[1].x, 2) + Math.pow(f[0].y - f[1].y, 2))) };
+}
+$('sk-blatt').addEventListener('pointerdown', function (ev) {
+  if (!skVoll) return;
+  skFinger[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+  try { $('sk-blatt').setPointerCapture(ev.pointerId); } catch (e) { /* ohne Erfassung geht es auch */ }
+  if (Object.keys(skFinger).length === 2) {
+    // Begonnenes Ziehen eines Elements zurücknehmen, jetzt wird gezoomt
+    if (skZug && skZug.e && skZug.bewegt && skZug.vorher) { var alt = JSON.parse(skZug.vorher), i = SK.liste.map(function (x) { return x.id; }).indexOf(alt.id); if (i >= 0) SK.liste[i] = alt; }
+    skZug = null;
+    var m = skFingerMitte(), r = skBuehne(), u = skAnsicht.w / r.width;
+    skPinch = { d0: m.d, w0: skAnsicht.w, px: skAnsicht.x + (m.x - r.left) * u, py: skAnsicht.y + (m.y - r.top) * u };
+    return;
+  }
+  if (skZug && !skZug.e) skZug.pan = { x: skAnsicht.x, y: skAnsicht.y, u: skAnsicht.w / skBuehne().width };
+});
+$('sk-blatt').addEventListener('pointermove', function (ev) {
+  if (!skVoll || !skFinger[ev.pointerId]) return;
+  skFinger[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+  var r = skBuehne();
+  if (skPinch && Object.keys(skFinger).length >= 2) {
+    var m = skFingerMitte(), w = Math.max(28, Math.min(SK_B * 2, skPinch.w0 * skPinch.d0 / m.d)), u = w / r.width;
+    skAnsicht = { x: skPinch.px - (m.x - r.left) * u, y: skPinch.py - (m.y - r.top) * u, w: w };
+    skAnsichtBegrenzen(); skAnsichtSetzen();
+    return;
+  }
+  if (skZug && skZug.pan && ev.pointerId === skZug.id) {
+    var dx = ev.clientX - skZug.x, dy = ev.clientY - skZug.y;
+    if (!skZug.bewegt && Math.abs(dx) + Math.abs(dy) < 8) return;
+    skZug.bewegt = true;
+    skAnsicht.x = skZug.pan.x - dx * skZug.pan.u; skAnsicht.y = skZug.pan.y - dy * skZug.pan.u;
+    skAnsichtBegrenzen(); skAnsichtSetzen();
+  }
+});
+function skFingerWeg(ev) {
+  if (!skVoll) return;
+  delete skFinger[ev.pointerId];
+  if (skPinch && Object.keys(skFinger).length < 2) { skPinch = null; skZug = null; }
+}
+$('sk-blatt').addEventListener('pointerup', skFingerWeg);
+$('sk-blatt').addEventListener('pointercancel', skFingerWeg);
 
 /* ===== Export als Bild ===== */
 $('sk-png').addEventListener('click', function () {
