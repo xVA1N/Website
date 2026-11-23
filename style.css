@@ -784,3 +784,35 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .inline-abfrage input { width: 100%; box-sizing: border-box; min-height: 44px; margin-bottom: 8px; padding: 0 12px; font: inherit; font-size: 16px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .inline-abfrage .dg-aktionen { margin: 0; }
 .knopf.gefahr { background: #B3261E; border-color: #B3261E; color: #FFFFFF; }
+
+/* Startseite in Abschnitten */
+.start-abschnitt { margin: 18px 2px 8px; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.start-abschnitt:first-of-type { margin-top: 6px; }
+/* Skizzen: Ablage und Wahl der Art */
+.sk-parkplatz { position: absolute; width: 0; height: 0; overflow: hidden; }
+.sk-liste { display: grid; gap: 10px; }
+.sk-eintrag { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.sk-oeffnen { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; border: 0; background: none; color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+.sk-mini { flex: none; width: 112px; height: auto; border-radius: 6px; border: 1px solid var(--line); background: #F4F0E6; }
+.sk-eintrag-text { min-width: 0; display: grid; gap: 2px; }
+.sk-eintrag-text b { overflow-wrap: anywhere; }
+.sk-eintrag-text small { color: var(--muted); font-size: .82rem; }
+.sk-eintrag-knoepfe { display: flex; gap: 6px; padding: 0 10px 10px; }
+.sk-eintrag-knoepfe .knopf { min-height: 38px; font-size: .88rem; }
+.sk-eintrag .inline-abfrage { margin: 0 10px 10px; }
+.sk-arten { display: grid; gap: 8px; }
+.sk-art { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+.sk-art:not(:disabled):hover { border-color: var(--accent); }
+.sk-art:disabled { opacity: .55; cursor: default; }
+.sk-art .sk-ic { flex: none; width: 54px; height: 36px; }
+.sk-art b { display: block; }
+.sk-art em { font-style: normal; font-size: .75rem; font-weight: 600; padding: 1px 7px; margin-left: 4px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+.sk-art small { display: block; color: var(--muted); font-size: .85rem; margin-top: 2px; }
+/* Blatt-Fenster in der Skizze */
+.sk-v-blatt { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, .35); }
+.sk-v-blatt[hidden] { display: none; }
+.sk-v-blatt-karte { width: min(560px, 100%); max-height: calc(100% - 40px); overflow-y: auto; box-sizing: border-box; padding: 14px 14px max(14px, env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; background: var(--surface); color: var(--fg); -webkit-user-select: text; user-select: text; }
+.sk-v-blatt-karte .sk-v-kopf small { color: var(--muted); }
+.sk-v-blatt-karte .sk-v-x { background: var(--soft); color: var(--fg); }
+.sk-v-blatt-karte input, .sk-v-blatt-karte textarea { font-size: 16px; }
+@media (min-width: 700px) { .sk-v-blatt { align-items: center; } .sk-v-blatt-karte { border-radius: 18px; } }

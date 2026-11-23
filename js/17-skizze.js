@@ -22,16 +22,25 @@ SK_WERKZEUGE.forEach(function (g) { g[1].forEach(function (w) { SK_ART[w[0]] = {
 
 /* ===== Speicher ===== */
 var SK_KEY = 'meinkamerad-skizzen';
-function skNeu(name) {
+// Arten von Skizzen: jede hat ihr eigenes Dock mit den passenden Werkzeugen (Einträge: Beschriftung, Bild, Fach oder Werkzeug)
+var SK_ARTEN = {
+  gelaende: { name: 'Gelände- und Wegeskizze', kurz: 'Geländeskizze', text: 'Gelände mit Straßen, Wäldern und Ortschaften, dazu der Marschweg mit Entfernungen.',
+    dock: [['Linien', 'strasse', 'fach'], ['Flächen', 'nadelwald', 'fach'], ['Zeichen', 'kirche', 'fach'], ['Marschweg', 'marsch', 'wz']] },
+  stellung: { name: 'Stellungsskizze', kurz: 'Stellungsskizze', text: 'Schützen, Waffen und Stellungen mit Hauptschussrichtung und Feuerbereich.', bald: true },
+  entfernung: { name: 'Entfernungsskizze', kurz: 'Entfernungsskizze', text: 'Eigener Standort und Zielpunkte mit Entfernungen.', bald: true },
+  panorama: { name: 'Panoramaskizze', kurz: 'Panoramaskizze', text: 'Ansicht des Geländes auf einem Foto, mit Geländepunkten und Entfernungen.', bald: true }
+};
+function skArt(s) { return SK_ARTEN[s && s.art] && !SK_ARTEN[s.art].bald ? s.art : 'gelaende'; }
+function skNeu(name, art) {
   var heute = new Date();
-  return { id: 's' + Date.now(), name: name, massstab: 25000, zaehlung: 'teil', datum: heute.toISOString().slice(0, 10), unterschrift: '', erlaeuterung: '',
+  return { id: 's' + Date.now(), art: art || 'gelaende', name: name, massstab: 25000, zaehlung: 'teil', datum: heute.toISOString().slice(0, 10), unterschrift: '', erlaeuterung: '',
     elemente: [{ id: 'e' + Date.now(), art: 'nord', pts: [[SK_GX + 148, SK_GY + 18]], winkel: 0 }] };
 }
 function skLaden() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(SK_KEY) || 'null'); } catch (e) { d = null; }
-  if (!d || !Array.isArray(d.liste) || !d.liste.length) d = { aktiv: null, liste: [skNeu('Skizze 1')] };
-  if (!d.liste.some(function (s) { return s.id === d.aktiv; })) d.aktiv = d.liste[0].id;
+  if (!d || !Array.isArray(d.liste)) d = { aktiv: null, liste: [] };
+  if (!d.liste.some(function (s) { return s.id === d.aktiv; })) d.aktiv = d.liste.length ? d.liste[0].id : null;
   return d;
 }
 var SK = skLaden();
@@ -40,7 +49,7 @@ function skAktiv() { return SK.liste.filter(function (s) { return s.id === SK.ak
 
 /* ===== Zustand der Bedienung ===== */
 var skVoll = false, skAnsicht = null, skFach = null, skVollKey = '', skFinger = {}, skPinch = null, skWerkzeug = null, skPunkte = [], skAuswahl = null, skVerlauf = [], skZoom = 1;
-function skMerken() { skVerlauf.push(JSON.stringify(skAktiv())); if (skVerlauf.length > 40) skVerlauf.shift(); $('sk-zurueck').disabled = false; }
+function skMerken() { skVerlauf.push(JSON.stringify(skAktiv())); if (skVerlauf.length > 40) skVerlauf.shift(); $('sk-v-zurueck').disabled = false; }
 function skElement(id) { return skAktiv().elemente.filter(function (e) { return e.id === id; })[0]; }
 
 /* ===== Geometrie ===== */
@@ -254,12 +263,10 @@ function skSvg(s, bearbeiten) {
 }
 function skRendern() {
   var s = skAktiv();
+  if (!skVoll || !s) return;
   $('sk-blatt').innerHTML = skSvg(s, true);
-  if (skVoll) skAnsichtSetzen();
-  else { $('sk-blatt').setAttribute('viewBox', '0 0 ' + SK_B + ' ' + SK_H); $('sk-blatt').style.width = (skZoom * 100) + '%'; }
-  $('sk-zurueck').disabled = !skVerlauf.length;
-  skAuswahlZeigen();
-  if (skVoll) skVollLeiste();
+  skAnsichtSetzen();
+  skVollLeiste();
 }
 // Kleines Vorschaubild eines Werkzeugs (für die Knöpfe)
 function skIcon(art) {
@@ -276,57 +283,78 @@ function skIcon(art) {
   return '<svg class="sk-ic" viewBox="0 0 24 16" aria-hidden="true">' + inhalt + '</svg>';
 }
 
-/* ===== Bedienfelder ===== */
-function skFelderZeigen() {
+/* ===== Ablage: gespeicherte Skizzen, neue Skizze, Wahl der Art ===== */
+function skDatum(d) { return d ? d.split('-').reverse().join('.') : ''; }
+function skAblageZeigen() {
+  $('sk-ablage').hidden = false; $('sk-arten').hidden = true;
+  $('sk-anz').textContent = SK.liste.length ? '(' + SK.liste.length + ')' : '';
+  $('sk-leer').hidden = SK.liste.length > 0;
+  $('sk-liste').innerHTML = SK.liste.map(function (s) {
+    var n = s.elemente.filter(function (e) { return e.art !== 'nord'; }).length;
+    return '<div class="sk-eintrag"><button type="button" class="sk-oeffnen" data-sk-auf="' + s.id + '" aria-label="Skizze öffnen: ' + esc(s.name) + '">' +
+      '<svg class="sk-mini" viewBox="0 0 ' + SK_B + ' ' + SK_H + '" aria-hidden="true" font-family="IBM Plex Sans, Arial, sans-serif">' + skSvg(s, false) + '</svg>' +
+      '<span class="sk-eintrag-text"><b>' + esc(s.name) + '</b><small>' + esc(SK_ARTEN[skArt(s)].kurz) + ' · ' + (s.massstab ? '1:' + s.massstab.toLocaleString('de-DE') : 'ohne Maßstab') + '</small><small>' +
+      esc(skDatum(s.datum)) + ' · ' + n + (n === 1 ? ' Element' : ' Elemente') + '</small></span></button>' +
+      '<div class="sk-eintrag-knoepfe"><button type="button" class="knopf sekundaer" data-sk-name="' + s.id + '">Umbenennen</button><button type="button" class="knopf sekundaer" data-sk-weg="' + s.id + '">Löschen</button></div></div>';
+  }).join('');
+}
+function zeigeSkizze() { if (skVoll) skSchliessen(); skAblageZeigen(); }
+function skArtenZeigen() {
+  $('sk-ablage').hidden = true; $('sk-arten').hidden = false;
+  var bild = { gelaende: skIcon('nadelwald'), stellung: skIcon('nord'), entfernung: skIcon('marsch'), panorama: skIcon('kuppe') };
+  $('sk-arten-liste').innerHTML = Object.keys(SK_ARTEN).map(function (k) {
+    var a = SK_ARTEN[k];
+    return '<button type="button" class="sk-art" data-sk-art="' + k + '"' + (a.bald ? ' disabled' : '') + '>' + bild[k] + '<span><b>' + esc(a.name) + (a.bald ? ' <em>folgt</em>' : '') + '</b><small>' + esc(a.text) + '</small></span></button>';
+  }).join('');
+  $('sk-arten').scrollIntoView({ block: 'start' });
+}
+$('sk-neu').addEventListener('click', skArtenZeigen);
+$('sk-arten-zurueck').addEventListener('click', skAblageZeigen);
+$('sk-arten-liste').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-sk-art]');
+  if (!b || b.disabled) return;
+  var art = b.getAttribute('data-sk-art'), nr = SK.liste.filter(function (s) { return skArt(s) === art; }).length + 1;
+  var s = skNeu(SK_ARTEN[art].kurz + ' ' + nr, art);
+  SK.liste.unshift(s); skSpeichern();
+  skOeffnen(s.id);
+});
+$('sk-liste').addEventListener('click', function (ev) {
+  var auf = ev.target.closest('[data-sk-auf]'), name = ev.target.closest('[data-sk-name]'), weg = ev.target.closest('[data-sk-weg]');
+  if (auf) { skOeffnen(auf.getAttribute('data-sk-auf')); return; }
+  var id = (name || weg) && (name || weg).getAttribute(name ? 'data-sk-name' : 'data-sk-weg'), s = id && SK.liste.filter(function (x) { return x.id === id; })[0];
+  if (!s) return;
+  var nach = (name || weg).parentNode;
+  if (name) inlineAbfrage(nach, { text: 'Neuer Name der Skizze', wert: s.name, ok: 'Speichern', fertig: function (n) { s.name = n; skSpeichern(); skAblageZeigen(); } });
+  else inlineAbfrage(nach, { text: 'Skizze „' + s.name + '“ wirklich löschen?', ok: 'Löschen', gefahr: true, fertig: function () {
+    SK.liste = SK.liste.filter(function (x) { return x.id !== s.id; });
+    if (SK.aktiv === s.id) SK.aktiv = null;
+    skSpeichern(); skAblageZeigen();
+  } });
+});
+
+/* ===== Blatt-Fenster: Name, Maßstab, Kopfangaben, Bild speichern ===== */
+function skBlattFelder() {
   var s = skAktiv();
-  $('sk-wahl').innerHTML = SK.liste.map(function (x) { return '<option value="' + x.id + '">' + esc(x.name) + '</option>'; }).join('');
-  $('sk-wahl').value = s.id;
+  $('sk-b-name').value = s.name;
   document.querySelectorAll('input[name="sk-massstab"]').forEach(function (r) { r.checked = +r.value === s.massstab; });
   document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.checked = r.value === s.zaehlung; });
   $('sk-datum').value = s.datum || '';
   $('sk-unterschrift').value = s.unterschrift || '';
   $('sk-erlaeuterung').value = s.erlaeuterung || '';
 }
-function skWerkzeugeZeigen() {
-  $('sk-werkzeuge').innerHTML = SK_WERKZEUGE.map(function (g) {
-    return '<div class="sk-gruppe"><span class="label">' + g[0] + '</span><div class="sk-knoepfe">' + g[1].map(function (w) {
-      return '<button type="button" class="sk-wz" data-sk-wz="' + w[0] + '" aria-pressed="' + (skWerkzeug === w[0]) + '">' + skIcon(w[0]) + w[1] + '</button>';
-    }).join('') + '</div></div>';
-  }).join('');
+function skBlattAuf(an) {
+  $('sk-v-blatt').hidden = !an;
+  if (an) { skBlattFelder(); skFach = null; skVollLeiste(); }
 }
-function skLeisteZeigen() {
-  var f = skWerkzeug && SK_ART[skWerkzeug].form;
-  $('sk-leiste').hidden = !skWerkzeug;
-  if (!skWerkzeug) return;
-  var n = SK_ART[skWerkzeug].name;
-  $('sk-leiste-text').textContent = skWerkzeug === 'text' ? 'Text: auf das Raster tippen, dann den Text eingeben.' : f === 'punkt' ? n + ': auf das Raster tippen, um es zu setzen. Mehrere nacheinander sind möglich.'
-    : n + ': Punkte nacheinander auf das Raster tippen' + (f === 'flaeche' ? ' (Umriss, mindestens drei)' : '') + ', dann „Fertig“.' + (skPunkte.length ? ' Gesetzt: ' + skPunkte.length + '.' : '');
-  $('sk-leiste-zurueck').hidden = f === 'punkt';
-  $('sk-leiste-zurueck').disabled = !skPunkte.length;
-}
-function skAuswahlZeigen() {
-  var e = skAuswahl && skElement(skAuswahl);
-  $('sk-auswahl').hidden = !e;
-  if (!e) return;
-  var art = SK_ART[e.art] || { name: e.art, form: 'punkt' }, s = skAktiv(), info = '';
-  if (e.art === 'marsch') {
-    var l = 0;
-    for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]);
-    info = ' · ' + (e.pts.length - 1) + ' Teilstrecken' + (skOhneMassstab(s) ? ', ohne Maßstab: Entfernungen von Hand eintragen' : ', zusammen ' + skMeter(s, l).toLocaleString('de-DE') + ' m');
-  }
-  $('sk-auswahl-text').textContent = art.name + info + (e.gesperrt ? ' · gesperrt' : '');
-  $('sk-auswahl-sperren').textContent = e.gesperrt ? 'Entsperren' : 'Sperren';
-  $('sk-auswahl-drehen').hidden = art.form !== 'punkt' || e.gesperrt;
-  $('sk-auswahl-text-wrap').hidden = !!e.gesperrt;
-  $('sk-auswahl-eingabe').placeholder = e.art === 'text' ? 'Text' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', strasse: 'nach Oststadt' }[e.art] || 'Spitzbaum');
-  var hand = e.art === 'marsch' && skOhneMassstab(s);
-  $('sk-auswahl-name-label').textContent = e.art === 'text' ? 'Text' : hand ? 'Entfernungen je Wegpunkt in m' : 'Name (Beschriftung)';
-  if (hand) $('sk-auswahl-eingabe').placeholder = 'z. B. 800, 400, 1600';
-  if (document.activeElement !== $('sk-auswahl-eingabe')) $('sk-auswahl-eingabe').value = (e.art === 'text' ? e.text : hand ? e.entf : e.name) || '';
-  $('sk-auswahl-weg').disabled = !!e.gesperrt;
-}
-function skAllesZeigen() { skFelderZeigen(); skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); }
-function zeigeSkizze() { skAllesZeigen(); }
+$('sk-v-blatt-auf').addEventListener('click', function () { skBlattAuf($('sk-v-blatt').hidden); });
+$('sk-v-blatt-zu').addEventListener('click', function () { skBlattAuf(false); });
+$('sk-v-blatt-fertig').addEventListener('click', function () { skBlattAuf(false); });
+$('sk-b-name').addEventListener('input', function () { var n = this.value.trim().slice(0, 40); if (n) { skAktiv().name = n; skSpeichern(); skVollLeiste(); } });
+document.querySelectorAll('input[name="sk-massstab"]').forEach(function (r) { r.addEventListener('change', function () { skMerken(); skAktiv().massstab = +r.value; skSpeichern(); skVollKey = ''; skRendern(); }); });
+document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.addEventListener('change', function () { skAktiv().zaehlung = r.value; skSpeichern(); skRendern(); }); });
+[['sk-datum', 'datum'], ['sk-unterschrift', 'unterschrift'], ['sk-erlaeuterung', 'erlaeuterung']].forEach(function (f) {
+  $(f[0]).addEventListener('input', function () { skAktiv()[f[1]] = this.value; skSpeichern(); skRendern(); });
+});
 
 /* ===== Eingaben auf dem Blatt ===== */
 function skPunktAus(ev) {
@@ -372,7 +400,7 @@ function skZugEnde(ev) {
   var z = skZug;
   skZug = null;
   if (!z || ev.pointerId !== z.id) return;
-  if (z.e && z.bewegt) { skVerlauf.push(z.vorher); $('sk-zurueck').disabled = false; skSpeichern(); skRendern(); return; }
+  if (z.e && z.bewegt) { skVerlauf.push(z.vorher); skSpeichern(); skRendern(); return; }
   if (Math.abs(ev.clientX - z.x) + Math.abs(ev.clientY - z.y) > 8) return;
   if (skWerkzeug) { skSetzen(skPunktAus(ev)); return; }
   if (!z.treffer && skAuswahl) { skAuswahl = null; skRendern(); }
@@ -390,8 +418,8 @@ function skSetzen(p) {
       // Text: gleich auswählen und das Eingabefeld öffnen
       e.text = 'Text';
       skWerkzeug = null; skAuswahl = e.id;
-      skSpeichern(); skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
-      var feld = skVoll ? $('sk-v-name') : $('sk-auswahl-eingabe');
+      skSpeichern(); skRendern();
+      var feld = $('sk-v-name');
       if (feld) { feld.value = ''; feld.placeholder = 'Text eingeben'; feld.focus(); }
       return;
     }
@@ -399,7 +427,7 @@ function skSetzen(p) {
     return;
   }
   skPunkte.push(p);
-  skLeisteZeigen(); skRendern();
+  skRendern();
 }
 function skFertig() {
   var f = skWerkzeug && SK_ART[skWerkzeug].form;
@@ -413,35 +441,25 @@ function skFertig() {
     skSpeichern();
   }
   skWerkzeug = null; skPunkte = [];
-  skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
+  skRendern();
 }
 var skMeldungUhr = 0;
 function skMeldung(t, fehler) {
-  $('sk-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('sk-meldung').textContent = t;
   if (!skVoll) return;
   $('sk-v-meldung').textContent = t; $('sk-v-meldung').hidden = !t;
   clearTimeout(skMeldungUhr);
   if (t) skMeldungUhr = setTimeout(function () { $('sk-v-meldung').hidden = true; }, 3500);
 }
 
-$('sk-werkzeuge').addEventListener('click', function (ev) {
-  var b = ev.target.closest('button[data-sk-wz]');
-  if (!b) return;
-  skWerkzeugWaehlen(b.getAttribute('data-sk-wz'));
-  if (skWerkzeug) $('sk-blatt').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-});
 function skWerkzeugWaehlen(w) {
   if (skPunkte.length && skWerkzeug !== w) skPunkte = [];
   skWerkzeug = skWerkzeug === w ? null : w;
   if (!skWerkzeug) skPunkte = [];
   skAuswahl = null; skFach = null; skMeldung('');
-  skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
+  skRendern();
 }
-function skAbbrechen() { skWerkzeug = null; skPunkte = []; skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); }
-function skPunktZurueck() { skPunkte.pop(); skLeisteZeigen(); skRendern(); }
-$('sk-leiste-fertig').addEventListener('click', skFertig);
-$('sk-leiste-zurueck').addEventListener('click', skPunktZurueck);
-$('sk-leiste-abbrechen').addEventListener('click', skAbbrechen);
+function skAbbrechen() { skWerkzeug = null; skPunkte = []; skRendern(); }
+function skPunktZurueck() { skPunkte.pop(); skRendern(); }
 
 // Gewähltes Element
 function skLoeschen() {
@@ -476,43 +494,8 @@ function skRueckgaengig() {
   if (i >= 0) SK.liste[i] = s;
   if (skAuswahl && !skElement(skAuswahl)) skAuswahl = null;
   skVollKey = '';
-  skSpeichern(); skFelderZeigen(); skRendern();
+  skSpeichern(); if (!$('sk-v-blatt').hidden) skBlattFelder(); skRendern();
 }
-$('sk-auswahl-weg').addEventListener('click', skLoeschen);
-$('sk-auswahl-sperren').addEventListener('click', skSperren);
-$('sk-auswahl-drehen').addEventListener('click', skDrehen);
-$('sk-auswahl-eingabe').addEventListener('input', function () { skNameAendern(this.value); });
-// Vor dem Ändern des Namens den Stand merken, damit Rückgängig den alten Namen zurückholt
-$('sk-auswahl-eingabe').addEventListener('focus', function () { if (skAuswahl) skMerken(); });
-$('sk-auswahl-fertig').addEventListener('click', skAuswahlEnde);
-$('sk-zurueck').addEventListener('click', skRueckgaengig);
-$('sk-zoom-plus').addEventListener('click', function () { skZoom = Math.min(4, skZoom + 0.5); skRendern(); });
-$('sk-zoom-minus').addEventListener('click', function () { skZoom = Math.max(1, skZoom - 0.5); skRendern(); });
-
-// Blatt: Auswahl, Maßstab, Kopfangaben
-$('sk-wahl').addEventListener('change', function () { SK.aktiv = this.value; skVerlauf = []; $('sk-zurueck').disabled = true; skAuswahl = null; skPunkte = []; skSpeichern(); skAllesZeigen(); });
-$('sk-karte-neu').addEventListener('click', function () {
-  var s = skNeu('Skizze ' + (SK.liste.length + 1));
-  SK.liste.push(s); SK.aktiv = s.id; skVerlauf = []; $('sk-zurueck').disabled = true; skAuswahl = null; skSpeichern(); skAllesZeigen();
-});
-$('sk-karte-name').addEventListener('click', function () {
-  var s = skAktiv();
-  inlineAbfrage(this.parentNode, { text: 'Neuer Name der Skizze', wert: s.name, ok: 'Speichern', fertig: function (n) { s.name = n; skSpeichern(); skFelderZeigen(); } });
-});
-$('sk-karte-weg').addEventListener('click', function () {
-  var s = skAktiv(), letzte = SK.liste.length < 2;
-  inlineAbfrage(this.parentNode, { text: 'Skizze „' + s.name + '“ wirklich löschen?' + (letzte ? ' Es bleibt eine leere Skizze.' : ''), ok: 'Löschen', gefahr: true, fertig: function () {
-    SK.liste = SK.liste.filter(function (x) { return x.id !== s.id; });
-    if (!SK.liste.length) SK.liste.push(skNeu('Skizze 1'));
-    SK.aktiv = SK.liste[0].id; skVerlauf = []; skAuswahl = null; skPunkte = []; skSpeichern(); skAllesZeigen();
-  } });
-});
-document.querySelectorAll('input[name="sk-massstab"]').forEach(function (r) { r.addEventListener('change', function () { skMerken(); skAktiv().massstab = +r.value; skSpeichern(); skRendern(); }); });
-document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.addEventListener('change', function () { skAktiv().zaehlung = r.value; skSpeichern(); skRendern(); }); });
-[['sk-datum', 'datum'], ['sk-unterschrift', 'unterschrift'], ['sk-erlaeuterung', 'erlaeuterung']].forEach(function (f) {
-  $(f[0]).addEventListener('input', function () { skAktiv()[f[1]] = this.value; skSpeichern(); skRendern(); });
-});
-
 /* ===== Vollbild ===== */
 // Ausschnitt des Blatts (viewBox) passend zum Seitenverhältnis des Bildschirms
 function skBuehne() { return $('sk-v-buehne').getBoundingClientRect(); }
@@ -532,19 +515,24 @@ function skAnsichtBegrenzen() {
   skAnsicht.x = Math.max(-skAnsicht.w + 30, Math.min(SK_B - 30, skAnsicht.x));
   skAnsicht.y = Math.max(-h + 30, Math.min(SK_H - 30, skAnsicht.y));
 }
-function skVollbild(an) {
-  skVoll = an;
-  var svg = $('sk-blatt');
-  if (an) $('sk-v-buehne').appendChild(svg); else document.querySelector('#sk-arbeit .sk-buehne').appendChild(svg);
-  $('sk-voll').hidden = !an;
-  document.documentElement.classList.toggle('sk-voll', an);
-  skFach = null; skVollKey = ''; skAnsicht = null; skZoom = 1; skFinger = {}; skPinch = null;
+function skOeffnen(id) {
+  SK.aktiv = id; skSpeichern();
+  skVerlauf = []; skAuswahl = null; skWerkzeug = null; skPunkte = []; skFach = null; skVollKey = ''; skAnsicht = null; skFinger = {}; skPinch = null;
+  skVoll = true;
+  $('sk-v-buehne').appendChild($('sk-blatt'));
+  $('sk-voll').hidden = false; $('sk-v-blatt').hidden = true;
+  document.documentElement.classList.add('sk-voll');
   skRendern();
-  if (an) skMeldung('Mit zwei Fingern zoomen und verschieben.');
-  else { skWerkzeugeZeigen(); skLeisteZeigen(); $('sk-arbeit').scrollIntoView({ block: 'start' }); }
+  skMeldung('Mit zwei Fingern zoomen und verschieben. Blatt-Angaben unter ⚙.');
+}
+function skSchliessen() {
+  skVoll = false; skWerkzeug = null; skPunkte = []; skAuswahl = null;
+  $('sk-parkplatz').appendChild($('sk-blatt'));
+  $('sk-voll').hidden = true;
+  document.documentElement.classList.remove('sk-voll');
+  skAblageZeigen();
 }
 // Untere Leiste: Dock, Werkzeug in Arbeit oder gewähltes Element. Nur neu bauen, wenn sich der Zustand ändert (Eingabefeld behält den Fokus).
-var SK_DOCK = [['Linien', 'strasse'], ['Flächen', 'nadelwald'], ['Zeichen', 'kirche']];
 function skVollLeiste() {
   var e = skAuswahl && skElement(skAuswahl);
   $('sk-v-titel').textContent = skAktiv().name + ' · ' + (skAktiv().massstab ? '1:' + skAktiv().massstab.toLocaleString('de-DE') : 'ohne Maßstab');
@@ -573,9 +561,11 @@ function skVollLeiste() {
       '<div class="sk-v-knoepfe">' + (f === 'punkt' ? '' : '<button type="button" class="sk-v-knopf" data-v="punktzurueck"' + (skPunkte.length ? '' : ' disabled') + '>↶ Punkt zurück</button>') +
       '<button type="button" class="sk-v-knopf primaer" data-v="fertig">✓ Fertig</button></div>';
   } else {
-    h = '<div class="sk-v-dock">' + SK_DOCK.map(function (d) {
-      return '<button type="button" class="sk-v-wahl" data-v-fach="' + d[0] + '" aria-pressed="' + (skFach === d[0]) + '">' + skIcon(d[1]) + d[0] + '</button>';
-    }).join('') + '<button type="button" class="sk-v-wahl" data-v-wz="marsch">' + skIcon('marsch') + 'Marschweg</button></div>';
+    var dock = SK_ARTEN[skArt(skAktiv())].dock;
+    h = '<div class="sk-v-dock" style="grid-template-columns:repeat(' + dock.length + ',1fr)">' + dock.map(function (d) {
+      return d[2] === 'wz' ? '<button type="button" class="sk-v-wahl" data-v-wz="' + d[1] + '">' + skIcon(d[1]) + esc(d[0]) + '</button>'
+        : '<button type="button" class="sk-v-wahl" data-v-fach="' + d[0] + '" aria-pressed="' + (skFach === d[0]) + '">' + skIcon(d[1]) + esc(d[0]) + '</button>';
+    }).join('') + '</div>';
     if (skFach) {
       var g = SK_WERKZEUGE.filter(function (x) { return x[0] === skFach; })[0];
       fach = g[1].filter(function (w) { return w[0] !== 'marsch'; }).map(function (w) { return '<button type="button" class="sk-v-wahl" data-v-wz="' + w[0] + '">' + skIcon(w[0]) + esc(w[1]) + '</button>'; }).join('');
@@ -602,13 +592,12 @@ $('sk-voll').addEventListener('click', function (ev) {
 $('sk-v-leiste').addEventListener('input', function (ev) { if (ev.target.id === 'sk-v-name') skNameAendern(ev.target.value); });
 $('sk-v-leiste').addEventListener('focusin', function (ev) { if (ev.target.id === 'sk-v-name' && skAuswahl) skMerken(); });
 $('sk-v-leiste').addEventListener('keydown', function (ev) { if (ev.target.id === 'sk-v-name' && ev.key === 'Enter') { ev.target.blur(); skAuswahlEnde(); } });
-$('sk-v-zu').addEventListener('click', function () { skVollbild(false); });
+$('sk-v-zu').addEventListener('click', skSchliessen);
 $('sk-v-zurueck').addEventListener('click', skRueckgaengig);
 $('sk-v-einpassen').addEventListener('click', function () { skEinpassen(); skAnsichtSetzen(); });
-$('sk-vollbild').addEventListener('click', function () { skVollbild(true); });
-document.addEventListener('keydown', function (e) { if (skVoll && e.key === 'Escape') skVollbild(false); });
+document.addEventListener('keydown', function (e) { if (skVoll && e.key === 'Escape') { if (!$('sk-v-blatt').hidden) skBlattAuf(false); else skSchliessen(); } });
 window.addEventListener('resize', function () { if (skVoll) { skAnsichtBegrenzen(); skAnsichtSetzen(); } });
-window.addEventListener('hashchange', function () { if (skVoll) skVollbild(false); });
+window.addEventListener('hashchange', function () { if (skVoll) skSchliessen(); });
 
 // Zwei Finger: zoomen und verschieben. Ein Finger auf freiem Papier verschiebt ebenfalls (auch mit Werkzeug, ein kurzes Tippen setzt dann den Punkt).
 function skFingerMitte() {

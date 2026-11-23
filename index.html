@@ -72,7 +72,8 @@
   <!-- START -->
   <section class="view" id="view-start" aria-label="Start">
     <p class="lede">Besoldung für Soldaten, klar aufgeschlüsselt: vom Dienstgrad zum Bruttobetrag, ohne Tabellen zu wälzen.</p>
-    <nav class="tiles" aria-label="Werkzeuge">
+    <h2 class="start-abschnitt">Dienst und Geld</h2>
+    <nav class="tiles" aria-label="Dienst und Geld">
       <a class="tile" href="#rechner">
         <span class="box"><svg class="ic"><use href="#i-calc"/></svg></span>
         <span><span class="tt">Rechner</span><span class="td">Dienstgrad, Stufe, Familie und Zulagen zum Bruttobetrag</span></span>
@@ -97,6 +98,13 @@
         <span class="box"><svg class="ic"><use href="#i-cal"/></svg></span>
         <span><span class="tt">Urlaubskartei</span><span class="td">Urlaub, Überstunden und ATB, Feiertage, Brückentage und Kalender-Export</span></span>
       </a>
+      <a class="tile" href="#mehr">
+        <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
+        <span><span class="tt">Erklärungen</span><span class="td">Grundgehalt, Familienzuschlag und Stufen einfach erklärt</span></span>
+      </a>
+    </nav>
+    <h2 class="start-abschnitt">Ausbildung und Taktik</h2>
+    <nav class="tiles" aria-label="Ausbildung und Taktik">
       <a class="tile" href="#symbole">
         <span class="box"><svg class="ic"><use href="#i-flag"/></svg></span>
         <span><span class="tt">Taktische Zeichen</span><span class="td">Militärische Symbole nach NATO APP-6 zusammenstellen und herunterladen</span></span>
@@ -107,11 +115,7 @@
       </a>
       <a class="tile" href="#skizze">
         <span class="box"><svg class="ic"><use href="#i-skizze"/></svg></span>
-        <span><span class="tt">Skizzen</span><span class="td">Gelände- und Wegeskizzen auf dem Meldeblatt mit Raster, Maßstab und Marschweg</span></span>
-      </a>
-      <a class="tile" href="#mehr">
-        <span class="box"><svg class="ic"><use href="#i-book"/></svg></span>
-        <span><span class="tt">Erklärungen</span><span class="td">Grundgehalt, Familienzuschlag und Stufen einfach erklärt</span></span>
+        <span><span class="tt">Skizzen</span><span class="td">Skizzen auf dem Meldeblatt: Gelände- und Wegeskizze, bald auch Stellungs- und Entfernungsskizze</span></span>
       </a>
     </nav>
   </section>
@@ -813,92 +817,74 @@
     <details class="panel erklaerung">
       <summary><h2>Erklärung: So funktionieren die Skizzen</h2></summary>
       <div class="erkl-text">
+        <h3>Ablage und neue Skizze</h3>
+        <p>Unter „Meine Skizzen“ stehen deine Skizzen mit Vorschaubild. Antippen öffnet eine Skizze, darunter lassen sie sich umbenennen und löschen. „Neue Skizze“ fragt, was du skizzieren möchtest: eine <strong>Gelände- und Wegeskizze</strong> oder später eine Stellungs-, Entfernungs- oder Panoramaskizze. Jede Art zeigt nur die Werkzeuge, die sie braucht.</p>
         <h3>Meldeblatt</h3>
-        <p>Gezeichnet wird wie auf dem Meldeblock: ein Raster von 16 × 12 Kästchen zu je 1 cm, oben die Maßstäbe 1:10.000, 1:25.000 und 1:50.000, rechts die Erläuterungen, das Datum und die Unterschrift. Der gewählte Maßstab bleibt stehen, die anderen werden durchgestrichen. Ein Kästchen entspricht bei 1:10.000 100 m, bei 1:25.000 250 m und bei 1:50.000 500 m. Bei „ohne Maßstab“ werden alle drei durchgestrichen; die Entfernungen am Marschweg trägt man dann von Hand ein.</p>
+        <p>Gezeichnet wird wie auf dem Meldeblock: Raster mit 16 × 12 Kästchen zu je 1 cm, oben die Maßstäbe 1:10.000, 1:25.000 und 1:50.000, rechts Erläuterungen, Datum und Unterschrift. Ein Kästchen entspricht bei 1:10.000 100 m, bei 1:25.000 250 m und bei 1:50.000 500 m. Bei „ohne Maßstab“ werden alle drei durchgestrichen. Maßstab, Datum, Unterschrift und Erläuterungen stellst du in der Skizze über das Zahnrad ⚙ ein, dort liegt auch „Als Bild speichern“.</p>
         <h3>Zeichnen</h3>
-        <p>Ein Werkzeug wählen und auf das Raster tippen. Bei <strong>Linien</strong> (Straße, Weg, Bahnlinie, Fluss) und <strong>Flächen</strong> (Ortschaft, Nadelwald, Laubwald, Mischwald) die Punkte nacheinander antippen, dann „Fertig“. <strong>Zeichen</strong> wie Kirche, Brücke, Einzelbaum, Nadel- oder Laubbaum werden mit jedem Tippen gesetzt. Zum Vergrößern die Lupe nutzen. Auf dem Handy zeichnet es sich am besten mit „Vollbild zeichnen“: Das Blatt füllt den Bildschirm, mit zwei Fingern wird gezoomt und verschoben, unten wählt man Linien, Flächen, Zeichen oder den Marschweg.</p>
+        <p>Die Skizze füllt den Bildschirm. Mit zwei Fingern zoomst und verschiebst du. Unten im Dock wählst du <strong>Linien</strong> (Straße, Weg, Bahnlinie, Fluss), <strong>Flächen</strong> (Ortschaft, Nadel-, Laub- und Mischwald), <strong>Zeichen</strong> (Kirche, Brücke, Bäume, Kuppe, Text, Nordpfeil …) oder den <strong>Marschweg</strong>. Bei Linien und Flächen die Punkte nacheinander antippen, dann „Fertig“. Zeichen werden mit jedem Tippen gesetzt. Text antippen und gleich eintippen.</p>
         <h3>Marschweg</h3>
-        <p>Den Startpunkt (Kreuz) und dann die Wegpunkte antippen. Jeder Wegpunkt bekommt einen Kreis und die Entfernung in Metern, berechnet über den Maßstab und auf 10 m (ab 1.000 m auf 50 m) gerundet. Wahlweise steht dort die Länge der Teilstrecke oder die Gesamtentfernung ab dem Start. Pfeile zeigen die Marschrichtung. Ohne Maßstab den Marschweg antippen und die Entfernungen der Reihe nach eingeben, zum Beispiel „800, 400, 1600“.</p>
+        <p>Den Startpunkt (Kreuz) und dann die Wegpunkte antippen. Jeder Wegpunkt bekommt einen Kreis und die Entfernung in Metern, berechnet über den Maßstab und auf 10 m (ab 1.000 m auf 50 m) gerundet, je Teilstrecke oder gesamt ab Start. Ohne Maßstab den Marschweg antippen und die Entfernungen der Reihe nach eingeben, zum Beispiel „800, 400, 1600“.</p>
         <h3>Ändern</h3>
-        <p>Ein Element antippen wählt es aus. Gedrückt halten und ziehen verschiebt es, bei Linien und Flächen lassen sich die einzelnen Punkte an ihren Griffen verschieben. Jedes gewählte Element kann einen Namen bekommen, etwa „Südwald“ oder „Schlierhof“; er steht bei Flächen in der Mitte, bei Linien daneben und bei Zeichen rechts daneben und lässt sich jederzeit ändern. Einen Namen kann man mit dem Finger wegziehen, dann verbindet ihn ein dünner Strich mit seinem Element. Gewählte Zeichen lassen sich drehen, sperren oder löschen. „Rückgängig“ nimmt den letzten Schritt zurück.</p>
-        <h3>Speichern und Weitergeben</h3>
-        <p>Skizzen bleiben im Browser dieses Geräts. „Als Bild speichern“ erzeugt eine PNG-Datei zum Ausdrucken oder Versenden.</p>
+        <p>Ein Element antippen wählt es aus. Ziehen verschiebt es, bei Linien und Flächen lassen sich die einzelnen Punkte an ihren Griffen verschieben. Jedes Element kann einen Namen bekommen, etwa „Südwald“; Namen lassen sich wegziehen und hängen dann an einem dünnen Strich. Zeichen lassen sich drehen; alles lässt sich sperren oder löschen. ↶ nimmt den letzten Schritt zurück.</p>
+        <h3>Speichern</h3>
+        <p>Skizzen bleiben im Browser dieses Geräts. „Als Bild speichern“ (unter ⚙) erzeugt eine PNG-Datei zum Ausdrucken oder Versenden.</p>
       </div>
     </details>
     <p class="notice warn-lage" role="note"><strong>Nur für Ausbildung und Übung.</strong> Keine echten Stellungen, Wege oder eingestuften Inhalte (VS-NfD) eintragen.</p>
-    <section class="panel">
-      <div class="u-felder einspaltig p-felder"><div><label class="label" for="sk-wahl" style="display:block">Skizze</label><select id="sk-wahl"></select></div></div>
-      <div class="dg-aktionen lage-karten-knoepfe">
-        <button type="button" class="knopf sekundaer" id="sk-karte-neu">Neue Skizze</button>
-        <button type="button" class="knopf sekundaer" id="sk-karte-name">Umbenennen</button>
-        <button type="button" class="knopf sekundaer" id="sk-karte-weg">Löschen</button>
-      </div>
-      <fieldset style="margin-top:12px"><legend>Maßstab</legend><div class="seg">
-        <label><input type="radio" name="sk-massstab" value="10000"><span>1:10.000</span></label>
-        <label><input type="radio" name="sk-massstab" value="25000"><span>1:25.000</span></label>
-        <label><input type="radio" name="sk-massstab" value="50000"><span>1:50.000</span></label>
-        <label><input type="radio" name="sk-massstab" value="0"><span>ohne Maßstab</span></label>
-      </div></fieldset>
-      <fieldset style="margin-top:12px"><legend>Entfernung am Marschweg</legend><div class="seg">
-        <label><input type="radio" name="sk-zaehlung" value="teil"><span>Je Teilstrecke</span></label>
-        <label><input type="radio" name="sk-zaehlung" value="gesamt"><span>Gesamt ab Start</span></label>
-      </div></fieldset>
-      <div class="u-felder p-felder" style="margin-top:12px">
-        <div><label class="label" for="sk-datum" style="display:block">Datum</label><input type="date" id="sk-datum"></div>
-        <div><label class="label" for="sk-unterschrift" style="display:block">Unterschrift (Name, Dienstgrad)</label><input type="text" id="sk-unterschrift" maxlength="40" autocomplete="off"></div>
-      </div>
-      <div class="p-felder" style="margin-top:12px"><label class="label" for="sk-erlaeuterung" style="display:block">Erläuterungen</label><textarea id="sk-erlaeuterung" class="sk-textfeld" rows="2" maxlength="150"></textarea></div>
+    <section class="panel" id="sk-ablage">
+      <div class="u-kopfzeile"><h2>Meine Skizzen <span class="u-anz" id="sk-anz"></span></h2></div>
+      <p class="hint" id="sk-leer">Noch keine Skizze. Mit „Neue Skizze“ wählst du, was du skizzieren möchtest.</p>
+      <div class="sk-liste" id="sk-liste"></div>
+      <div class="dg-aktionen" style="margin-top:12px"><button type="button" class="knopf primaer" id="sk-neu">Neue Skizze</button></div>
     </section>
-    <div class="sk-arbeit" id="sk-arbeit">
-    <section class="panel sk-zeichnen">
-      <h2>Zeichnen</h2>
-      <div id="sk-werkzeuge" class="sk-werkzeuge"></div>
-      <p class="u-meldung" id="sk-meldung" aria-live="polite"></p>
+    <section class="panel" id="sk-arten" hidden>
+      <h2>Was möchtest du skizzieren?</h2>
+      <div class="sk-arten" id="sk-arten-liste"></div>
+      <div class="dg-aktionen" style="margin-top:12px"><button type="button" class="knopf sekundaer" id="sk-arten-zurueck">Abbrechen</button></div>
     </section>
-    <div class="lage-leiste" id="sk-leiste" hidden>
-      <span id="sk-leiste-text"></span>
-      <div class="lage-leiste-knoepfe">
-        <button type="button" class="knopf sekundaer" id="sk-leiste-zurueck">Punkt zurück</button>
-        <button type="button" class="knopf sekundaer" id="sk-leiste-abbrechen">Abbrechen</button>
-        <button type="button" class="knopf primaer" id="sk-leiste-fertig">Fertig</button>
-      </div>
-    </div>
-    <div class="sk-werkzeugleiste">
-      <button type="button" class="knopf sekundaer" id="sk-zurueck" disabled>Rückgängig</button>
-      <button type="button" class="knopf sekundaer sk-lupe" id="sk-zoom-minus" aria-label="Verkleinern">−</button>
-      <button type="button" class="knopf sekundaer sk-lupe" id="sk-zoom-plus" aria-label="Vergrößern">+</button>
-      <button type="button" class="knopf primaer" id="sk-vollbild">Vollbild zeichnen</button>
-    </div>
-    <div class="sk-buehne"><svg id="sk-blatt" class="sk-blatt" viewBox="0 0 222 160" font-family="IBM Plex Sans, Arial, sans-serif" role="img" aria-label="Skizze auf dem Meldeblatt"></svg></div>
-    <div class="lage-leiste sk-auswahl" id="sk-auswahl" hidden>
-      <span id="sk-auswahl-text"></span>
-      <div class="p-felder" id="sk-auswahl-text-wrap" hidden><label class="label" for="sk-auswahl-eingabe" id="sk-auswahl-name-label" style="display:block">Name (Beschriftung)</label><input type="text" id="sk-auswahl-eingabe" maxlength="40" autocomplete="off"></div>
-      <div class="lage-leiste-knoepfe">
-        <button type="button" class="knopf sekundaer" id="sk-auswahl-drehen">Drehen 15°</button>
-        <button type="button" class="knopf sekundaer" id="sk-auswahl-sperren">Sperren</button>
-        <button type="button" class="knopf sekundaer" id="sk-auswahl-weg">Löschen</button>
-        <button type="button" class="knopf primaer" id="sk-auswahl-fertig">Fertig</button>
-      </div>
-    </div>
-    </div>
-    <div class="sk-voll" id="sk-voll" hidden role="dialog" aria-label="Skizze im Vollbild">
+    <div class="sk-parkplatz" id="sk-parkplatz" aria-hidden="true"><svg id="sk-blatt" class="sk-blatt" viewBox="0 0 222 160" font-family="IBM Plex Sans, Arial, sans-serif" role="img" aria-label="Skizze auf dem Meldeblatt"></svg></div>
+    <div class="sk-voll" id="sk-voll" hidden role="dialog" aria-label="Skizze bearbeiten">
       <div class="sk-v-buehne" id="sk-v-buehne"></div>
       <div class="sk-v-oben">
-        <button type="button" class="sk-v-rund" id="sk-v-zu" aria-label="Vollbild schließen"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button type="button" class="sk-v-rund" id="sk-v-zu" aria-label="Skizze schließen"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <div class="sk-v-titel"><span id="sk-v-titel"></span></div>
         <button type="button" class="sk-v-rund" id="sk-v-zurueck" aria-label="Rückgängig" disabled><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>
         <button type="button" class="sk-v-rund" id="sk-v-einpassen" aria-label="Ganzes Blatt zeigen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+        <button type="button" class="sk-v-rund" id="sk-v-blatt-auf" aria-label="Blatt: Maßstab, Angaben und Speichern"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
       </div>
       <div class="sk-v-unten">
         <p class="sk-v-meldung" id="sk-v-meldung" hidden></p>
         <div class="sk-v-karte sk-v-fach" id="sk-v-fach" hidden></div>
         <div class="sk-v-karte" id="sk-v-leiste"></div>
       </div>
+      <div class="sk-v-blatt" id="sk-v-blatt" hidden>
+        <div class="sk-v-blatt-karte" role="dialog" aria-label="Blatt">
+          <div class="sk-v-kopf"><div><b>Blatt</b><small>Name, Maßstab, Kopfangaben und Speichern</small></div><button type="button" class="sk-v-x" id="sk-v-blatt-zu" aria-label="Schließen">✕</button></div>
+          <div class="p-felder"><label class="label" for="sk-b-name" style="display:block">Name der Skizze</label><input type="text" id="sk-b-name" maxlength="40" autocomplete="off"></div>
+          <fieldset style="margin-top:12px"><legend>Maßstab</legend><div class="seg">
+            <label><input type="radio" name="sk-massstab" value="10000"><span>1:10.000</span></label>
+            <label><input type="radio" name="sk-massstab" value="25000"><span>1:25.000</span></label>
+            <label><input type="radio" name="sk-massstab" value="50000"><span>1:50.000</span></label>
+            <label><input type="radio" name="sk-massstab" value="0"><span>ohne Maßstab</span></label>
+          </div></fieldset>
+          <fieldset style="margin-top:12px"><legend>Entfernung am Marschweg</legend><div class="seg">
+            <label><input type="radio" name="sk-zaehlung" value="teil"><span>Je Teilstrecke</span></label>
+            <label><input type="radio" name="sk-zaehlung" value="gesamt"><span>Gesamt ab Start</span></label>
+          </div></fieldset>
+          <div class="u-felder p-felder" style="margin-top:12px">
+            <div><label class="label" for="sk-datum" style="display:block">Datum</label><input type="date" id="sk-datum"></div>
+            <div><label class="label" for="sk-unterschrift" style="display:block">Unterschrift (Name, Dienstgrad)</label><input type="text" id="sk-unterschrift" maxlength="40" autocomplete="off"></div>
+          </div>
+          <div class="p-felder" style="margin-top:12px"><label class="label" for="sk-erlaeuterung" style="display:block">Erläuterungen</label><textarea id="sk-erlaeuterung" class="sk-textfeld" rows="2" maxlength="150"></textarea></div>
+          <div class="dg-aktionen" style="margin-top:12px">
+            <button type="button" class="knopf sekundaer" id="sk-png">Als Bild speichern</button>
+            <button type="button" class="knopf primaer" id="sk-v-blatt-fertig">Fertig</button>
+          </div>
+          <p class="hint" id="sk-download-hinweis" hidden>In dieser Vorschau sind Downloads gesperrt. Auf der Website funktionieren sie.</p>
+        </div>
+      </div>
     </div>
-    <section class="panel">
-      <div class="dg-aktionen"><button type="button" class="knopf primaer" id="sk-png">Als Bild speichern</button></div>
-      <p class="hint" id="sk-download-hinweis" hidden>In dieser Vorschau sind Downloads gesperrt. Auf der Website funktionieren sie.</p>
-    </section>
   </section>
 
   <!-- PROFIL -->

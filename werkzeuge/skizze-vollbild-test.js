@@ -1,4 +1,4 @@
-// Prüft das Vollbild der Skizzen im Hoch- und Querformat: Dock, Fläche mit Namen, Marschweg, Text, Zoomen mit zwei Fingern. Seite über python3 -m http.server 8765.
+// Prüft die Skizze im Hoch- und Querformat: Dock, Fläche mit Namen, Marschweg, Text, Zoomen mit zwei Fingern. Seite über python3 -m http.server 8765.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const errs = [];
@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
     const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
     p.on('pageerror', e => errs.push(e.message));
     await p.goto('http://localhost:8765/index.html#skizze'); await p.waitForTimeout(600);
-    await p.click('#sk-vollbild'); await p.waitForTimeout(300);
+    await p.click('#sk-neu'); await p.click('[data-sk-art="gelaende"]'); await p.waitForTimeout(300);
     await p.screenshot({ path: 'v2-' + name + '-start.png' });
     const pos = async (cx, cy) => p.evaluate(([cx, cy]) => { const s = document.getElementById('sk-blatt'), pt = s.createSVGPoint(); pt.x = 22 + cx * 10; pt.y = 148 - cy * 10; const q = pt.matrixTransform(s.getScreenCTM()); return [q.x, q.y]; }, [cx, cy]);
     const tippe = async (cx, cy) => { const [x, y] = await pos(cx, cy); await p.mouse.click(x, y); await p.waitForTimeout(40); };
@@ -35,7 +35,7 @@ const { chromium } = require('playwright');
     });
     const nachher = await p.evaluate(() => skAnsicht.w);
     await p.screenshot({ path: 'v2-' + name + '-zoom.png' });
-    const n = await p.evaluate(() => SK.liste[0].elemente.map(e => e.art + (e.name ? '=' + e.name : '') + (e.text ? '=' + e.text : '')).join(', '));
+    const n = await p.evaluate(() => skAktiv().elemente.map(e => e.art + (e.name ? '=' + e.name : '') + (e.text ? '=' + e.text : '')).join(', '));
     await p.click('#sk-v-einpassen'); await p.click('#sk-v-zu');
     console.log(name, '| Breite Ausschnitt', Math.round(vorher), '→', Math.round(nachher), '|', n, '| zu:', await p.isHidden('#sk-voll'));
     await p.evaluate(() => localStorage.clear()); await p.close();
