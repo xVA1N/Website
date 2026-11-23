@@ -493,12 +493,13 @@
   <section class="view" id="view-favoriten" aria-label="Favoriten" hidden>
     <section class="panel" id="fav-leer">
       <h2>Noch keine Favoriten</h2>
-      <p class="hint">So fügst du welche hinzu: Auf den Seiten Rechner, Dienstgrade, Zulagen und Vergleich oben rechts auf den Stern tippen, um die Seite hier anzuheften. Einen Dienstgrad aufklappen und „Favorit“ wählen. Bei einer Zulage auf den Stern daneben tippen. Im Rechner unter dem Ergebnis „Als Favorit speichern“.</p>
+      <p class="hint">So fügst du welche hinzu: Auf den Seiten Rechner, Dienstgrade, Zulagen und Vergleich oben rechts auf den Stern tippen, um die Seite hier anzuheften. Einen Dienstgrad aufklappen und „Favorit“ wählen. Bei einer Zulage auf den Stern daneben tippen. Im Rechner unter dem Ergebnis „Als Favorit speichern“. Bei Taktische Zeichen im Baukasten „Zu meinen Zeichen“.</p>
       <p class="hint">Favoriten werden nur in diesem Browser auf diesem Gerät gespeichert.</p>
     </section>
     <section class="panel fav-gruppe" id="fav-seiten-wrap" hidden><h2>Seiten</h2><nav class="tiles" id="fav-seiten" aria-label="Angeheftete Seiten"></nav></section>
     <section class="panel fav-gruppe" id="fav-calc-wrap" hidden><h2>Berechnungen</h2><div class="liste" id="fav-calc"></div></section>
     <section class="panel fav-gruppe" id="fav-dg-wrap" hidden><h2>Dienstgrade</h2><div class="liste" id="fav-dg"></div></section>
+    <section class="panel fav-gruppe" id="fav-zeichen-wrap" hidden><h2>Taktische Zeichen</h2><p class="hint">Tippe auf ein Zeichen, um es im Baukasten zu öffnen.</p><div class="msfav-raster" id="fav-zeichen"></div></section>
     <section class="panel fav-gruppe" id="fav-zul-wrap" hidden><h2>Zulagen</h2><p class="hint" id="fav-zul-kopf"></p><div class="liste" id="fav-zul"></div></section>
   </section>
 
@@ -615,6 +616,11 @@
         <div class="foto-ergebnis" id="foto-ergebnis"></div>
       </div>
     </details>
+    <section class="panel" id="msfav-panel">
+      <h2>Meine Zeichen</h2>
+      <p class="hint" id="msfav-leer">Noch keine gespeichert. Stell unten ein Zeichen zusammen und tippe auf „Zu meinen Zeichen“. Gespeicherte Zeichen findest du auch unter Favoriten und auf der Lagekarte.</p>
+      <div class="msfav-raster" id="msfav-liste"></div>
+    </section>
     <section class="panel ms-vorschau-panel">
       <div class="ms-vorschau" id="ms-vorschau" aria-live="polite"><p class="hint">Zeichen wird geladen …</p></div>
       <p class="ms-code">Code (APP-6D): <span id="ms-code"></span></p>
@@ -624,7 +630,8 @@
       </div>
       <p class="hint" id="ms-download-hinweis" hidden>In dieser Vorschau sind Downloads gesperrt. Auf der Website funktionieren sie.</p>
       <p class="hint" id="ms-bearb-hinweis" hidden>Du bearbeitest ein Zeichen der Lagekarte. Position und Sperre bleiben erhalten.</p>
-      <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="ms-auf-karte"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg>Auf Lagekarte setzen</button>
+      <div class="dg-aktionen"><button type="button" class="knopf sekundaer" id="ms-fav" aria-pressed="false"><svg class="ic stern" aria-hidden="true"><use href="#i-star"/></svg><span>Zu meinen Zeichen</span></button>
+        <button type="button" class="knopf sekundaer" id="ms-auf-karte"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg>Auf Lagekarte setzen</button>
         <button type="button" class="knopf sekundaer" id="ms-bearb-abbrechen" hidden>Abbrechen</button></div>
     </section>
     <section class="panel">
@@ -767,6 +774,11 @@
       </div>
       <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
     </div>
+    <section class="panel" id="lage-fav-panel" hidden>
+      <h2>Meine Zeichen</h2>
+      <p class="hint">Antippen setzt das Zeichen in die Kartenmitte.</p>
+      <div class="msfav-raster" id="lage-fav"></div>
+    </section>
     <section class="panel">
       <div class="u-kopfzeile">
         <h2>Auf der Karte <span class="u-anz" id="lage-anz"></span></h2>

@@ -151,6 +151,7 @@ function ladeLeaflet() {
 
 function zeigeLage() {
   if (lageBearbId) lageBearbeitenEnde();
+  lageFavZeigen();
   renderLageWahl();
   if (!lageBereit) {
     lageBereit = Promise.all([ladeLeaflet(), ladeMilsymbol()]).then(function () { msGeladen = true; lageGrundlage(); }, function () {
@@ -862,5 +863,19 @@ $('ms-auf-karte').addEventListener('click', function () {
   }
   lageWartend = msAuswahl();
   go('lage');
+});
+// Meine Zeichen auf der Lagekarte: Antippen setzt das Zeichen in die Kartenmitte
+function lageFavZeigen() {
+  $('lage-fav-panel').hidden = !FAV.zeichen.length;
+  if (FAV.zeichen.length) msFavZeigen('lage-fav');
+}
+$('lage-fav').addEventListener('click', function (e) {
+  var weg = e.target.closest('button[data-msfav-weg]');
+  if (weg) { msFavWeg(weg.getAttribute('data-msfav-weg')); return; }
+  var b = e.target.closest('button[data-msfav]'), z = b && msFavHolen(b.getAttribute('data-msfav'));
+  if (!z || !lageKarte) return;
+  lageWartend = { sidc: z.sidc, opt: JSON.parse(JSON.stringify(z.opt || {})), name: z.name };
+  lageZeichenZeigen();
+  $('lage-karte').scrollIntoView({ block: 'center' });
 });
 $('ms-bearb-abbrechen').addEventListener('click', function () { lageBearbeitenEnde(); go('lage'); });

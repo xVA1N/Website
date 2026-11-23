@@ -704,3 +704,13 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .foto-sicht canvas { width: 64px; height: 64px; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
 #foto-meldung:empty { display: none; }
 .foto-texte { margin-bottom: 4px; }
+
+/* Meine Zeichen (Favoriten des Baukastens) */
+.msfav-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.msfav { position: relative; }
+.msfav-zeichen { width: 100%; min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 24px 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: inherit; cursor: pointer; text-align: center; }
+.msfav-zeichen:hover { border-color: var(--accent); }
+.msfav-zeichen .bild { display: grid; place-items: center; min-height: 44px; padding: 4px 6px; border-radius: 6px; background: #FFFFFF; }
+.msfav-zeichen .bild svg { max-width: 110px; max-height: 52px; }
+.msfav-zeichen .name { font-size: .8rem; line-height: 1.25; overflow-wrap: anywhere; }
+.msfav-weg { position: absolute; top: 2px; right: 2px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; }

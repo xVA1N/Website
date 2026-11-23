@@ -71,7 +71,7 @@ Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten
 
 ## Taktische Zeichen
 
-Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mit originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen (Landeinheiten, Ausrüstung, Einrichtungen, Luft, See, Unterwasser, Weltraum, Ereignisse und weitere), mit Suche, den Zusatzzeichen der Sektoren 1 und 2, Größe bzw. Beweglichkeit, Zugehörigkeit, Kontext (Übung), Status, Stab, Task Force, Täuschung und den Textfeldern nach APP-6. Häufige Landeinheiten haben eine deutsche Übersetzung, gepflegt in `js/12-symbole.js` unter `MS_ARTEN`. Die Zeichen lassen sich als SVG oder PNG herunterladen.
+Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mit originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen (Landeinheiten, Ausrüstung, Einrichtungen, Luft, See, Unterwasser, Weltraum, Ereignisse und weitere), mit Suche, den Zusatzzeichen der Sektoren 1 und 2, Größe bzw. Beweglichkeit, Zugehörigkeit, Kontext (Übung), Status, Stab, Task Force, Täuschung und den Textfeldern nach APP-6. Häufige Landeinheiten haben eine deutsche Übersetzung, gepflegt in `js/12-symbole.js` unter `MS_ARTEN`. Die Zeichen lassen sich als SVG oder PNG herunterladen. Oft gebrauchte Zeichen lassen sich mit „Zu meinen Zeichen“ speichern (mit Beschriftungen, im Browser wie die übrigen Favoriten). Sie stehen oben auf der Seite, unter Favoriten und auf der Lagekarte, wo ein Tippen das Zeichen in die Kartenmitte setzt.
 
 ## Zeichen aus Foto erkennen (Probe)
 
