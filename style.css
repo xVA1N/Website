@@ -686,3 +686,18 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .erkl-text ul, .erkl-text ol { padding-left: 20px; display: grid; gap: 4px; }
 .erkl-text h3 { margin: 8px 0 0; font-size: .92rem; font-weight: 600; }
 .erkl-text p:not(.hint), .erkl-text li { color: var(--fg); }
+
+/* Fotoerkennung */
+.foto-buehne { margin: 8px 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #222; touch-action: none; }
+.foto-buehne canvas { display: block; width: 100%; height: auto; touch-action: none; }
+.foto-ergebnis { display: grid; gap: 8px; margin-top: 10px; }
+.foto-ergebnis:empty { display: none; }
+.foto-vorschlag { display: grid; grid-template-columns: 90px 1fr; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+.foto-vorschlag .bild { display: grid; place-items: center; background: #fff; border-radius: 6px; min-height: 64px; }
+.foto-vorschlag .bild svg { max-width: 84px; max-height: 70px; }
+.foto-vorschlag b { display: block; }
+.foto-vorschlag small { color: var(--muted); }
+.foto-vorschlag .wert { font-family: var(--font-mono); font-size: .85rem; }
+.foto-sicht { display: flex; gap: 10px; align-items: center; font-size: .82rem; color: var(--muted); }
+.foto-sicht canvas { width: 64px; height: 64px; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
+#foto-meldung:empty { display: none; }

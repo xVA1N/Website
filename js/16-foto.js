@@ -1,0 +1,119 @@
+/* MeinKamerad – Zeichen aus Foto erkennen (Probe). Alles läuft im Browser, das Foto verlässt das Gerät nicht.
+   Teil von index.html, Reihenfolge der Skripte beachten. */
+'use strict';
+if (!window.MK_DATEN) throw new Error('daten.js fehlt');
+
+var FOTO_RAHMEN_NAME = { '3': 'Eigene', '6': 'Feind', '4': 'Neutral', '1': 'Unbekannt' };
+var FOTO_FARBE_ZU = { blau: 0, rot: 1, gruen: 2, gelb: 3 }; // Reihenfolge wie die Rahmenklassen 3, 6, 4, 1
+var fotoNetz = null, fotoBild = null, fotoAuswahl = null, fotoMass = 1;
+
+function fotoLaden() {
+  if (fotoNetz) return Promise.resolve();
+  return Promise.all([ladeMilsymbol(), window.fotoErkennen ? Promise.resolve() : ladeSkript('js/foto-kern.js'), window.FOTO_NETZ ? Promise.resolve() : ladeSkript('vendor/foto-netz.js')])
+    .then(function () { fotoNetz = fotoNetzLaden(window.FOTO_NETZ); });
+}
+function fotoMeldung(t, fehler) { $('foto-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('foto-meldung').textContent = t; }
+
+// Bild in einen Arbeits-Canvas laden (längste Seite höchstens 1400 Pixel) und verkleinert anzeigen
+function fotoAnzeigen(img) {
+  var s = Math.min(1, 1400 / Math.max(img.width, img.height));
+  var arbeit = document.createElement('canvas');
+  arbeit.width = Math.round(img.width * s); arbeit.height = Math.round(img.height * s);
+  arbeit.getContext('2d', { willReadFrequently: true }).drawImage(img, 0, 0, arbeit.width, arbeit.height);
+  fotoBild = arbeit;
+  fotoAuswahl = null;
+  var cv = $('foto-canvas');
+  cv.width = arbeit.width; cv.height = arbeit.height;
+  fotoZeichnen();
+  $('foto-bereich').hidden = false;
+  $('foto-ergebnis').innerHTML = '';
+  fotoMeldung('');
+}
+function fotoZeichnen() {
+  var cv = $('foto-canvas'), ctx = cv.getContext('2d');
+  ctx.drawImage(fotoBild, 0, 0);
+  if (fotoAuswahl) {
+    var a = fotoAuswahlNorm();
+    ctx.fillStyle = 'rgba(0,0,0,.45)';
+    ctx.fillRect(0, 0, cv.width, a.y); ctx.fillRect(0, a.y + a.h, cv.width, cv.height - a.y - a.h);
+    ctx.fillRect(0, a.y, a.x, a.h); ctx.fillRect(a.x + a.w, a.y, cv.width - a.x - a.w, a.h);
+    ctx.strokeStyle = '#FFD54A'; ctx.lineWidth = Math.max(2, cv.width / 250); ctx.strokeRect(a.x, a.y, a.w, a.h);
+  }
+}
+function fotoAuswahlNorm() {
+  var a = fotoAuswahl;
+  return { x: Math.min(a.x0, a.x1), y: Math.min(a.y0, a.y1), w: Math.abs(a.x1 - a.x0), h: Math.abs(a.y1 - a.y0) };
+}
+// Auswahlrahmen mit Finger oder Maus ziehen
+(function () {
+  var cv = $('foto-canvas'), aktiv = false;
+  var punkt = function (e) {
+    var r = cv.getBoundingClientRect(), sx = cv.width / r.width;
+    return [Math.max(0, Math.min(cv.width, (e.clientX - r.left) * sx)), Math.max(0, Math.min(cv.height, (e.clientY - r.top) * sx))];
+  };
+  cv.addEventListener('pointerdown', function (e) { if (!fotoBild) return; aktiv = true; cv.setPointerCapture(e.pointerId); var p = punkt(e); fotoAuswahl = { x0: p[0], y0: p[1], x1: p[0], y1: p[1] }; e.preventDefault(); });
+  cv.addEventListener('pointermove', function (e) { if (!aktiv) return; var p = punkt(e); fotoAuswahl.x1 = p[0]; fotoAuswahl.y1 = p[1]; fotoZeichnen(); });
+  var ende = function () { if (!aktiv) return; aktiv = false; var a = fotoAuswahlNorm(); if (a.w < 12 || a.h < 12) fotoAuswahl = null; fotoZeichnen(); };
+  cv.addEventListener('pointerup', ende); cv.addEventListener('pointercancel', ende);
+})();
+
+// Erkennen: aufbereiten, Netz rechnen, Farbe einbeziehen, drei Vorschläge zeigen
+function fotoAuswerten() {
+  if (!fotoBild || !fotoNetz) return;
+  var ctx = fotoBild.getContext('2d', { willReadFrequently: true });
+  var a = fotoAuswahl ? fotoAuswahlNorm() : { x: 0, y: 0, w: fotoBild.width, h: fotoBild.height };
+  a = { x: Math.round(a.x), y: Math.round(a.y), w: Math.max(1, Math.round(a.w)), h: Math.max(1, Math.round(a.h)) };
+  var auf = fotoAufbereiten(ctx, a.x, a.y, a.w, a.h);
+  if (!auf) { fotoMeldung('Im gewählten Bereich ist keine Zeichnung zu erkennen. Bitte enger um das Zeichen ziehen oder ein deutlicheres Foto nehmen.', true); $('foto-ergebnis').innerHTML = ''; return; }
+  var e = fotoErkennen(fotoNetz, auf.daten);
+  // Kräftige Farbe stützt die Zugehörigkeit (blau eigene, rot Feind, grün neutral, gelb unbekannt)
+  var farbe = fotoFarbe(ctx, a.x + auf.box.x0, a.y + auf.box.y0, auf.box.x1 - auf.box.x0 + 1, auf.box.y1 - auf.box.y0 + 1);
+  var rahmen = Array.prototype.slice.call(e.rahmen);
+  Object.keys(FOTO_FARBE_ZU).forEach(function (k) { rahmen[FOTO_FARBE_ZU[k]] *= 1 + Math.min(20, farbe[k] * 200); });
+  var summe = rahmen.reduce(function (x, y) { return x + y; }, 0);
+  rahmen = rahmen.map(function (x) { return x / summe; });
+  var kl = fotoNetz.klassen, beste = function (arr) { var i = 0; for (var j = 1; j < arr.length; j++) if (arr[j] > arr[i]) i = j; return i; };
+  var ri = beste(rahmen), gi = beste(e.groesse);
+  var symbole = Array.prototype.map.call(e.symbol, function (p, i) { return [p, i]; }).sort(function (x, y) { return y[0] - x[0]; }).slice(0, 3);
+  var pz = function (p) { return Math.round(p * 100) + ' %'; };
+  var gName = function (code) { var g = MS_GROESSEN.filter(function (x) { return x[0] === code; })[0]; return g ? g[1].replace(/\s*\(.*\)$/, '') : code; };
+  $('foto-ergebnis').innerHTML =
+    '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + pz(e.groesse[gi]) + ').</span></div>' +
+    symbole.map(function (sp, n) {
+      var code = kl.symbol[sp[1]], sidc = '100' + kl.rahmen[ri] + '1000' + kl.groesse[gi] + code + '0000';
+      var name = code === '000000' ? 'Nur Rahmen, ohne Symbol' : msNameKurz('10', code);
+      var svg = new window.ms.Symbol(sidc, { size: 30, standard: 'APP6' }).asSVG();
+      return '<button type="button" class="foto-vorschlag" data-foto-sidc="' + sidc + '" data-foto-name="' + esc(name) + '"><span class="bild">' + svg + '</span><span><b>' + (n + 1) + '. ' + esc(name) + '</b>' +
+        '<small>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + ' · ' + gName(kl.groesse[gi]) + '</small><br><span class="wert">' + pz(sp[0]) + '</span> <small>Übernehmen</small></span></button>';
+    }).join('');
+  // Aufbereitetes Bild als kleine Vorschau zeigen, damit man sieht, was erkannt wurde
+  var sc = $('foto-sicht').getContext('2d'), id = sc.createImageData(FOTO_N, FOTO_N);
+  for (var i = 0; i < FOTO_N * FOTO_N; i++) { var v = 255 - Math.round(auf.daten[i] * 255); id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
+  sc.putImageData(id, 0, 0);
+  fotoMeldung(symbole[0][0] < 0.4 ? 'Die Erkennung ist unsicher. Prüfe die Vorschläge oder versuche ein deutlicheres, enger zugeschnittenes Foto.' : '');
+}
+
+// Bedienung
+$('foto-knopf').addEventListener('click', function () { $('foto-datei').click(); });
+$('foto-datei').addEventListener('change', function (e) {
+  var f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  fotoMeldung('Wird geladen …');
+  var url = URL.createObjectURL(f), img = new Image();
+  img.onload = function () {
+    URL.revokeObjectURL(url);
+    fotoLaden().then(function () { fotoAnzeigen(img); }, function () { fotoMeldung('Die Erkennung konnte nicht geladen werden. Bitte die Verbindung prüfen.', true); });
+  };
+  img.onerror = function () { URL.revokeObjectURL(url); fotoMeldung('Diese Datei ist kein lesbares Bild.', true); };
+  img.src = url;
+});
+$('foto-ganz').addEventListener('click', function () { fotoAuswahl = null; fotoZeichnen(); fotoAuswerten(); });
+$('foto-erkennen').addEventListener('click', fotoAuswerten);
+$('foto-ergebnis').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-foto-sidc]');
+  if (!b) return;
+  msFormularSetzen({ sidc: b.getAttribute('data-foto-sidc'), opt: { fill: true, colorMode: 'Medium', standard: 'APP6' } });
+  $('ms-vorschau').scrollIntoView({ block: 'center' });
+  fotoMeldung('„' + b.getAttribute('data-foto-name') + '“ in den Baukasten übernommen. Dort kannst du alles anpassen.');
+});

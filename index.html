@@ -594,6 +594,27 @@
         <p class="hint">Gezeichnet werden die Zeichen mit der freien Bibliothek milsymbol, die Liste stammt aus den APP-6D-Tabellen des Pakets stanag-app6. Die Seite ist kein amtliches Hilfsmittel.</p>
       </div>
     </details>
+    <details class="panel erklaerung" id="foto-panel" hidden>
+      <summary><h2>Zeichen aus Foto erkennen <span class="u-anz">Probe</span></h2></summary>
+      <div class="erkl-text">
+        <p>Fotografiere ein gezeichnetes oder gedrucktes taktisches Zeichen, zum Beispiel von Papier, Folie oder Whiteboard. Die Erkennung läuft nur auf diesem Gerät, das Foto wird nirgendwohin gesendet.</p>
+        <p class="hint" style="margin:0">Am besten: ein einzelnes Zeichen, dunkler Stift auf hellem Grund, gerade von oben, Zeichen füllt einen großen Teil des Bildes. Erkannt werden Rahmen (eigene, Feind, neutral, unbekannt), die Größe und 45 häufige Landeinheiten. Die Erkennung kann sich irren, prüfe den Vorschlag.</p>
+      </div>
+      <div class="dg-aktionen" style="margin-top:10px">
+        <button type="button" class="knopf primaer" id="foto-knopf">Foto aufnehmen oder wählen</button>
+      </div>
+      <input type="file" id="foto-datei" accept="image/*" capture="environment" hidden>
+      <div id="foto-bereich" hidden>
+        <p class="hint" id="foto-anleitung">Ziehe mit dem Finger einen Rahmen um das Zeichen, dann „Erkennen“.</p>
+        <div class="foto-buehne"><canvas id="foto-canvas"></canvas></div>
+        <div class="dg-aktionen">
+          <button type="button" class="knopf primaer" id="foto-erkennen">Erkennen</button>
+          <button type="button" class="knopf sekundaer" id="foto-ganz">Ganzes Bild</button>
+        </div>
+        <p class="u-meldung" id="foto-meldung" aria-live="polite"></p>
+        <div class="foto-ergebnis" id="foto-ergebnis"></div>
+      </div>
+    </details>
     <section class="panel ms-vorschau-panel">
       <div class="ms-vorschau" id="ms-vorschau" aria-live="polite"><p class="hint">Zeichen wird geladen …</p></div>
       <p class="ms-code">Code (APP-6D): <span id="ms-code"></span></p>
@@ -912,5 +933,6 @@
 <script src="js/13-koordinaten.js"></script>
 <script src="js/14-lage.js"></script>
 <script src="js/15-start.js"></script>
+<script src="js/16-foto.js"></script>
 </body>
 </html>
