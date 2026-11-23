@@ -151,7 +151,7 @@ function skMeter(s, mm) { var m = mm * skMeterJeMm(s); return m < 1000 ? Math.ro
 
 /* ===== Zeichnen ===== */
 function skNadel(x, y) {
-  return '<path d="M' + (x - 1.1) + ',' + (y + 0.7) + ' L' + (x - 0.2) + ',' + (y - 1.9) + ' L' + (x + 1.4) + ',' + (y + 1.6) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round"/>';
+  return '<path d="M' + (x - 1.1) + ',' + (y + 1.5) + ' L' + (x - 0.1) + ',' + (y - 2) + ' L' + (x + 0.65) + ',' + (y + 1.65) + ' L' + (x + 1.3) + ',' + (y + 1.65) + '" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5" stroke-linecap="round" stroke-linejoin="round"/>';
 }
 function skLaub(x, y) {
   return '<path d="M' + (x - 0.5) + ',' + (y + 1.1) + ' C' + (x - 2) + ',' + (y + 0.7) + ' ' + (x - 2) + ',' + (y - 1.8) + ' ' + x + ',' + (y - 1.8) +
@@ -162,9 +162,9 @@ function skDefs() {
   return '<defs>' +
     '<clipPath id="sk-raster-clip"><rect x="' + SK_GX + '" y="' + SK_GY + '" width="' + SK_GW + '" height="' + SK_GH + '"/></clipPath>' +
     '<pattern id="sk-schraffur" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="2.2" stroke="' + SK_TINTE + '" stroke-width=".45"/></pattern>' +
-    // Handgezeichnete Waldzeichen wie im Meldeblock: Nadelwald ein spitzes Λ mit kürzerem linken Schenkel,
+    // Handgezeichnete Waldzeichen wie im Meldeblock: Nadelwald ein schmales, hohes Λ mit kleinem Fuß nach rechts,
     // Laubwald eine unten offene Schleife (links eingerollt, rechts kurzer Fuß). Locker und versetzt verteilt.
-    '<pattern id="sk-nadel" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 4) + skNadel(9.5, 9.5) + '</pattern>' +
+    '<pattern id="sk-nadel" width="13" height="11" patternUnits="userSpaceOnUse">' + skNadel(3, 3.5) + skNadel(9.5, 8.8) + '</pattern>' +
     '<pattern id="sk-laub" width="13" height="11" patternUnits="userSpaceOnUse">' + skLaub(3, 4) + skLaub(9.5, 9.5) + '</pattern>' +
     '<pattern id="sk-wasser" width="7" height="4" patternUnits="userSpaceOnUse"><path d="M1,2 q1,-1 2,0 t2,0" fill="none" stroke="#2F62A8" stroke-width=".3"/></pattern>' +
     '<pattern id="sk-sumpf" width="9" height="6" patternUnits="userSpaceOnUse"><path d="M.8,1.5 H3.6 M5.2,1.5 H6.6 M2.6,4.5 H5.4 M7,4.5 H8.4" stroke="' + SK_TINTE + '" stroke-width=".35" stroke-linecap="round"/></pattern>' +
