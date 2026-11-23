@@ -9,8 +9,8 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-lage`, `14-start`. |
-| `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte. Sie werden nur auf diesen Seiten geladen. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`, `16-foto`, dazu `foto-kern` (nur bei Bedarf geladen). |
+| `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte, dazu `app6d-katalog.js` mit allen APP-6D-Einträgen, erzeugt aus stanag-app6 0.2.0 (MIT). Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
 Die Dateien brauchen keinen Build-Schritt. GitHub Pages veröffentlicht sie so, wie sie im Repository liegen.
@@ -71,11 +71,15 @@ Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten
 
 ## Taktische Zeichen
 
-Die Seite „Taktische Zeichen“ stellt militärische Symbole nach NATO APP-6 (Landeinheiten) zusammen: Zugehörigkeit, Truppengattung, Größe, Status, Stab oder Einsatzverband, Stärke und Beschriftungen. Die Zeichen lassen sich als SVG oder PNG herunterladen. Weitere Truppengattungen trägt man in `js/12-symbole.js` in der Liste `MS_ARTEN` ein (Code aus APP-6D, Symbolsatz 10).
+Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mit originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen (Landeinheiten, Ausrüstung, Einrichtungen, Luft, See, Unterwasser, Weltraum, Ereignisse und weitere), mit Suche, den Zusatzzeichen der Sektoren 1 und 2, Größe bzw. Beweglichkeit, Zugehörigkeit, Kontext (Übung), Status, Stab, Task Force, Täuschung und den Textfeldern nach APP-6. Häufige Landeinheiten haben eine deutsche Übersetzung, gepflegt in `js/12-symbole.js` unter `MS_ARTEN`. Die Zeichen lassen sich als SVG oder PNG herunterladen.
+
+## Zeichen aus Foto erkennen (Probe)
+
+Auf der Seite „Taktische Zeichen“ lässt sich ein gezeichnetes oder gedrucktes Zeichen fotografieren. Nach dem Eingrenzen mit dem Finger erkennt ein kleines Netz im Browser Rahmen (eigene, Feind, neutral, unbekannt), Größe und 45 häufige Landeinheiten und schlägt drei Zeichen vor. Das Foto verlässt das Gerät nicht. Bildaufbereitung und Netz stehen in `js/foto-kern.js` und `vendor/foto-netz.js`, die Bedienung in `js/16-foto.js`, die Trainingswerkzeuge in `werkzeuge/foto-training/`.
 
 ## Lagekarte
 
-Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Zeichen lassen sich verschieben, sperren (Schloss, dann nicht mehr verschiebbar oder änderbar), nachträglich im Baukasten bearbeiten und löschen. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
+Es gibt beliebig viele Lagekarten (anlegen, umbenennen, löschen), jede mit eigener Grundlage. Auf der Lagekarte setzt man Zeichen aus dem Baukasten („Auf Lagekarte setzen“) auf eine Online-Karte (OpenTopoMap oder OpenStreetMap) oder auf ein eigenes Bild, zum Beispiel ein Foto einer Übungskarte. Dazu kommen 36 Führungszeichen aus APP-6D mit originalen Namen und Codes (Grenzen und Linien wie PL, LD, LOA, FSCL; Richtungen und Achsen für Haupt- und Nebenangriff, geplant und Feind; Räume wie AA, ATK, OBJ, EA, NAI, LZ, DZ; Sperrlinie vereinfacht), gepflegt in `js/14-lage.js` unter `LAGE_FZ_GRUPPEN`, sowie freie Linien, Pfeile und Räume in Blau, Rot, Schwarz oder Grün. Eigene Kräfte, Feind und Sonstiges lassen sich ein- und ausblenden. Jede Lagekarte lässt sich samt Bild als Datei speichern und wieder einlesen. Zeichen und Formen lassen sich verschieben, sperren (Schloss, dann nicht mehr änderbar), nachträglich bearbeiten und löschen. Auf Online-Karten zeigt ein Fadenkreuz die Kartenmitte in MGRS (UTMREF), „Gehe zu Koordinate“ springt zu einer MGRS-Angabe oder zu Breite und Länge. Die Umrechnung steht in `js/13-koordinaten.js`. Alles bleibt im Browser, das Bild wird auf höchstens 2000 Pixel verkleinert. Die Seite ist nur für Ausbildung und Übung gedacht: keine echten Lagen und keine eingestuften Inhalte. Bei Online-Karten erfährt der Kartenanbieter den angesehenen Ausschnitt.
 
 ## Urlaubskartei
 

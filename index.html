@@ -568,6 +568,53 @@
   <!-- MEHR -->
   <!-- TAKTISCHE ZEICHEN -->
   <section class="view" id="view-symbole" aria-label="Taktische Zeichen" hidden>
+    <details class="panel erklaerung">
+      <summary><h2>Erklärung: Was ist APP-6?</h2></summary>
+      <div class="erkl-text">
+        <p><strong>APP-6</strong> ist der NATO-Standard für militärische Symbole (Allied Procedural Publication 6, „Military Symbology“). Die Bundeswehr nutzt ihn für taktische Zeichen auf Lagekarten und in Führungssystemen. Diese Seite folgt der Ausgabe <strong>APP-6D</strong>.</p>
+        <h3>So ist ein Zeichen aufgebaut</h3>
+        <ul>
+          <li><strong>Rahmen</strong> zeigt die Zugehörigkeit: Rechteck blau für eigene Kräfte, Raute rot für Feind, Quadrat grün für neutral, Kleeblatt gelb für unbekannt. Ein gestrichelter Rahmen heißt geplant oder vermutet.</li>
+          <li><strong>Symbol im Rahmen</strong> zeigt, was es ist, zum Beispiel das Kreuz für Infanterie oder das Oval für Panzer.</li>
+          <li><strong>Zusatzzeichen</strong> oben und unten im Rahmen verfeinern das, etwa Gebirge, Luftlande oder Kette.</li>
+          <li><strong>Größe</strong> steht über dem Rahmen: Punkte für Trupp bis Zug, Striche für Kompanie bis Regiment, X für Brigade und mehr.</li>
+          <li><strong>Textfelder</strong> rundherum tragen Bezeichnung (T), übergeordnete Einheit (M), Zusatzinformation (H) und weitere Angaben. Die Buchstaben sind die Feldnamen aus APP-6.</li>
+        </ul>
+        <h3>Der Code</h3>
+        <p>Jedes Zeichen hat einen 20-stelligen Code, er steht unter der Vorschau. Er setzt sich zusammen aus: Version (10), Kontext (Wirklichkeit, Übung, Simulation), Zugehörigkeit, Symbolsatz (zum Beispiel 10 für Landeinheiten, 15 für Ausrüstung), Status, Stab/Task Force/Täuschung, Größe oder Beweglichkeit, dem sechsstelligen Eintrag und den zwei Zusatzzeichen. Mit dem Code lässt sich ein Zeichen eindeutig weitergeben.</p>
+        <h3>So gehst du vor</h3>
+        <ol>
+          <li>Symbolsatz wählen, zum Beispiel Landeinheiten.</li>
+          <li>Eintrag wählen oder im Suchfeld suchen, auf Deutsch, Englisch oder mit dem Code.</li>
+          <li>Zugehörigkeit, Größe, Zusätze und Beschriftung einstellen. Die Vorschau zeigt das Ergebnis sofort.</li>
+          <li>Als SVG oder PNG laden oder mit „Auf Lagekarte setzen“ auf die Karte übernehmen.</li>
+        </ol>
+        <h3>Was enthalten ist</h3>
+        <p>Alle 1.287 Einzelzeichen aus APP-6D in 13 Symbolsätzen mit den originalen englischen Bezeichnungen und Codes, dazu die Zusatzzeichen der Sektoren 1 und 2. Bei häufigen Landeinheiten steht eine deutsche Übersetzung davor. Sie ist frei übersetzt und nicht amtlich, maßgeblich ist der Originalname.</p>
+        <p class="hint">Gezeichnet werden die Zeichen mit der freien Bibliothek milsymbol, die Liste stammt aus den APP-6D-Tabellen des Pakets stanag-app6. Die Seite ist kein amtliches Hilfsmittel.</p>
+      </div>
+    </details>
+    <details class="panel erklaerung" id="foto-panel">
+      <summary><h2>Zeichen aus Foto erkennen <span class="u-anz">Probe</span></h2></summary>
+      <div class="erkl-text">
+        <p>Fotografiere ein gezeichnetes oder gedrucktes taktisches Zeichen, zum Beispiel von Papier, Folie oder Whiteboard. Die Erkennung läuft nur auf diesem Gerät, das Foto wird nirgendwohin gesendet.</p>
+        <p class="hint" style="margin:0">Am besten: ein einzelnes Zeichen, dunkler Stift auf hellem Grund, gerade von oben, Zeichen füllt einen großen Teil des Bildes. Erkannt werden Rahmen (eigene, Feind, neutral, unbekannt), die Größe und 45 häufige Landeinheiten. Die Erkennung kann sich irren, prüfe den Vorschlag.</p>
+      </div>
+      <div class="dg-aktionen" style="margin-top:10px">
+        <button type="button" class="knopf primaer" id="foto-knopf">Foto aufnehmen oder wählen</button>
+      </div>
+      <input type="file" id="foto-datei" accept="image/*" capture="environment" hidden>
+      <div id="foto-bereich" hidden>
+        <p class="hint" id="foto-anleitung">Ziehe mit dem Finger einen Rahmen um das Zeichen, dann „Erkennen“.</p>
+        <div class="foto-buehne"><canvas id="foto-canvas"></canvas></div>
+        <div class="dg-aktionen">
+          <button type="button" class="knopf primaer" id="foto-erkennen">Erkennen</button>
+          <button type="button" class="knopf sekundaer" id="foto-ganz">Ganzes Bild</button>
+        </div>
+        <p class="u-meldung" id="foto-meldung" aria-live="polite"></p>
+        <div class="foto-ergebnis" id="foto-ergebnis"></div>
+      </div>
+    </details>
     <section class="panel ms-vorschau-panel">
       <div class="ms-vorschau" id="ms-vorschau" aria-live="polite"><p class="hint">Zeichen wird geladen …</p></div>
       <p class="ms-code">Code (APP-6D): <span id="ms-code"></span></p>
@@ -583,41 +630,89 @@
     <section class="panel">
       <h2>Zeichen zusammenstellen</h2>
       <div class="stack">
+        <div class="u-felder einspaltig p-felder">
+          <div><label class="label" for="ms-satz" style="display:block">Symbolsatz</label><select id="ms-satz"></select></div>
+          <div><label class="label" for="ms-suche" style="display:block">Suchen</label><input type="text" id="ms-suche" autocomplete="off" spellcheck="false" placeholder="z. B. Infanterie, tank, 1211"></div>
+          <div><label class="label" for="ms-art" style="display:block">Eintrag <span class="ms-anz" id="ms-art-anz"></span></label><select id="ms-art"></select></div>
+          <div id="ms-m1-wrap"><label class="label" for="ms-m1" style="display:block">Zusatz 1 (Sektor 1)</label><select id="ms-m1"></select></div>
+          <div id="ms-m2-wrap"><label class="label" for="ms-m2" style="display:block">Zusatz 2 (Sektor 2)</label><select id="ms-m2"></select></div>
+        </div>
         <fieldset><legend>Zugehörigkeit</legend><div class="seg" id="ms-zug">
           <label><input type="radio" name="ms-zug" value="3" checked><span>Eigene</span></label>
           <label><input type="radio" name="ms-zug" value="6"><span>Feind</span></label>
           <label><input type="radio" name="ms-zug" value="4"><span>Neutral</span></label>
           <label><input type="radio" name="ms-zug" value="1"><span>Unbekannt</span></label>
+          <label><input type="radio" name="ms-zug" value="2"><span>Vermutl. eigene</span></label>
+          <label><input type="radio" name="ms-zug" value="5"><span>Verdächtig</span></label>
+          <label><input type="radio" name="ms-zug" value="0"><span>Ausstehend</span></label>
         </div></fieldset>
-        <div class="u-felder einspaltig p-felder">
-          <div><label class="label" for="ms-art" style="display:block">Truppengattung</label><select id="ms-art"></select></div>
-          <div><label class="label" for="ms-groesse" style="display:block">Größe</label><select id="ms-groesse"></select></div>
+        <div class="u-felder p-felder">
+          <div id="ms-groesse-wrap"><label class="label" for="ms-groesse" style="display:block" id="ms-groesse-label">Größe</label><select id="ms-groesse"></select></div>
+          <div><label class="label" for="ms-kontext" style="display:block">Kontext</label><select id="ms-kontext"><option value="0">Wirklichkeit</option><option value="1">Übung</option><option value="2">Simulation</option></select></div>
         </div>
         <fieldset><legend>Status</legend><div class="seg" id="ms-status">
           <label><input type="radio" name="ms-status" value="0" checked><span>Vorhanden</span></label>
           <label><input type="radio" name="ms-status" value="1"><span>Geplant</span></label>
+          <label><input type="radio" name="ms-status" value="2"><span>Voll einsatzbereit</span></label>
+          <label><input type="radio" name="ms-status" value="3"><span>Beschädigt</span></label>
+          <label><input type="radio" name="ms-status" value="4"><span>Zerstört</span></label>
+          <label><input type="radio" name="ms-status" value="5"><span>Voll beladen</span></label>
         </div></fieldset>
-        <label class="check" for="ms-stab"><input type="checkbox" id="ms-stab"><span class="t">Stab (Führungselement)</span></label>
+        <label class="check" for="ms-stab"><input type="checkbox" id="ms-stab"><span class="t">Stab (Headquarters)</span></label>
         <label class="check" for="ms-tf"><input type="checkbox" id="ms-tf"><span class="t">Einsatzverband (Task Force)</span></label>
+        <label class="check" for="ms-dummy"><input type="checkbox" id="ms-dummy"><span class="t">Täuschung (Feint/Dummy)</span></label>
         <div class="u-felder p-felder">
-          <div><label class="label" for="ms-staerke" style="display:block">Stärke</label><select id="ms-staerke"><option value="">normal</option><option value="(+)">verstärkt (+)</option><option value="(-)">vermindert (−)</option><option value="(±)">verstärkt und vermindert (±)</option></select></div>
+          <div><label class="label" for="ms-staerke" style="display:block">Stärke (F)</label><select id="ms-staerke"><option value="">normal</option><option value="(+)">verstärkt (+)</option><option value="(-)">vermindert (−)</option><option value="(±)">verstärkt und vermindert (±)</option></select></div>
           <div><label class="label" for="ms-farbe" style="display:block">Füllfarbe</label><select id="ms-farbe"><option value="Light">hell</option><option value="Medium" selected>mittel</option><option value="Dark">dunkel</option><option value="ohne">ohne Füllung</option></select></div>
         </div>
         <div class="u-felder einspaltig p-felder">
-          <div><label class="label" for="ms-bez" style="display:block">Bezeichnung</label><input type="text" id="ms-bez" maxlength="30" autocomplete="off" placeholder="z. B. 2./371"></div>
-          <div><label class="label" for="ms-hoeher" style="display:block">Übergeordnete Einheit</label><input type="text" id="ms-hoeher" maxlength="30" autocomplete="off" placeholder="z. B. PzGrenBrig 37"></div>
-          <div><label class="label" for="ms-info" style="display:block">Zusatzinformation</label><input type="text" id="ms-info" maxlength="30" autocomplete="off"></div>
+          <div><label class="label" for="ms-bez" style="display:block">Bezeichnung (T)</label><input type="text" id="ms-bez" maxlength="30" autocomplete="off" placeholder="z. B. 2./371"></div>
+          <div><label class="label" for="ms-hoeher" style="display:block">Übergeordnete Einheit (M)</label><input type="text" id="ms-hoeher" maxlength="30" autocomplete="off" placeholder="z. B. PzGrenBrig 37"></div>
+          <div><label class="label" for="ms-info" style="display:block">Zusatzinformation (H)</label><input type="text" id="ms-info" maxlength="30" autocomplete="off"></div>
         </div>
+        <details class="ms-mehr">
+          <summary>Weitere Felder nach APP-6</summary>
+          <div class="u-felder p-felder ms-felder" id="ms-felder"></div>
+        </details>
       </div>
     </section>
-    <p class="hint">Zeichen nach NATO-Standard APP-6, erzeugt mit der freien Bibliothek milsymbol (MIT-Lizenz). Die Auswahl umfasst die gängigen Landeinheiten, deutsche Bezeichnungen frei übersetzt. Nicht amtlich.</p>
+    <p class="hint">Alle Einzelzeichen aus NATO APP-6D mit den originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen, dazu die Zusatzzeichen der Sektoren 1 und 2. Bei häufigen Landeinheiten steht eine deutsche Übersetzung davor, sie ist frei übersetzt und nicht amtlich. Zeichen erzeugt mit milsymbol, Katalog aus stanag-app6 (beide MIT-Lizenz, Måns Beckman).</p>
   </section>
 
   <!-- LAGEKARTE -->
   <section class="view" id="view-lage" aria-label="Lagekarte" hidden>
+    <details class="panel erklaerung">
+      <summary><h2>Erklärung: So funktioniert die Lagekarte</h2></summary>
+      <div class="erkl-text">
+        <h3>Grundlage</h3>
+        <p>Jede Lagekarte hat eine Grundlage: die <strong>topografische Karte</strong> (OpenTopoMap, mit Höhenlinien), die <strong>Straßenkarte</strong> (OpenStreetMap) oder ein <strong>eigenes Bild</strong>, zum Beispiel ein Foto einer Übungskarte. Das eigene Bild funktioniert ohne Internet. Du kannst beliebig viele Lagekarten anlegen und zwischen ihnen wechseln.</p>
+        <h3>Taktische Zeichen setzen</h3>
+        <p>Im Baukasten ein Zeichen zusammenstellen und „Auf Lagekarte setzen“ tippen. Es erscheint in der Kartenmitte. Gedrückt halten und ziehen verschiebt es. Antippen öffnet ein Fenster mit Sperren, Bearbeiten und Löschen. Gesperrte Zeichen tragen ein Schloss und lassen sich nicht mehr verändern.</p>
+        <h3>Führungszeichen zeichnen</h3>
+        <p>Unter „Zeichnen“ ein Führungszeichen nach APP-6D auswählen, etwa Phasenlinie, Angriffsachse oder Verfügungsraum, und „APP-6 Zeichnen“ tippen. Dann die Punkte nacheinander auf die Karte tippen und „Fertig“. Bei Richtungen und Achsen kommt die Spitze an den letzten Punkt. Für eigene Skizzen gibt es freie Linien, Pfeile und Räume.</p>
+        <ul>
+          <li><strong>Linien</strong> wie PL (Phasenlinie), LD (Ablauflinie) oder LOA (Grenze des Vorgehens) tragen ihr Kürzel und den Namen an beiden Enden.</li>
+          <li><strong>Gefechtsstreifengrenzen</strong> zeigen die Ebene in der Mitte, die Bezeichnungen der Nachbarn stehen links und rechts in Zeichenrichtung.</li>
+          <li><strong>Hauptangriff</strong> hat eine doppelte Spitze, <strong>Nebenangriff</strong> eine einfache, <strong>geplant</strong> ist gestrichelt, <strong>Feind</strong> rot.</li>
+          <li><strong>Räume</strong> wie AA (Verfügungsraum) oder OBJ (Angriffsziel) tragen ihr Kürzel und den Namen in der Mitte.</li>
+        </ul>
+        <h3>Koordinaten</h3>
+        <p>Auf den Online-Karten zeigt das Fadenkreuz die Mitte, unten links steht deren Koordinate in <strong>MGRS</strong> (UTMREF), etwa „32U NB 12345 67890“: Zone und Breitenband, 100-km-Quadrat, dann Rechts- und Hochwert auf den Meter. „Gehe zu Koordinate“ springt zu einer MGRS-Angabe oder zu Breite und Länge.</p>
+        <h3>Anzeigen und Weitergeben</h3>
+        <p>Unter „Anzeigen“ blendest du eigene Kräfte, Feind und Sonstiges ein oder aus. „Als Datei speichern“ gibt eine Lagekarte samt Bild als Datei weiter, „Datei einlesen“ fügt sie als neue Lagekarte hinzu. Alles bleibt im Browser dieses Geräts.</p>
+        <h3>Grenzen</h3>
+        <p>APP-6D kennt mehrere hundert Führungszeichen, enthalten sind 36 gängige mit originalen Namen und Codes. Sie sind nach der Beschreibung der Norm nachgezeichnet, Maße und Einzelheiten können abweichen. Die Sperrlinie ist vereinfacht. Deutsche Bezeichnungen sind frei übersetzt.</p>
+      </div>
+    </details>
     <p class="notice warn-lage" role="note"><strong>Nur für Ausbildung und Übung.</strong> Keine echten Lagen, Stellungen oder eingestuften Inhalte (VS-NfD) eintragen. Bei Online-Karten erfährt der Kartenanbieter, welchen Ausschnitt du ansiehst.</p>
     <section class="panel">
-      <fieldset><legend>Grundlage</legend><div class="seg" id="lage-modus">
+      <div class="u-felder einspaltig p-felder"><div><label class="label" for="lage-wahl" style="display:block">Lagekarte</label><select id="lage-wahl"></select></div></div>
+      <div class="dg-aktionen lage-karten-knoepfe">
+        <button type="button" class="knopf sekundaer" id="lage-karte-neu">Neue Lagekarte</button>
+        <button type="button" class="knopf sekundaer" id="lage-karte-name">Umbenennen</button>
+        <button type="button" class="knopf sekundaer" id="lage-karte-weg">Löschen</button>
+      </div>
+      <fieldset style="margin-top:12px"><legend>Grundlage</legend><div class="seg" id="lage-modus">
         <label><input type="radio" name="lage-modus" value="topo" checked><span>Topografische Karte</span></label>
         <label><input type="radio" name="lage-modus" value="osm"><span>Straßenkarte</span></label>
         <label><input type="radio" name="lage-modus" value="bild"><span>Eigenes Bild</span></label>
@@ -630,16 +725,69 @@
         <input type="file" id="lage-bild-datei" accept="image/*" hidden>
         <p class="hint">Zum Beispiel ein Foto einer Übungskarte oder eine Skizze. Das Bild bleibt im Gerät und wird nicht hochgeladen.</p>
       </div>
+      <form id="lage-ziel-form" class="lage-ziel" autocomplete="off">
+        <div id="lage-ziel-wrap">
+          <label class="label" for="lage-ziel" style="display:block">Gehe zu Koordinate</label>
+          <div class="lage-ziel-reihe"><input type="text" id="lage-ziel" placeholder="32U NB 12345 67890 oder 51,05, 10,30" inputmode="text" spellcheck="false"><button type="submit" class="knopf sekundaer">Los</button></div>
+        </div>
+      </form>
       <p class="u-meldung" id="lage-meldung" aria-live="polite"></p>
     </section>
-    <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
+    <section class="panel" id="lage-werkzeug">
+      <h2>Zeichnen</h2>
+      <div class="u-felder einspaltig p-felder" style="margin-bottom:10px"><div><label class="label" for="lage-fz" style="display:block">Führungszeichen nach APP-6D</label><select id="lage-fz"></select></div></div>
+      <div class="seg lage-typen">
+        <button type="button" class="lage-typ" data-lage-typ="linie" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M4 22C14 6 24 26 36 8"/></svg>Linie</button>
+        <button type="button" class="lage-typ" data-lage-typ="pfeil" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M5 24L30 8"/><path class="f" d="M36 4l-11 1 6 8z"/></svg>Pfeil</button>
+        <button type="button" class="lage-typ" data-lage-typ="raum" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M6 8l20-4 9 14-14 8-15-6z"/></svg>Raum</button>
+        <button type="button" class="lage-typ lage-typ-app6" data-lage-typ="fz" aria-pressed="false"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M3 21h34"/><text x="20" y="15" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" stroke="none">APP-6</text></svg>Zeichnen</button>
+      </div>
+      <div class="u-felder p-felder" style="margin-top:10px">
+        <div><label class="label" for="lage-farbe" style="display:block">Farbe</label><select id="lage-farbe"><option value="blau">Blau (eigene)</option><option value="rot">Rot (Feind)</option><option value="schwarz">Schwarz (allgemein)</option><option value="gruen">Grün (Hindernis, Gelände)</option></select></div>
+        <div><label class="label" for="lage-text" style="display:block" id="lage-text-label">Beschriftung</label><input type="text" id="lage-text" maxlength="40" autocomplete="off" placeholder="z. B. ALPHA"></div>
+        <div id="lage-text2-wrap" hidden><label class="label" for="lage-text2" style="display:block">Bezeichnung rechts</label><input type="text" id="lage-text2" maxlength="40" autocomplete="off" placeholder="z. B. 2./371"></div>
+        <div id="lage-stufe-wrap" hidden><label class="label" for="lage-stufe" style="display:block">Grenze der Ebene</label><select id="lage-stufe"><option value="I">Kompanie (I)</option><option value="II" selected>Bataillon (II)</option><option value="III">Regiment (III)</option><option value="X">Brigade (X)</option><option value="XX">Division (XX)</option><option value="XXX">Korps (XXX)</option></select></div>
+        <div id="lage-breite-wrap" hidden><label class="label" for="lage-breite" style="display:block">Breite</label><select id="lage-breite"><option value="s">schmal</option><option value="m" selected>mittel</option><option value="b">breit</option></select></div>
+      </div>
+      <label class="check" for="lage-gestrichelt" style="margin-top:10px"><input type="checkbox" id="lage-gestrichelt"><span class="t">Gestrichelt (geplant oder vermutet)</span></label>
+      <div class="lage-form-bearb" id="lage-form-bearb" hidden>
+        <p class="hint" id="lage-form-bearb-text" style="margin-top:0"></p>
+        <div class="dg-aktionen"><button type="button" class="knopf primaer" id="lage-form-uebernehmen">Änderungen übernehmen</button><button type="button" class="knopf sekundaer" id="lage-form-abbrechen">Abbrechen</button></div>
+      </div>
+      <p class="hint">Führungszeichen auswählen und „APP-6 Zeichnen“ tippen, oder eine freie Linie, einen Pfeil oder einen Raum wählen. Dann auf der Karte die Punkte nacheinander antippen und „Fertig“ tippen. Bei Richtungen und Achsen kommt die Spitze an den letzten Punkt. Namen und Codes stammen aus APP-6D, die deutschen Bezeichnungen sind frei übersetzt. Die Formen sind nach der Norm nachgezeichnet, Maße und Einzelheiten können abweichen; die Sperrlinie ist vereinfacht.</p>
+    </section>
+    <div class="lage-rahmen">
+      <div class="lage-leiste" id="lage-leiste" hidden>
+        <span id="lage-leiste-text"></span>
+        <span class="lage-leiste-knoepfe">
+          <button type="button" class="knopf sekundaer" id="lage-leiste-zurueck">Punkt zurück</button>
+          <button type="button" class="knopf sekundaer" id="lage-leiste-abbrechen">Abbrechen</button>
+          <button type="button" class="knopf primaer" id="lage-leiste-fertig">Fertig</button>
+        </span>
+      </div>
+      <div class="lage-karte" id="lage-karte" aria-label="Karte"></div>
+    </div>
     <section class="panel">
       <div class="u-kopfzeile">
-        <h2>Zeichen auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
+        <h2>Auf der Karte <span class="u-anz" id="lage-anz"></span></h2>
         <a class="u-plus" href="#symbole" aria-label="Zeichen hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a>
       </div>
-      <p class="hint">Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
+      <fieldset class="lage-sicht"><legend>Anzeigen</legend>
+        <label class="netto-check" for="lage-sicht-eigen"><input type="checkbox" id="lage-sicht-eigen" checked> Eigene Kräfte</label>
+        <label class="netto-check" for="lage-sicht-feind"><input type="checkbox" id="lage-sicht-feind" checked> Feind</label>
+        <label class="netto-check" for="lage-sicht-sonst"><input type="checkbox" id="lage-sicht-sonst" checked> Sonstiges</label>
+      </fieldset>
+      <p class="hint">Zeichen zählen nach ihrer Zugehörigkeit, Formen nach ihrer Farbe: blau eigene, rot Feind, sonst Sonstiges. Neues Zeichen im Baukasten zusammenstellen und „Auf Lagekarte setzen“ tippen. Auf der Karte lassen sich Zeichen mit dem Finger verschieben.</p>
       <div class="liste" id="lage-liste"></div>
+    </section>
+    <section class="panel">
+      <h2>Lagekarte weitergeben</h2>
+      <p class="hint" style="margin-top:0">Die gewählte Lagekarte mit allen Zeichen, Formen und dem eigenen Bild als Datei speichern. Eine solche Datei lässt sich hier wieder einlesen, sie kommt als neue Lagekarte dazu.</p>
+      <div class="dg-aktionen">
+        <button type="button" class="knopf primaer" id="lage-export">Als Datei speichern</button>
+        <button type="button" class="knopf sekundaer" id="lage-import-knopf">Datei einlesen</button>
+      </div>
+      <input type="file" id="lage-import" accept="application/json,.json" hidden>
     </section>
   </section>
 
@@ -782,7 +930,9 @@
 <script src="js/10-profil.js"></script>
 <script src="js/11-zeitstrahl.js"></script>
 <script src="js/12-symbole.js"></script>
-<script src="js/13-lage.js"></script>
-<script src="js/14-start.js"></script>
+<script src="js/13-koordinaten.js"></script>
+<script src="js/14-lage.js"></script>
+<script src="js/15-start.js"></script>
+<script src="js/16-foto.js"></script>
 </body>
 </html>
