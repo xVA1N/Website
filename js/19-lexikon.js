@@ -41,6 +41,7 @@ var LEXIKON = [
 
 /* Bilder: Datei liegt in bilder/lexikon/, Herkunft und Lizenz stehen unter dem Bild */
 var LEX_BILDER = {
+  g95: { datei: 'g95.webp', bw: LEX_BW + 'ausruestung-bewaffnung/gewehr-g95' },
   g36: { datei: 'g36.webp', autor: 'DomoK, freigestellt von Auge=mit', lizenz: 'CC BY-SA 4.0', lizenzUrl: 'https://creativecommons.org/licenses/by-sa/4.0/', seite: 'https://commons.wikimedia.org/wiki/File:Gewehr_G36_noBG.png' }
 };
 
@@ -50,8 +51,9 @@ function lexKarte(e) {
   var b = LEX_BILDER[e.id];
   var bild = b
     ? '<figure class="lex-bild"><img src="bilder/lexikon/' + b.datei + '" alt="' + esc(e.name) + ', Seitenansicht als Skizze" loading="lazy">' +
+      (b.bw ? '<figcaption>Skizze nach Foto: <a href="' + b.bw + '" target="_blank" rel="noopener">Bundeswehr</a>, bearbeitet</figcaption></figure>' :
       '<figcaption>Skizze nach Foto von ' + esc(b.autor) + ', <a href="' + b.seite + '" target="_blank" rel="noopener">Wikimedia Commons</a>, ' +
-      '<a href="' + b.lizenzUrl + '" target="_blank" rel="noopener">' + esc(b.lizenz) + '</a>, bearbeitet</figcaption></figure>'
+      '<a href="' + b.lizenzUrl + '" target="_blank" rel="noopener">' + esc(b.lizenz) + '</a>, bearbeitet</figcaption></figure>')
     : '<div class="lex-bild lex-ohne">Bild folgt</div>';
   return '<article class="lex-karte" id="lex-' + e.id + '">' + bild +
     '<div class="lex-text"><h3>' + esc(e.name) + '</h3><p class="lex-art">' + esc(e.art) + '</p>' +
