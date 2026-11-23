@@ -91,7 +91,7 @@ p { margin: 0; }
 .notice strong { font-weight: 600; }
 .wrap[data-view="start"] .short { display: none; }
 .wrap:not([data-view="start"]) .full { display: none; }
-.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox { display: none; }
+.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox { display: none; }
 .tskbox .label { display: block; }
 .tskbox .hint { margin-top: 6px; }
 
@@ -610,7 +610,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .ms-code { margin: 10px 0 0; font-size: .82rem; color: var(--muted); text-align: center; }
 .ms-code span { font-family: var(--font-mono); color: var(--fg); overflow-wrap: anywhere; }
 .p-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; box-sizing: border-box; }
-.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand { display: none; }
+.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand { display: none; }
 
 /* Lagekarte */
 .warn-lage { margin: 0; }
