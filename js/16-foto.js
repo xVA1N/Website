@@ -158,7 +158,7 @@ function fotoAuswerten() {
     symbole.map(function (sp, n) {
       var code = kl.symbol[sp[1]], sidc = '100' + kl.rahmen[ri] + '1000' + kl.groesse[gi] + code + '0000';
       var name = code === '000000' ? 'Nur Rahmen, ohne Symbol' : msNameKurz('10', code);
-      var svg = new window.ms.Symbol(sidc, auf.staerke ? { size: 30, standard: 'APP6', reinforcedReduced: auf.staerke } : { size: 30, standard: 'APP6' }).asSVG();
+      var svg = fotoVorschlagSvg(sidc, auf.staerke);
       return '<button type="button" class="foto-vorschlag" data-foto-sidc="' + sidc + '" data-foto-staerke="' + (auf.staerke || '') + '" data-foto-name="' + esc(name) + '"><span class="bild">' + svg + '</span><span><b>' + (n + 1) + '. ' + esc(name) + '</b>' +
         '<small>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + ' · ' + gName(kl.groesse[gi]) + '</small><br><span class="wert">' + pz(sp[0]) + '</span> <small>Übernehmen</small></span></button>';
     }).join('');
@@ -169,17 +169,43 @@ function fotoAuswerten() {
   fotoMeldung(symbole[0][0] < 0.4 ? 'Die Erkennung ist unsicher. Prüfe die Vorschläge oder versuche ein deutlicheres, enger zugeschnittenes Foto.' : '');
   // Beschriftungen lesen (dauert beim ersten Mal einige Sekunden, weil die Texterkennung geladen wird)
   var lauf = ++fotoLauf;
+  fotoUebernommen = false;
   [['foto-t', auf.links], ['foto-m', auf.rechts]].forEach(function (z) {
     if (!z[1].length) return;
     fotoTextLesen(z[1], auf, z[0]).then(function (t) {
       if (lauf !== fotoLauf || !$(z[0])) return;
       if (!$(z[0]).value) $(z[0]).value = t ? (z[0] === 'foto-t' ? fotoTextT(t) : fotoTextM(t)) : '';
       $(z[0]).placeholder = t ? '' : 'nicht lesbar';
+      fotoTexteAbgleichen();
     }, function () { if (lauf === fotoLauf && $(z[0])) $(z[0]).placeholder = 'Texterkennung nicht verfügbar'; });
   });
 }
 
+// Vorschaubild eines Vorschlags, mit den Beschriftungen aus den Feldern T und M
+function fotoVorschlagSvg(sidc, staerke) {
+  var opt = { size: 30, standard: 'APP6' }, t = $('foto-t'), m = $('foto-m');
+  if (staerke) opt.reinforcedReduced = staerke;
+  if (t && t.value.trim()) opt.uniqueDesignation = t.value.trim();
+  if (m && m.value.trim()) opt.higherFormation = m.value.trim();
+  return new window.ms.Symbol(sidc, opt).asSVG();
+}
+// Nach einer Änderung an T oder M: Vorschaubilder neu zeichnen und, wenn schon ein
+// Vorschlag übernommen wurde, den Baukasten sofort mitziehen
+var fotoUebernommen = false;
+function fotoTexteAbgleichen() {
+  Array.prototype.forEach.call(document.querySelectorAll('#foto-ergebnis button[data-foto-sidc]'), function (b) {
+    b.querySelector('.bild').innerHTML = fotoVorschlagSvg(b.getAttribute('data-foto-sidc'), b.getAttribute('data-foto-staerke'));
+  });
+  if (!fotoUebernommen) return;
+  $('ms-bez').value = $('foto-t') ? $('foto-t').value.trim() : '';
+  $('ms-hoeher').value = $('foto-m') ? $('foto-m').value.trim() : '';
+  renderSymbol();
+}
+
 // Bedienung
+$('foto-ergebnis').addEventListener('input', function (e) {
+  if (e.target.id === 'foto-t' || e.target.id === 'foto-m') fotoTexteAbgleichen();
+});
 $('foto-knopf').addEventListener('click', function () { $('foto-datei').click(); });
 $('foto-datei').addEventListener('change', function (e) {
   var f = e.target.files && e.target.files[0];
@@ -204,6 +230,7 @@ $('foto-ergebnis').addEventListener('click', function (e) {
   if ($('foto-m') && $('foto-m').value.trim()) opt.higherFormation = $('foto-m').value.trim();
   if (b.getAttribute('data-foto-staerke')) opt.reinforcedReduced = b.getAttribute('data-foto-staerke');
   msFormularSetzen({ sidc: b.getAttribute('data-foto-sidc'), opt: opt });
+  fotoUebernommen = true;
   $('ms-vorschau').scrollIntoView({ block: 'center' });
   fotoMeldung('„' + b.getAttribute('data-foto-name') + '“ in den Baukasten übernommen. Dort kannst du alles anpassen.');
 });
