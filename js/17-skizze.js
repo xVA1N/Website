@@ -61,6 +61,10 @@ function skEntlang(pts, schritt) {
 }
 // Meter je Millimeter auf dem Blatt
 function skMeterJeMm(s) { return s.massstab / 1000; }
+// Ohne Maßstab (0) gibt es keine berechneten Entfernungen; am Marschweg stehen dann die von Hand eingetragenen
+// Trennen bei Semikolon, Komma mit Leerzeichen oder Leerzeichen zwischen zwei Zahlen; „1,2 km“ und „ca. 800“ bleiben ganz
+function skHandEntf(e) { var t = String(e.entf || ''); if (/^\s*\d{2,}(\s*,\s*\d{2,})+\s*$/.test(t)) t = t.replace(/,/g, ';'); return t.replace(/(\d)\s+(?=\d)/g, '$1;').split(/\s*;\s*|,\s+/).map(function (x) { return x.trim(); }).filter(Boolean); }
+function skOhneMassstab(s) { return !s.massstab; }
 function skMeter(s, mm) { var m = mm * skMeterJeMm(s); return m < 1000 ? Math.round(m / 10) * 10 : Math.round(m / 50) * 50; }
 
 /* ===== Zeichnen ===== */
@@ -151,7 +155,7 @@ function skElementSvg(s, e, mitTreffer) {
         var mx = (v[0] + q[0]) / 2, my = (v[1] + q[1]) / 2, dx = (q[0] - v[0]) / l, dy = (q[1] - v[1]) / l;
         h += '<path d="M' + skRund(mx - dx * 1.6 - dy * 1.2) + ',' + skRund(my - dy * 1.6 + dx * 1.2) + ' L' + skRund(mx) + ',' + skRund(my) + ' L' + skRund(mx - dx * 1.6 + dy * 1.2) + ',' + skRund(my - dy * 1.6 - dx * 1.2) + '" fill="none" stroke="' + SK_BLAU + '" stroke-width=".55" stroke-linecap="round"/>';
       }
-      var m = skMeter(s, s.zaehlung === 'gesamt' ? summe : l);
+      var m = skOhneMassstab(s) ? (skHandEntf(e)[i - 1] || '') : skMeter(s, s.zaehlung === 'gesamt' ? summe : l);
       h += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="2" fill="none" stroke="' + SK_BLAU + '" stroke-width=".5"/>' +
         '<text x="' + skRund(q[0] - 2.6) + '" y="' + skRund(q[1] - 2.4) + '" text-anchor="end" font-size="3.4" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width=".9">' + m + '</text>';
     });
@@ -309,15 +313,17 @@ function skAuswahlZeigen() {
   if (e.art === 'marsch') {
     var l = 0;
     for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]);
-    info = ' · ' + (e.pts.length - 1) + ' Teilstrecken, zusammen ' + skMeter(s, l).toLocaleString('de-DE') + ' m';
+    info = ' · ' + (e.pts.length - 1) + ' Teilstrecken' + (skOhneMassstab(s) ? ', ohne Maßstab: Entfernungen von Hand eintragen' : ', zusammen ' + skMeter(s, l).toLocaleString('de-DE') + ' m');
   }
   $('sk-auswahl-text').textContent = art.name + info + (e.gesperrt ? ' · gesperrt' : '');
   $('sk-auswahl-sperren').textContent = e.gesperrt ? 'Entsperren' : 'Sperren';
   $('sk-auswahl-drehen').hidden = art.form !== 'punkt' || e.gesperrt;
   $('sk-auswahl-text-wrap').hidden = !!e.gesperrt;
   $('sk-auswahl-eingabe').placeholder = e.art === 'text' ? 'Text' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', strasse: 'nach Oststadt' }[e.art] || 'Spitzbaum');
-  $('sk-auswahl-name-label').textContent = e.art === 'text' ? 'Text' : 'Name (Beschriftung)';
-  if (document.activeElement !== $('sk-auswahl-eingabe')) $('sk-auswahl-eingabe').value = (e.art === 'text' ? e.text : e.name) || '';
+  var hand = e.art === 'marsch' && skOhneMassstab(s);
+  $('sk-auswahl-name-label').textContent = e.art === 'text' ? 'Text' : hand ? 'Entfernungen je Wegpunkt in m' : 'Name (Beschriftung)';
+  if (hand) $('sk-auswahl-eingabe').placeholder = 'z. B. 800, 400, 1600';
+  if (document.activeElement !== $('sk-auswahl-eingabe')) $('sk-auswahl-eingabe').value = (e.art === 'text' ? e.text : hand ? e.entf : e.name) || '';
   $('sk-auswahl-weg').disabled = !!e.gesperrt;
 }
 function skAllesZeigen() { skFelderZeigen(); skWerkzeugeZeigen(); skLeisteZeigen(); skRendern(); }
@@ -458,7 +464,9 @@ function skDrehen() {
 function skNameAendern(wert) {
   var e = skAuswahl && skElement(skAuswahl);
   if (!e) return;
-  if (e.art === 'text') e.text = wert.slice(0, 40) || 'Text'; else e.name = wert.slice(0, 40);
+  if (e.art === 'text') e.text = wert.slice(0, 40) || 'Text';
+  else if (e.art === 'marsch' && skOhneMassstab(skAktiv())) e.entf = wert.slice(0, 80);
+  else e.name = wert.slice(0, 40);
   skSpeichern(); skRendern();
 }
 function skAuswahlEnde() { skAuswahl = null; skRendern(); }
@@ -539,21 +547,21 @@ function skVollbild(an) {
 var SK_DOCK = [['Linien', 'strasse'], ['Flächen', 'nadelwald'], ['Zeichen', 'kirche']];
 function skVollLeiste() {
   var e = skAuswahl && skElement(skAuswahl);
-  $('sk-v-titel').textContent = skAktiv().name + ' · 1:' + skAktiv().massstab.toLocaleString('de-DE');
+  $('sk-v-titel').textContent = skAktiv().name + ' · ' + (skAktiv().massstab ? '1:' + skAktiv().massstab.toLocaleString('de-DE') : 'ohne Maßstab');
   $('sk-v-zurueck').disabled = !skVerlauf.length;
-  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, skPunkte.length, skFach].join('|');
+  var key = [skWerkzeug, skAuswahl, e && e.gesperrt, skPunkte.length, skFach, skAktiv().massstab].join('|');
   if (key === skVollKey) {
-    if (e && document.activeElement !== $('sk-v-name') && $('sk-v-name')) $('sk-v-name').value = (e.art === 'text' ? e.text : e.name) || '';
+    if (e && document.activeElement !== $('sk-v-name') && $('sk-v-name')) $('sk-v-name').value = (e.art === 'text' ? e.text : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '';
     return;
   }
   skVollKey = key;
   var h = '', fach = '';
   if (e) {
     var art = SK_ART[e.art] || { name: e.art, form: 'punkt' }, info = e.gesperrt ? 'gesperrt' : 'Ziehen zum Verschieben';
-    if (e.art === 'marsch') { var l = 0; for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]); info = 'zusammen ' + skMeter(skAktiv(), l).toLocaleString('de-DE') + ' m'; }
+    if (e.art === 'marsch') { var l = 0; for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]); info = skOhneMassstab(skAktiv()) ? 'Entfernungen der Reihe nach eintragen' : 'zusammen ' + skMeter(skAktiv(), l).toLocaleString('de-DE') + ' m'; }
     else if (art.form !== 'punkt' && !e.gesperrt) info = 'Ziehen verschiebt, Griffe verschieben Punkte';
     h = '<div class="sk-v-kopf">' + skIcon(e.art) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
-      (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.name) || '') + '">') +
+      (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'marsch' && skOhneMassstab(skAktiv()) ? 'Entfernungen in m, z. B. 800, 400, 1600' : e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '') + '">') +
       '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
       '<button type="button" class="sk-v-knopf" data-v="sperren">' + (e.gesperrt ? 'Entsperren' : 'Sperren') + '</button>' +
       (e.gesperrt ? '' : '<button type="button" class="sk-v-knopf gefahr" data-v="loeschen">Löschen</button>') +
