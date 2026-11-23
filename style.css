@@ -620,7 +620,9 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .lage-zeichen { background: none; border: 0; }
 .lage-zeichen svg { display: block; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
 .lage-leer { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #4A544C; z-index: 500; pointer-events: none; }
-.lage-kachelfehler { position: absolute; left: 56px; right: 10px; top: 10px; z-index: 600; padding: 10px 12px; border-radius: 8px; background: #FFF0CC; color: #5E4200; border: 1px solid #E8C86A; font-size: .85rem; pointer-events: none; }
+.lage-kachelfehler { position: absolute; left: 56px; right: 10px; top: 10px; z-index: 600; display: flex; align-items: flex-start; gap: 10px; padding: 10px 10px 10px 12px; border-radius: 8px; background: #FFF0CC; color: #5E4200; border: 1px solid #E8C86A; font-size: .85rem; }
+.lage-kachelfehler p { margin: 0; flex: 1; }
+.lage-kachelfehler-ok { flex: none; min-width: 44px; min-height: 36px; padding: 0 12px; border-radius: 6px; border: 1px solid #C9A23E; background: #FFFFFF; color: #5E4200; font: inherit; font-weight: 600; cursor: pointer; }
 .lage-liste-zeichen { display: inline-grid; place-items: center; width: 44px; height: 36px; flex: none; }
 .lage-liste-zeichen svg { max-width: 44px; max-height: 36px; }
 #lage-meldung:empty { display: none; }

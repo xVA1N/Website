@@ -241,13 +241,18 @@ function lageGrundlage() {
     lageGrund.on('tileload', function () { geladen = true; var h = $('lage-karte').querySelector('.lage-kachelfehler'); if (h) h.remove(); });
     lageGrund.on('tileerror', function () {
       fehler++;
-      if (geladen || fehler < 3 || $('lage-karte').querySelector('.lage-kachelfehler')) return;
-      $('lage-karte').insertAdjacentHTML('beforeend', '<p class="lage-kachelfehler">Die Kartenbilder lassen sich hier nicht laden, zum Beispiel ohne Netz oder in einer Vorschau, die fremde Server sperrt. Auf der Website funktioniert die Karte. Alternativ „Eigenes Bild“ als Grundlage wählen.</p>');
+      if (geladen || fehler < 3 || lageKachelHinweisZu || $('lage-karte').querySelector('.lage-kachelfehler')) return;
+      $('lage-karte').insertAdjacentHTML('beforeend', '<div class="lage-kachelfehler" role="status"><p>Die Kartenbilder lassen sich hier nicht laden, zum Beispiel ohne Netz oder in einer Vorschau, die fremde Server sperrt. Auf der Website funktioniert die Karte. Alternativ „Eigenes Bild“ als Grundlage wählen.</p><button type="button" class="lage-kachelfehler-ok">OK</button></div>');
+      var h = $('lage-karte').querySelector('.lage-kachelfehler');
+      L.DomEvent.disableClickPropagation(h);
+      h.querySelector('button').addEventListener('click', function () { lageKachelHinweisZu = true; h.remove(); });
     });
     lageKarte.setView(LAGE.mitte, Math.min(LAGE.zoom, k.max));
     lageAllesZeigen();
   }
 }
+// Einmal geschlossen, erscheint der Hinweis bis zum Neuladen der Seite nicht wieder
+var lageKachelHinweisZu = false;
 function lageAllesZeigen() { lageFormenZeigen(); lageZeichenZeigen(); lageKoordinateZeigen(); }
 
 /* ---------- Taktische Zeichen ---------- */
