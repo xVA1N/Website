@@ -355,7 +355,7 @@ function skAblageZeigen() {
   $('sk-liste').innerHTML = SK.liste.map(function (s) {
     var n = s.elemente.filter(function (e) { return e.art !== 'nord'; }).length;
     return '<div class="sk-eintrag"><button type="button" class="sk-oeffnen" data-sk-auf="' + s.id + '" aria-label="Skizze öffnen: ' + esc(s.name) + '">' +
-      '<svg class="sk-mini" viewBox="0 0 ' + SK_B + ' ' + SK_H + '" aria-hidden="true" font-family="IBM Plex Sans, Arial, sans-serif">' + skSvg(s, false) + '</svg>' +
+      '<svg class="sk-mini" viewBox="0 0 ' + SK_B + ' ' + SK_H + '" aria-hidden="true" font-family="Carlito, Calibri, Arial, sans-serif">' + skSvg(s, false) + '</svg>' +
       '<span class="sk-eintrag-text"><b>' + esc(s.name) + '</b><small>' + esc(SK_ARTEN[skArt(s)].kurz) + ' · ' + (s.massstab ? '1:' + s.massstab.toLocaleString('de-DE') : 'ohne Maßstab') + '</small><small>' +
       esc(skDatum(s.datum)) + ' · ' + n + (n === 1 ? ' Element' : ' Elemente') + '</small></span></button>' +
       '<div class="sk-eintrag-knoepfe"><button type="button" class="knopf sekundaer" data-sk-name="' + s.id + '">Umbenennen</button><button type="button" class="knopf sekundaer" data-sk-weg="' + s.id + '">Löschen</button></div></div>';
@@ -739,7 +739,7 @@ $('sk-blatt').addEventListener('pointercancel', skFingerWeg);
 /* ===== Export als Bild ===== */
 $('sk-png').addEventListener('click', function () {
   var s = skAktiv(), px = 12;
-  var quelle = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + SK_B + ' ' + SK_H + '" width="' + SK_B * px + '" height="' + SK_H * px + '" font-family="IBM Plex Sans, Arial, sans-serif">' + skSvg(s, false) + '</svg>';
+  var quelle = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + SK_B + ' ' + SK_H + '" width="' + SK_B * px + '" height="' + SK_H * px + '" font-family="Carlito, Calibri, Arial, sans-serif">' + skSvg(s, false) + '</svg>';
   var img = new Image();
   img.onload = function () {
     var c = document.createElement('canvas');

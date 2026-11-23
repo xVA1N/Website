@@ -8,7 +8,7 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | --- | --- |
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
-| `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
+| `style.css` | Gestaltung: Farben, Abstände, Schrift (Carlito, frei und maßgleich zu Calibri, über Google Fonts; Zahlen in IBM Plex Mono), helles und dunkles Design. |
 | `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`, `16-foto`, dazu `foto-kern` (nur bei Bedarf geladen). |
 | `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte, dazu `app6d-katalog.js` mit allen APP-6D-Einträgen, erzeugt aus stanag-app6 0.2.0 (MIT). Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
