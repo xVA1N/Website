@@ -59,7 +59,7 @@ var MS_ARTEN = [
   ]]
 ];
 // Größe (Echelon) für Einheiten, Beweglichkeit für Ausrüstung, Schleppantenne für Schiffe (Feld 9–10 des APP-6D-Codes)
-var MS_GROESSEN = [['00', 'ohne Angabe'], ['11', 'Trupp (Team/Crew)'], ['12', 'Gruppe (Squad)'], ['13', 'Halbzug (Section)'], ['14', 'Zug (Platoon/Detachment)'],
+var MS_GROESSEN = [['00', 'ohne Angabe'], ['11', 'Team, Besatzung (Team/Crew)'], ['12', 'Trupp • (Squad)'], ['13', 'Gruppe •• (Section)'], ['14', 'Zug ••• (Platoon/Detachment)'],
   ['15', 'Kompanie (Company/Battery/Troop)'], ['16', 'Bataillon (Battalion/Squadron)'], ['17', 'Regiment (Regiment/Group)'], ['18', 'Brigade'],
   ['21', 'Division'], ['22', 'Korps (Corps)'], ['23', 'Armee (Army)'], ['24', 'Heeresgruppe (Army Group/Front)'], ['25', 'Region (Region/Theatre)'], ['26', 'Kommando (Command)']];
 var MS_BEWEGLICH = [['00', 'ohne Angabe'], ['31', 'Rad, eingeschränkt geländegängig (Wheeled limited cross country)'], ['32', 'Rad, geländegängig (Wheeled cross country)'],
@@ -100,6 +100,7 @@ function ladeMilsymbol() {
     .then(function () { if (!msGeladen) { msGeladen = true; msAufbauen(); } });
 }
 function zeigeSymbole() {
+  msFavAlleZeigen();
   ladeMilsymbol().then(function () { renderSymbol(); }, function () {
     $('ms-vorschau').innerHTML = '<p class="hint">Die Zeichen-Bibliothek konnte nicht geladen werden. Bitte die Verbindung prüfen und die Seite neu öffnen.</p>';
   });
@@ -227,7 +228,66 @@ function renderSymbol() {
   var v = typeof sym.isValid === 'function' && !sym.isValid() ? '<p class="hint">Diese Kombination ist in APP-6D nicht vorgesehen, das Zeichen ist unvollständig.</p>' : '';
   $('ms-vorschau').innerHTML = sym.asSVG() + v;
   $('ms-vorschau').setAttribute('aria-label', 'Taktisches Zeichen: ' + msAuswahl().name);
+  msFavKnopf();
 }
+
+// Meine Zeichen: oft gebrauchte Zeichen als Favoriten (im Browser gespeichert, wie alle Favoriten)
+function msFavSchluessel(a) { return a.sidc + JSON.stringify(a.opt || {}); }
+function msFavGefunden(a) { var k = msFavSchluessel(a); return FAV.zeichen.filter(function (z) { return msFavSchluessel(z) === k; })[0]; }
+function msFavKnopf() {
+  var an = !!msFavGefunden(msAuswahl());
+  $('ms-fav').setAttribute('aria-pressed', String(an));
+  $('ms-fav').lastChild.textContent = an ? 'In meinen Zeichen ✓' : 'Zu meinen Zeichen';
+}
+function msFavName(z) { return z.name + (z.opt && z.opt.uniqueDesignation ? ' · ' + z.opt.uniqueDesignation : '') + (z.opt && z.opt.higherFormation ? ' / ' + z.opt.higherFormation : ''); }
+// Kacheln in einen Container zeichnen; die Bibliothek wird bei Bedarf nachgeladen
+function msFavZeigen(id) {
+  var el = $(id);
+  if (!FAV.zeichen.length) { el.innerHTML = ''; return; }
+  ladeMilsymbol().then(function () {
+    el.innerHTML = FAV.zeichen.map(function (z) {
+      var svg = '';
+      try { svg = msSymbolAus(z, 34).asSVG(); } catch (e) { svg = ''; }
+      return '<div class="msfav"><button type="button" class="msfav-zeichen" data-msfav="' + esc(z.id) + '" aria-label="' + esc(msFavName(z)) + '">' +
+        '<span class="bild">' + svg + '</span><span class="name">' + esc(msFavName(z)) + '</span></button>' +
+        '<button type="button" class="msfav-weg" data-msfav-weg="' + esc(z.id) + '" aria-label="Aus meinen Zeichen entfernen: ' + esc(msFavName(z)) + '">×</button></div>';
+    }).join('');
+  }, function () { el.innerHTML = '<p class="hint">Die Zeichen-Bibliothek konnte nicht geladen werden.</p>'; });
+}
+function msFavAlleZeigen() {
+  $('msfav-leer').hidden = FAV.zeichen.length > 0;
+  msFavZeigen('msfav-liste');
+  if (typeof lageFavZeigen === 'function') lageFavZeigen();
+}
+function msFavWeg(id) {
+  FAV.zeichen = FAV.zeichen.filter(function (z) { return z.id !== id; });
+  favSpeichern();
+  msFavAlleZeigen();
+  if (msGeladen) msFavKnopf();
+  if (aktuelleAnsicht === 'favoriten') renderFavoriten();
+}
+function msFavHolen(id) { return FAV.zeichen.filter(function (z) { return z.id === id; })[0]; }
+$('ms-fav').addEventListener('click', function () {
+  if (!msGeladen) return;
+  var a = msAuswahl(), da = msFavGefunden(a);
+  if (da) { msFavWeg(da.id); return; }
+  FAV.zeichen.unshift({ id: 'm' + Date.now(), sidc: a.sidc, opt: a.opt, name: a.name });
+  FAV.zeichen = FAV.zeichen.slice(0, 40);
+  favSpeichern();
+  msFavAlleZeigen();
+  msFavKnopf();
+});
+// Antippen öffnet das Zeichen im Baukasten, × entfernt es
+function msFavKlick(e) {
+  var weg = e.target.closest('button[data-msfav-weg]');
+  if (weg) { msFavWeg(weg.getAttribute('data-msfav-weg')); return; }
+  var b = e.target.closest('button[data-msfav]'), z = b && msFavHolen(b.getAttribute('data-msfav'));
+  if (!z) return;
+  if (aktuelleAnsicht !== 'symbole') go('symbole');
+  ladeMilsymbol().then(function () { msFormularSetzen(z); $('ms-vorschau').scrollIntoView({ block: 'center' }); });
+}
+$('msfav-liste').addEventListener('click', msFavKlick);
+$('fav-zeichen').addEventListener('click', msFavKlick);
 
 // Bedienung
 $('ms-satz').addEventListener('change', function () { $('ms-suche').value = ''; msArtenFuellen(); msZusaetzeFuellen(); renderSymbol(); });

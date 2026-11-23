@@ -12,7 +12,7 @@ var SEITEN_FAV = { rechner: ['Rechner', 'i-calc', 'Dienstgrad, Stufe, Familie un
   duz: ['DuZ-Rechner', 'i-clock', 'Dienste zu ungünstigen Zeiten, Übersicht je Monat, Quartal und Jahr'] };
 var CALC_KEYS = ['tsk', 'gruppe', 'dienstgrad', 'bg', 'stufe', 'verheiratet', 'kinder', 'partner', 'kgBei', 'frageFue', 'frageStelle', 'frageDuz', 'frageAvz', 'duzMonat', 'stkl', 'kirche', 'pvMonat',
   'fuehrung', 'stelle', 'dauer', 'gebiet', 'tage', 'amtHerausgehoben'];
-function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [] }; }
+function favLeer() { return { seiten: [], dienstgrade: [], zulagen: [], berechnungen: [], zeichen: [] }; }
 function favLaden() {
   var f = favLeer();
   try {
@@ -62,7 +62,10 @@ function renderFavoriten() {
   var dgs = FAV.dienstgrade.map(dgById).filter(Boolean);
   var zul = FAV.zulagen.map(zulageAusKey).filter(Boolean);
   var calc = FAV.berechnungen.filter(function (b) { return b && b.snap && dgById(b.snap.dienstgrad); });
-  $('fav-leer').hidden = !!(seiten.length || dgs.length || zul.length || calc.length);
+  var zeichen = FAV.zeichen.filter(function (z) { return z && z.sidc; });
+  $('fav-leer').hidden = !!(seiten.length || dgs.length || zul.length || calc.length || zeichen.length);
+  $('fav-zeichen-wrap').hidden = !zeichen.length;
+  if (zeichen.length) msFavZeigen('fav-zeichen');
 
   $('fav-seiten-wrap').hidden = !seiten.length;
   $('fav-seiten').innerHTML = seiten.map(function (k) {

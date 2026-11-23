@@ -82,25 +82,109 @@ function fotoTeile(m, b, h) {
   }
   return teile;
 }
-// Zeichen und Beschriftung trennen: die großen Linien bilden das Zeichen, kleinere Teile seitlich daneben (auf Höhe des Rahmens)
-// sind Text links (Bezeichnung, Feld T) und rechts (übergeordnete Einheit, Feld M)
-function fotoTexteTrennen(teile) {
-  if (!teile.length) return { zeichen: null, links: [], rechts: [] };
+// Zeichen und Beschriftung trennen: die großen Linien bilden das Zeichen. Seine linke und rechte Kante wird über die Strichdichte
+// bestimmt, damit überstehende Einzelstriche nicht mitzählen. Kleinere Teile mit der Mitte links oder rechts davon (auf Höhe des Rahmens)
+// sind Text links (Bezeichnung, Feld T) und rechts (übergeordnete Einheit, Feld M). Ein kleines Teil oben rechts ist die Stärke (F, + oder −).
+function fotoTexteTrennen(teile, b) {
+  var leer = { zeichen: null, links: [], rechts: [], staerke: null };
+  if (!teile.length) return leer;
   var gross = 0;
   teile.forEach(function (t) { gross = Math.max(gross, t.x1 - t.x0, t.y1 - t.y0); });
-  var z = null;
+  var grosse = teile.filter(function (t) { return Math.max(t.x1 - t.x0, t.y1 - t.y0) >= gross * 0.45; });
+  var z = fotoUmriss(grosse);
+  // Spaltendichte der großen Teile, Ränder mit weniger als der Hälfte der typischen Dichte abschneiden
+  var sp = new Uint32Array(z.x1 - z.x0 + 1);
+  grosse.forEach(function (t) { t.pixel.forEach(function (q) { sp[(q % b) - z.x0]++; }); });
+  var werte = Array.prototype.slice.call(sp).filter(function (v) { return v > 0; }).sort(function (a, c) { return a - c; });
+  var median = werte[Math.floor(werte.length / 2)] || 0, lo = 0, hi = sp.length - 1;
+  while (lo < hi && sp[lo] < median * 0.5) lo++;
+  while (hi > lo && sp[hi] < median * 0.5) hi--;
+  var k = { x0: z.x0 + lo, x1: z.x0 + hi, y0: z.y0, y1: z.y1 };
+  var zb = k.x1 - k.x0, zh = k.y1 - k.y0, links = [], rechts = [], staerke = null;
   teile.forEach(function (t) {
-    if (Math.max(t.x1 - t.x0, t.y1 - t.y0) < gross * 0.45) return;
-    z = z ? { x0: Math.min(z.x0, t.x0), y0: Math.min(z.y0, t.y0), x1: Math.max(z.x1, t.x1), y1: Math.max(z.y1, t.y1) } : { x0: t.x0, y0: t.y0, x1: t.x1, y1: t.y1 };
+    if (grosse.indexOf(t) >= 0) return;
+    var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2;
+    if (cy < k.y0 + zh * 0.15 && cx > k.x1 - zb * 0.05 && cy > k.y0 - zh * 0.8) {
+      // Nicht Teil einer Reihe von Größenzeichen (X, I, Punkte) auf gleicher Höhe
+      var th = t.y1 - t.y0 + 1, reihe = teile.some(function (u) {
+        var uh = u.y1 - u.y0 + 1;
+        return u !== t && grosse.indexOf(u) < 0 && u.x1 < t.x0 && t.x0 - u.x1 < th * 0.9 && uh > th * 0.6 && uh < th * 1.6 && Math.abs((u.y0 + u.y1) / 2 - cy) < th * 0.4;
+      });
+      if (!reihe && !staerke) { staerke = t; return; }
+    }
+    if (cy < k.y0 + zh * 0.1 || cy > k.y1 + zh * 0.4) return;
+    if (cx < k.x0) links.push(t);
+    else if (cx > k.x1) rechts.push(t);
   });
-  var zb = z.x1 - z.x0, zh = z.y1 - z.y0, links = [], rechts = [];
+  return { zeichen: k, links: fotoTextKette(links, k, -1), rechts: fotoTextKette(rechts, k, 1), staerke: staerke };
+}
+// Text als Kette vom Rahmen nach außen: Schriftzeichen (mindestens halb so hoch wie das höchste Teil auf dieser Seite) gehören dazu, wenn sie dicht
+// am Rahmen oder am vorigen Zeichen stehen. Kleine Teile (Punkte, Striche) nur innerhalb dieser Zeile. Alles andere sind Flecken,
+// Maserung oder Schmutz und wird verworfen.
+function fotoTextKette(teile, k, seite) {
+  var zh = k.y1 - k.y0, grenze = seite < 0 ? k.x0 : k.x1, abstand = function (t) { return seite < 0 ? grenze - t.x1 : t.x0 - grenze; };
+  var hmax = 0;
+  teile.forEach(function (t) { hmax = Math.max(hmax, t.y1 - t.y0 + 1); });
+  var gross = teile.filter(function (t) { var th = t.y1 - t.y0 + 1; return th >= zh * 0.1 && th >= hmax * 0.5; }).sort(function (a, c) { return seite < 0 ? c.x1 - a.x1 : a.x0 - c.x0; });
+  var kette = [], y0 = Infinity, y1 = -Infinity;
+  for (var i = 0; i < gross.length; i++) {
+    var t = gross[i];
+    if (abstand(t) > zh * (kette.length ? 0.6 : 0.8)) break;
+    kette.push(t); grenze = seite < 0 ? Math.min(grenze, t.x0) : Math.max(grenze, t.x1);
+    y0 = Math.min(y0, t.y0); y1 = Math.max(y1, t.y1);
+  }
+  if (!kette.length) return [];
+  var aussen = grenze, innen = seite < 0 ? k.x0 : k.x1;
   teile.forEach(function (t) {
-    var cy = (t.y0 + t.y1) / 2;
-    if (cy < z.y0 + zh * 0.1 || cy > z.y1 + zh * 0.35) return;
-    if (t.x1 < z.x0 - zb * 0.02) links.push(t);
-    else if (t.x0 > z.x1 + zb * 0.02) rechts.push(t);
+    if (kette.indexOf(t) >= 0) return;
+    var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2;
+    var drin = seite < 0 ? cx > aussen - zh * 0.3 && cx < innen : cx < aussen + zh * 0.3 && cx > innen;
+    if (drin && cy >= y0 && cy <= y1) kette.push(t);
   });
-  return { zeichen: z, links: links, rechts: rechts };
+  return kette;
+}
+// Form der Stärke-Angabe: waagerechter Strich (−) oder Kreuz (+)
+function fotoStaerke(t, b) {
+  var w = t.x1 - t.x0 + 1, h = t.y1 - t.y0 + 1;
+  if (w > h * 2.2) return '(-)';
+  var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2, xs = [], ys = [];
+  t.pixel.forEach(function (q) { var x = q % b, y = (q - x) / b; if (Math.abs(y - cy) < h * 0.18) xs.push(x); if (Math.abs(x - cx) < w * 0.18) ys.push(y); });
+  var spanne = function (a) { return a.length ? Math.max.apply(null, a) - Math.min.apply(null, a) + 1 : 0; };
+  // Plus: Ecken leer (ein X hätte dort Tinte)
+  var ecken = 0;
+  t.pixel.forEach(function (q) { var x = q % b, y = (q - x) / b; if (Math.abs(x - cx) > w * 0.3 && Math.abs(y - cy) > h * 0.3) ecken++; });
+  return spanne(xs) > w * 0.6 && spanne(ys) > h * 0.6 && ecken < t.pixel.length * 0.2 ? '(+)' : '';
+}
+// Art der Größenangabe über dem Rahmen an der Form: Punkte (Trupp, Gruppe, Zug), Striche (Kompanie, Bataillon, Regiment),
+// Kreuze (Brigade, Division, Korps, Armee). Gibt die möglichen Codes zurück oder null (dann entscheidet das Netz allein).
+// Die Anzahl bestimmt weiter das Netz, das zählt zuverlässiger.
+function fotoGroesseForm(teile, tr, b) {
+  var k = tr.zeichen;
+  if (!k) return null;
+  var zb = k.x1 - k.x0, zh = k.y1 - k.y0, arten = [];
+  var oben = teile.filter(function (t) {
+    var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2;
+    return t !== tr.staerke && tr.links.indexOf(t) < 0 && tr.rechts.indexOf(t) < 0 && t.y1 < k.y0 + zh * 0.05 && cy > k.y0 - zh * 0.9 &&
+      cx > k.x0 - zb * 0.1 && cx < k.x1 + zb * 0.1 && Math.max(t.x1 - t.x0, t.y1 - t.y0) + 1 >= zh * 0.05 && Math.max(t.x1 - t.x0, t.y1 - t.y0) < zh * 0.8;
+  });
+  if (!oben.length || oben.length > 4) return null;
+  oben.forEach(function (t) {
+    var w = t.x1 - t.x0 + 1, h = t.y1 - t.y0 + 1;
+    if (h >= w * 1.5) { arten.push('I'); return; }
+    // Tinte in den Ecken (Kreuz) oder an den Seitenmitten und in der Mitte (Punkt)
+    var ecke = 0, seite = 0;
+    t.pixel.forEach(function (q) {
+      var x = ((q % b) - t.x0) / w, y = ((q - q % b) / b - t.y0) / h, ax = Math.abs(x - 0.5), ay = Math.abs(y - 0.5);
+      if (ax > 0.25 && ay > 0.25) ecke++; else if ((ax > 0.25) !== (ay > 0.25)) seite++;
+    });
+    // Kreuz: offene Striche bis in die Ecken. Punkt: gefüllt, Ecken weitgehend leer (auch ein krakeliger Punkt ist gefüllt)
+    var fuellung = t.pixel.length / (w * h);
+    if (ecke > seite * 0.5 && fuellung < 0.5) arten.push('X');
+    else if (w < h * 1.6 && fuellung >= 0.5) arten.push('P');
+    else arten.push('?');
+  });
+  if (arten.some(function (a) { return a !== arten[0]; }) || arten[0] === '?') return null;
+  return { P: ['12', '13', '14'], I: ['15', '16', '17'], X: ['18', '21', '22', '23'] }[arten[0]];
 }
 function fotoUmriss(teile) {
   if (!teile.length) return null;
@@ -125,14 +209,45 @@ function fotoTextBild(teile, ctx, ox, oy) {
   k.putImageData(id, rand, rand);
   return c;
 }
+// Einzelnes Schriftzeichen (eine oder mehrere zusammengehörige Teile) wie im MNIST-Datensatz aufbereiten:
+// längste Seite auf 20 Pixel, im 28 × 28-Feld nach dem Schwerpunkt mittig. Werte 0 bis 1 (Tintenanteil).
+function fotoGlyphe(teile, b) {
+  var r = fotoUmriss(teile), w = r.x1 - r.x0 + 1, h = r.y1 - r.y0 + 1, s = 20 / Math.max(w, h);
+  var tw = Math.max(1, Math.round(w * s)), th = Math.max(1, Math.round(h * s)), klein = new Float32Array(tw * th);
+  var maske = new Uint8Array(w * h);
+  teile.forEach(function (t) { t.pixel.forEach(function (q) { var x = q % b, y = (q - x) / b; maske[(y - r.y0) * w + (x - r.x0)] = 1; }); });
+  for (var j = 0; j < th; j++) for (var i = 0; i < tw; i++) {
+    var xa = i / s, ya = j / s, xe = Math.min(w, (i + 1) / s), ye = Math.min(h, (j + 1) / s), t = 0, n = 0;
+    for (var y = Math.floor(ya); y < Math.ceil(ye); y++) for (var x = Math.floor(xa); x < Math.ceil(xe); x++) { t += maske[y * w + x]; n++; }
+    klein[j * tw + i] = n ? t / n : 0;
+  }
+  var mx = 0, my = 0, ms = 0;
+  for (j = 0; j < th; j++) for (i = 0; i < tw; i++) { var v = klein[j * tw + i]; mx += v * i; my += v * j; ms += v; }
+  var ox = Math.round(14 - (ms ? mx / ms : tw / 2)), oy = Math.round(14 - (ms ? my / ms : th / 2));
+  ox = Math.max(0, Math.min(28 - tw, ox)); oy = Math.max(0, Math.min(28 - th, oy));
+  var out = new Float32Array(28 * 28);
+  for (j = 0; j < th; j++) for (i = 0; i < tw; i++) out[(j + oy) * 28 + i + ox] = klein[j * tw + i];
+  return out;
+}
 // Ganze Aufbereitung: Canvas-Ausschnitt -> { daten (FOTO_N²), box, links, rechts } oder null, wenn keine Zeichnung gefunden wurde.
 // links und rechts sind Textblöcke neben dem Zeichen (Teile mit Pixeln), sie zählen nicht zum Zeichen.
 function fotoAufbereiten(ctx, x, y, b, h) {
-  var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), teile = fotoTeile(m, b, h), tr = fotoTexteTrennen(teile);
-  tr.links.concat(tr.rechts).forEach(function (t) { t.pixel.forEach(function (q) { m[q] = 0; }); });
+  var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), teile = fotoTeile(m, b, h), tr = fotoTexteTrennen(teile, b);
+  var staerke = tr.staerke ? fotoStaerke(tr.staerke, b) : '';
+  if (!staerke) tr.staerke = null;
+  var groesse = fotoGroesseForm(teile, tr, b);
+  tr.links.concat(tr.rechts, staerke ? [tr.staerke] : []).forEach(function (t) { t.pixel.forEach(function (q) { m[q] = 0; }); });
+  // Flecken abseits des Zeichens (Maserung, Schmutz, nicht gelesener Text) zählen nicht zum Zeichen
+  var k = tr.zeichen;
+  if (k) {
+    var zb = k.x1 - k.x0, zh = k.y1 - k.y0;
+    teile.forEach(function (t) {
+      if (t.x1 < k.x0 - zb * 0.15 || t.x0 > k.x1 + zb * 0.15 || t.y1 < k.y0 - zh * 0.9 || t.y0 > k.y1 + zh * 0.3) t.pixel.forEach(function (q) { m[q] = 0; });
+    });
+  }
   var box = fotoBox(m, b, h);
   if (!box || box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return null;
-  return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, breite: b, ctx: ctx, ox: x, oy: y };
+  return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, staerke: staerke, groesse: groesse, breite: b, ctx: ctx, ox: x, oy: y };
 }
 // Farbe des Zeichens (für die Zugehörigkeit): Anteil kräftig gefärbter Pixel in Blau, Rot, Grün, Gelb
 function fotoFarbe(ctx, x, y, b, h) {
@@ -222,4 +337,35 @@ function fotoErkennen(netz, daten) {
   ['c1', 'c2', 'c3', 'c4'].forEach(function (n) { x = fotoConv(x, h, w, c, S[n]); c = S[n].o; x = fotoPool(x, h, w, c); h >>= 1; w >>= 1; });
   var f = fotoDense(x, S.d1, true);
   return { rahmen: fotoSoftmax(fotoDense(f, S.rahmen)), symbol: fotoSoftmax(fotoDense(f, S.symbol)), groesse: fotoSoftmax(fotoDense(f, S.groesse)) };
+}
+
+/* ---------- Ziffernnetz für Beschriftungen (vendor/foto-ziffern.js) ---------- */
+// 28 × 28 -> Faltung 16 -> Pool -> Faltung 32 -> Pool -> 64 -> 11 Klassen (0–9 und /)
+function fotoZifferErkennen(netz, glyphe) {
+  var S = netz.schichten, x = fotoConv(glyphe, 28, 28, 1, S.c1);
+  x = fotoPool(x, 28, 28, S.c1.o); x = fotoConv(x, 14, 14, S.c1.o, S.c2); x = fotoPool(x, 14, 14, S.c2.o);
+  return fotoSoftmax(fotoDense(fotoDense(x, S.d1, true), S.aus));
+}
+// Textblock in Schriftzeichen zerlegen und lesen. Teile, die sich waagerecht überlappen, gehören zu einem Zeichen.
+// Kleine runde Teile sind Punkte. Ergebnis: { text, sicher } mit der geringsten Sicherheit aller Zeichen.
+function fotoZiffernLesen(teile, b, netz) {
+  var sortiert = teile.slice().sort(function (p, q) { return p.x0 - q.x0; }), gruppen = [];
+  sortiert.forEach(function (t) {
+    var g = gruppen[gruppen.length - 1];
+    if (g) {
+      var r = fotoUmriss(g), ueber = Math.min(r.x1, t.x1) - Math.max(r.x0, t.x0), klein = Math.min(r.x1 - r.x0, t.x1 - t.x0) + 1;
+      if (ueber > klein * 0.5) { g.push(t); return; }
+    }
+    gruppen.push([t]);
+  });
+  var hoehen = gruppen.map(function (g) { var r = fotoUmriss(g); return r.y1 - r.y0 + 1; }).sort(function (p, q) { return p - q; });
+  var hoch = hoehen[hoehen.length - 1], text = '', sicher = 1;
+  gruppen.forEach(function (g) {
+    var r = fotoUmriss(g), gh = r.y1 - r.y0 + 1, gw = r.x1 - r.x0 + 1;
+    if (Math.max(gh, gw) < hoch * 0.35) { text += '.'; return; }
+    var p = fotoZifferErkennen(netz, fotoGlyphe(g, b)), best = 0;
+    for (var i = 1; i < p.length; i++) if (p[i] > p[best]) best = i;
+    text += netz.klassen[best]; sicher = Math.min(sicher, p[best]);
+  });
+  return { text: text, sicher: sicher };
 }

@@ -1,11 +1,11 @@
-/* MeinKamerad – Zeichen aus Foto erkennen (Probe). Alles läuft im Browser, das Foto verlässt das Gerät nicht.
+/* MeinKamerad – Zeichen aus Foto erkennen (Testphase). Alles läuft im Browser, das Foto verlässt das Gerät nicht.
    Teil von index.html, Reihenfolge der Skripte beachten. */
 'use strict';
 if (!window.MK_DATEN) throw new Error('daten.js fehlt');
 
 var FOTO_RAHMEN_NAME = { '3': 'Eigene', '6': 'Feind', '4': 'Neutral', '1': 'Unbekannt' };
 var FOTO_FARBE_ZU = { blau: 0, rot: 1, gruen: 2, gelb: 3 }; // Reihenfolge wie die Rahmenklassen 3, 6, 4, 1
-var fotoNetz = null, fotoBild = null, fotoAuswahl = null, fotoMass = 1, fotoLeser = null, fotoLeserLaedt = null, fotoLauf = 0;
+var fotoZiffernNetz = null, fotoNetz = null, fotoBild = null, fotoAuswahl = null, fotoMass = 1, fotoLeser = null, fotoLeserLaedt = null, fotoLauf = 0;
 
 // Texterkennung (Tesseract.js, offline aus vendor/tesseract) für die Beschriftungen links und rechts vom Zeichen
 function fotoLeserLaden() {
@@ -55,15 +55,33 @@ function fotoTextM(t) {
     return w.charAt(0).toUpperCase() + w.slice(1);
   }).join(' ');
 }
-function fotoTextLesen(teile, auf) {
-  return fotoLeserLaden().then(function (w) { return w.recognize(fotoTextBild(teile, auf.ctx, auf.ox, auf.oy)); })
+// Nacheinander lesen; ein einzelnes Zeichen (z. B. eine Ziffer) im Einzelzeichen-Modus, sonst als Zeile
+var fotoLeseKette = Promise.resolve();
+// Erst das eigene Ziffernnetz (Handschrift und Druck); nur wenn es unsicher ist oder Buchstaben vorkommen, Tesseract
+function fotoTextLesen(teile, auf, feld) {
+  if (fotoZiffernNetz && teile.length <= 12) {
+    var z = fotoZiffernLesen(teile, auf.breite, fotoZiffernNetz);
+    if (z.sicher >= (feld === 'foto-m' ? 0.85 : 0.6) && /\d/.test(z.text)) return Promise.resolve(z.text);
+  }
+  return fotoTesseractLesen(teile, auf);
+}
+function fotoTesseractLesen(teile, auf) {
+  var r = fotoUmriss(teile), einzeln = teile.length === 1 && (r.x1 - r.x0) < (r.y1 - r.y0) * 1.3;
+  var job = fotoLeseKette.then(function () { return fotoLeserLaden(); }).then(function (w) {
+    // Ein einzelnes Zeichen neben dem Rahmen ist fast immer eine Ziffer (Kompanie, Bataillon), dann nur Ziffern zulassen
+    var erlaubt = einzeln ? '0123456789' : '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./-()+ ';
+    return w.setParameters({ tessedit_pageseg_mode: einzeln ? '10' : '7', tessedit_char_whitelist: erlaubt }).then(function () { return w.recognize(fotoTextBild(teile, auf.ctx, auf.ox, auf.oy)); });
+  });
+  fotoLeseKette = job.catch(function () {});
+  return job
     .then(function (r) { return String(r.data.text || '').replace(/\s+/g, ' ').trim().slice(0, 30); });
 }
 
 function fotoLaden() {
   if (fotoNetz) return Promise.resolve();
-  return Promise.all([ladeMilsymbol(), window.fotoErkennen ? Promise.resolve() : ladeSkript('js/foto-kern.js'), window.FOTO_NETZ ? Promise.resolve() : ladeSkript('vendor/foto-netz.js')])
-    .then(function () { fotoNetz = fotoNetzLaden(window.FOTO_NETZ); });
+  return Promise.all([ladeMilsymbol(), window.fotoErkennen ? Promise.resolve() : ladeSkript('js/foto-kern.js'), window.FOTO_NETZ ? Promise.resolve() : ladeSkript('vendor/foto-netz.js'),
+    window.FOTO_ZIFFERN ? Promise.resolve() : ladeSkript('vendor/foto-ziffern.js')])
+    .then(function () { fotoNetz = fotoNetzLaden(window.FOTO_NETZ); fotoZiffernNetz = fotoNetzLaden(window.FOTO_ZIFFERN); });
 }
 function fotoMeldung(t, fehler) { $('foto-meldung').className = 'u-meldung' + (fehler ? ' fehler' : ''); $('foto-meldung').textContent = t; }
 
@@ -127,20 +145,24 @@ function fotoAuswerten() {
   rahmen = rahmen.map(function (x) { return x / summe; });
   var kl = fotoNetz.klassen, beste = function (arr) { var i = 0; for (var j = 1; j < arr.length; j++) if (arr[j] > arr[i]) i = j; return i; };
   var ri = beste(rahmen), gi = beste(e.groesse);
+  // Die Form über dem Rahmen (Punkte, Striche oder Kreuze) legt die Art fest, das Netz die Anzahl
+  var gForm = auf.groesse && auf.groesse.indexOf(kl.groesse[gi]) < 0;
+  if (gForm) auf.groesse.forEach(function (c) { var i = kl.groesse.indexOf(c); if (i >= 0 && (auf.groesse.indexOf(kl.groesse[gi]) < 0 || e.groesse[i] > e.groesse[gi])) gi = i; });
   var symbole = Array.prototype.map.call(e.symbol, function (p, i) { return [p, i]; }).sort(function (x, y) { return y[0] - x[0]; }).slice(0, 3);
   var pz = function (p) { return Math.round(p * 100) + ' %'; };
-  var mitText = auf.links.length || auf.rechts.length;
+  var mitText = auf.links.length || auf.rechts.length || auf.staerke;
   var textFelder = '<div class="foto-texte u-felder p-felder"' + (mitText ? '' : ' hidden') + '>' +
     '<div><label class="label" for="foto-t" style="display:block">Bezeichnung links (T)</label><input type="text" id="foto-t" maxlength="30" autocomplete="off" placeholder="' + (auf.links.length ? 'wird gelesen …' : 'keine gefunden') + '"></div>' +
     '<div><label class="label" for="foto-m" style="display:block">Übergeordnete Einheit rechts (M)</label><input type="text" id="foto-m" maxlength="30" autocomplete="off" placeholder="' + (auf.rechts.length ? 'wird gelesen …' : 'keine gefunden') + '"></div></div>';
+  var staerkeText = { '(+)': 'verstärkt (+)', '(-)': 'vermindert (−)' }[auf.staerke] || '';
   var gName = function (code) { var g = MS_GROESSEN.filter(function (x) { return x[0] === code; })[0]; return g ? g[1].replace(/\s*\(.*\)$/, '') : code; };
   $('foto-ergebnis').innerHTML =
-    textFelder + '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + pz(e.groesse[gi]) + ').</span></div>' +
+    textFelder + '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + (gForm ? 'an der Form erkannt' : pz(e.groesse[gi])) + ')' + (staerkeText ? ', Stärke: <b>' + staerkeText + '</b>' : '') + '.</span></div>' +
     symbole.map(function (sp, n) {
       var code = kl.symbol[sp[1]], sidc = '100' + kl.rahmen[ri] + '1000' + kl.groesse[gi] + code + '0000';
       var name = code === '000000' ? 'Nur Rahmen, ohne Symbol' : msNameKurz('10', code);
-      var svg = new window.ms.Symbol(sidc, { size: 30, standard: 'APP6' }).asSVG();
-      return '<button type="button" class="foto-vorschlag" data-foto-sidc="' + sidc + '" data-foto-name="' + esc(name) + '"><span class="bild">' + svg + '</span><span><b>' + (n + 1) + '. ' + esc(name) + '</b>' +
+      var svg = fotoVorschlagSvg(sidc, auf.staerke);
+      return '<button type="button" class="foto-vorschlag" data-foto-sidc="' + sidc + '" data-foto-staerke="' + (auf.staerke || '') + '" data-foto-name="' + esc(name) + '"><span class="bild">' + svg + '</span><span><b>' + (n + 1) + '. ' + esc(name) + '</b>' +
         '<small>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + ' · ' + gName(kl.groesse[gi]) + '</small><br><span class="wert">' + pz(sp[0]) + '</span> <small>Übernehmen</small></span></button>';
     }).join('');
   // Aufbereitetes Bild als kleine Vorschau zeigen, damit man sieht, was erkannt wurde
@@ -150,17 +172,43 @@ function fotoAuswerten() {
   fotoMeldung(symbole[0][0] < 0.4 ? 'Die Erkennung ist unsicher. Prüfe die Vorschläge oder versuche ein deutlicheres, enger zugeschnittenes Foto.' : '');
   // Beschriftungen lesen (dauert beim ersten Mal einige Sekunden, weil die Texterkennung geladen wird)
   var lauf = ++fotoLauf;
+  fotoUebernommen = false;
   [['foto-t', auf.links], ['foto-m', auf.rechts]].forEach(function (z) {
     if (!z[1].length) return;
-    fotoTextLesen(z[1], auf).then(function (t) {
+    fotoTextLesen(z[1], auf, z[0]).then(function (t) {
       if (lauf !== fotoLauf || !$(z[0])) return;
       if (!$(z[0]).value) $(z[0]).value = t ? (z[0] === 'foto-t' ? fotoTextT(t) : fotoTextM(t)) : '';
       $(z[0]).placeholder = t ? '' : 'nicht lesbar';
+      fotoTexteAbgleichen();
     }, function () { if (lauf === fotoLauf && $(z[0])) $(z[0]).placeholder = 'Texterkennung nicht verfügbar'; });
   });
 }
 
+// Vorschaubild eines Vorschlags, mit den Beschriftungen aus den Feldern T und M
+function fotoVorschlagSvg(sidc, staerke) {
+  var opt = { size: 30, standard: 'APP6' }, t = $('foto-t'), m = $('foto-m');
+  if (staerke) opt.reinforcedReduced = staerke;
+  if (t && t.value.trim()) opt.uniqueDesignation = t.value.trim();
+  if (m && m.value.trim()) opt.higherFormation = m.value.trim();
+  return new window.ms.Symbol(sidc, opt).asSVG();
+}
+// Nach einer Änderung an T oder M: Vorschaubilder neu zeichnen und, wenn schon ein
+// Vorschlag übernommen wurde, den Baukasten sofort mitziehen
+var fotoUebernommen = false;
+function fotoTexteAbgleichen() {
+  Array.prototype.forEach.call(document.querySelectorAll('#foto-ergebnis button[data-foto-sidc]'), function (b) {
+    b.querySelector('.bild').innerHTML = fotoVorschlagSvg(b.getAttribute('data-foto-sidc'), b.getAttribute('data-foto-staerke'));
+  });
+  if (!fotoUebernommen) return;
+  $('ms-bez').value = $('foto-t') ? $('foto-t').value.trim() : '';
+  $('ms-hoeher').value = $('foto-m') ? $('foto-m').value.trim() : '';
+  renderSymbol();
+}
+
 // Bedienung
+$('foto-ergebnis').addEventListener('input', function (e) {
+  if (e.target.id === 'foto-t' || e.target.id === 'foto-m') fotoTexteAbgleichen();
+});
 $('foto-knopf').addEventListener('click', function () { $('foto-datei').click(); });
 $('foto-datei').addEventListener('change', function (e) {
   var f = e.target.files && e.target.files[0];
@@ -183,7 +231,9 @@ $('foto-ergebnis').addEventListener('click', function (e) {
   var opt = { fill: true, colorMode: 'Medium', standard: 'APP6' };
   if ($('foto-t') && $('foto-t').value.trim()) opt.uniqueDesignation = $('foto-t').value.trim();
   if ($('foto-m') && $('foto-m').value.trim()) opt.higherFormation = $('foto-m').value.trim();
+  if (b.getAttribute('data-foto-staerke')) opt.reinforcedReduced = b.getAttribute('data-foto-staerke');
   msFormularSetzen({ sidc: b.getAttribute('data-foto-sidc'), opt: opt });
+  fotoUebernommen = true;
   $('ms-vorschau').scrollIntoView({ block: 'center' });
   fotoMeldung('„' + b.getAttribute('data-foto-name') + '“ in den Baukasten übernommen. Dort kannst du alles anpassen.');
 });

@@ -151,6 +151,7 @@ function ladeLeaflet() {
 
 function zeigeLage() {
   if (lageBearbId) lageBearbeitenEnde();
+  lageFavZeigen();
   renderLageWahl();
   if (!lageBereit) {
     lageBereit = Promise.all([ladeLeaflet(), ladeMilsymbol()]).then(function () { msGeladen = true; lageGrundlage(); }, function () {
@@ -166,7 +167,6 @@ function zeigeLage() {
 function renderLageWahl() {
   $('lage-wahl').innerHTML = LAGE_ALLE.karten.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('');
   $('lage-wahl').value = LAGE.id;
-  $('lage-karte-weg').disabled = LAGE_ALLE.karten.length < 2;
 }
 function lageWechseln(id) {
   var k = LAGE_ALLE.karten.filter(function (x) { return x.id === id; })[0];
@@ -241,13 +241,18 @@ function lageGrundlage() {
     lageGrund.on('tileload', function () { geladen = true; var h = $('lage-karte').querySelector('.lage-kachelfehler'); if (h) h.remove(); });
     lageGrund.on('tileerror', function () {
       fehler++;
-      if (geladen || fehler < 3 || $('lage-karte').querySelector('.lage-kachelfehler')) return;
-      $('lage-karte').insertAdjacentHTML('beforeend', '<p class="lage-kachelfehler">Die Kartenbilder lassen sich hier nicht laden, zum Beispiel ohne Netz oder in einer Vorschau, die fremde Server sperrt. Auf der Website funktioniert die Karte. Alternativ „Eigenes Bild“ als Grundlage wählen.</p>');
+      if (geladen || fehler < 3 || lageKachelHinweisZu || $('lage-karte').querySelector('.lage-kachelfehler')) return;
+      $('lage-karte').insertAdjacentHTML('beforeend', '<div class="lage-kachelfehler" role="status"><p>Die Kartenbilder lassen sich hier nicht laden, zum Beispiel ohne Netz oder in einer Vorschau, die fremde Server sperrt. Auf der Website funktioniert die Karte. Alternativ „Eigenes Bild“ als Grundlage wählen.</p><button type="button" class="lage-kachelfehler-ok">OK</button></div>');
+      var h = $('lage-karte').querySelector('.lage-kachelfehler');
+      L.DomEvent.disableClickPropagation(h);
+      h.querySelector('button').addEventListener('click', function () { lageKachelHinweisZu = true; h.remove(); });
     });
     lageKarte.setView(LAGE.mitte, Math.min(LAGE.zoom, k.max));
     lageAllesZeigen();
   }
 }
+// Einmal geschlossen, erscheint der Hinweis bis zum Neuladen der Seite nicht wieder
+var lageKachelHinweisZu = false;
 function lageAllesZeigen() { lageFormenZeigen(); lageZeichenZeigen(); lageKoordinateZeigen(); }
 
 /* ---------- Taktische Zeichen ---------- */
@@ -694,20 +699,18 @@ $('lage-karte-neu').addEventListener('click', function () {
   lageMeldung('Neue Lagekarte „' + k.name + '“ angelegt. Den Namen kannst du mit „Umbenennen“ ändern.');
 });
 $('lage-karte-name').addEventListener('click', function () {
-  var n = window.prompt('Name der Lagekarte', LAGE.name);
-  if (n === null) return;
-  n = n.trim().slice(0, 40);
-  if (!n) return;
-  LAGE.name = n; lageSpeichern(); renderLageWahl();
+  inlineAbfrage(this.parentNode, { text: 'Neuer Name der Lagekarte', wert: LAGE.name, ok: 'Speichern', fertig: function (n) { LAGE.name = n; lageSpeichern(); renderLageWahl(); } });
 });
 $('lage-karte-weg').addEventListener('click', function () {
-  if (LAGE_ALLE.karten.length < 2) return;
-  if (!window.confirm('Lagekarte „' + LAGE.name + '“ mit allen Zeichen und Formen löschen?')) return;
-  try { localStorage.removeItem(lageBildKey()); } catch (e) { /* egal */ }
-  var weg = LAGE.id;
-  LAGE_ALLE.karten = LAGE_ALLE.karten.filter(function (k) { return k.id !== weg; });
-  lageWechseln(LAGE_ALLE.karten[0].id);
-  lageMeldung('Lagekarte gelöscht.');
+  var letzte = LAGE_ALLE.karten.length < 2;
+  inlineAbfrage(this.parentNode, { text: 'Lagekarte „' + LAGE.name + '“ mit allen Zeichen und Formen wirklich löschen?' + (letzte ? ' Es bleibt eine leere Lagekarte.' : ''), ok: 'Löschen', gefahr: true, fertig: function () {
+    try { localStorage.removeItem(lageBildKey()); } catch (e) { /* egal */ }
+    var weg = LAGE.id;
+    if (letzte) LAGE_ALLE.karten.push(lageNeu('Lage 1'));
+    LAGE_ALLE.karten = LAGE_ALLE.karten.filter(function (k) { return k.id !== weg; });
+    lageWechseln(LAGE_ALLE.karten[0].id);
+    lageMeldung('Lagekarte gelöscht.');
+  } });
 });
 $('lage-werkzeug').addEventListener('click', function (e) {
   var b = e.target.closest('button[data-lage-typ]');
@@ -857,5 +860,19 @@ $('ms-auf-karte').addEventListener('click', function () {
   }
   lageWartend = msAuswahl();
   go('lage');
+});
+// Meine Zeichen auf der Lagekarte: Antippen setzt das Zeichen in die Kartenmitte
+function lageFavZeigen() {
+  $('lage-fav-panel').hidden = !FAV.zeichen.length;
+  if (FAV.zeichen.length) msFavZeigen('lage-fav');
+}
+$('lage-fav').addEventListener('click', function (e) {
+  var weg = e.target.closest('button[data-msfav-weg]');
+  if (weg) { msFavWeg(weg.getAttribute('data-msfav-weg')); return; }
+  var b = e.target.closest('button[data-msfav]'), z = b && msFavHolen(b.getAttribute('data-msfav'));
+  if (!z || !lageKarte) return;
+  lageWartend = { sidc: z.sidc, opt: JSON.parse(JSON.stringify(z.opt || {})), name: z.name };
+  lageZeichenZeigen();
+  $('lage-karte').scrollIntoView({ block: 'center' });
 });
 $('ms-bearb-abbrechen').addEventListener('click', function () { lageBearbeitenEnde(); go('lage'); });

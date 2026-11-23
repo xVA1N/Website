@@ -332,7 +332,7 @@ function zeigeGruppe(slug) {
 }
 
 /* ===== Reiter ===== */
-var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner', profil: 'Mein Profil', symbole: 'Taktische Zeichen', lage: 'Lagekarte' };
+var VIEWS = { start: 'Was möchtest du öffnen?', rechner: 'Rechner', dienstgrade: 'Dienstgrade', zulagen: 'Zulagen', mehr: 'Mehr', vergleich: 'Vergleich', favoriten: 'Favoriten', urlaub: 'Urlaubskartei', duz: 'DuZ-Rechner', profil: 'Mein Profil', symbole: 'Taktische Zeichen', lage: 'Lagekarte', skizze: 'Skizzen' };
 
 function show(v) {
   var titel = null, tab = v;
@@ -343,9 +343,9 @@ function show(v) {
   }
   if (!VIEWS[v] && v !== 'gruppe') v = tab = 'start';
   // Werkzeuge erreicht man über Start, deshalb ist dort der Reiter Start aktiv
-  if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz', 'symbole', 'lage'].indexOf(v) >= 0) tab = 'start';
+  if (['rechner', 'dienstgrade', 'zulagen', 'vergleich', 'gruppe', 'urlaub', 'duz', 'symbole', 'lage', 'skizze'].indexOf(v) >= 0) tab = 'start';
   if (v === 'profil') tab = '';
-  ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz', 'profil', 'symbole', 'lage'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
+  ['start', 'rechner', 'dienstgrade', 'zulagen', 'mehr', 'gruppe', 'vergleich', 'favoriten', 'urlaub', 'duz', 'profil', 'symbole', 'lage', 'skizze'].forEach(function (k) { $('view-' + k).hidden = k !== v; });
   document.querySelector('.wrap').setAttribute('data-view', v);
   aktuelleAnsicht = v;
   renderLeiste();
@@ -356,6 +356,7 @@ function show(v) {
   if (v === 'profil') renderProfil();
   if (v === 'symbole') zeigeSymbole();
   if (v === 'lage') zeigeLage();
+  if (v === 'skizze' && typeof zeigeSkizze === 'function') zeigeSkizze();
   if (v === 'profil') $('profil-btn').setAttribute('aria-current', 'page'); else $('profil-btn').removeAttribute('aria-current');
   if (v === 'rechner') renderProfilHinweis();
   $('titel').textContent = titel || VIEWS[v];
@@ -367,6 +368,32 @@ function show(v) {
   window.scrollTo(0, 0);
 }
 function route() { show((location.hash || '').replace('#', '')); }
+// Kleine Abfrage direkt auf der Seite statt prompt/confirm, die in eingebetteten Ansichten (z. B. Vorschauen) gesperrt sein können.
+// o.text: Frage, o.wert: Vorgabe für ein Eingabefeld (weglassen für eine reine Rückfrage), o.ok: Beschriftung, o.gefahr: roter Knopf, o.fertig(wert)
+function inlineAbfrage(nach, o) {
+  var alt = nach.parentNode.querySelector('.inline-abfrage');
+  if (alt) alt.remove();
+  var d = document.createElement('div');
+  d.className = 'inline-abfrage';
+  d.setAttribute('role', 'group');
+  d.innerHTML = '<p></p>' + (o.wert !== undefined ? '<input type="text" maxlength="40" autocomplete="off">' : '') +
+    '<div class="dg-aktionen"><button type="button" class="knopf ' + (o.gefahr ? 'gefahr' : 'primaer') + '" data-ok></button><button type="button" class="knopf sekundaer" data-abbr>Abbrechen</button></div>';
+  d.querySelector('p').textContent = o.text;
+  d.querySelector('[data-ok]').textContent = o.ok;
+  nach.insertAdjacentElement('afterend', d);
+  var feld = d.querySelector('input'), zu = function () { d.remove(); };
+  var ok = function () {
+    var v = feld ? feld.value.trim().slice(0, 40) : true;
+    if (feld && !v) { feld.focus(); return; }
+    zu(); o.fertig(v);
+  };
+  if (feld) {
+    feld.value = o.wert || ''; feld.setAttribute('aria-label', o.text); feld.focus(); feld.select();
+    feld.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); ok(); } else if (e.key === 'Escape') zu(); });
+  } else d.querySelector('[data-ok]').focus();
+  d.querySelector('[data-abbr]').addEventListener('click', zu);
+  d.querySelector('[data-ok]').addEventListener('click', ok);
+}
 function go(v) {
   try { location.hash = v; } catch (e) { /* Ansicht wird unten trotzdem umgeschaltet */ }
   show(v);
