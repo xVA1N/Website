@@ -2,7 +2,7 @@
    Strategie: immer zuerst aus dem Netz laden (damit neue Werte aus daten.js sofort ankommen),
    bei fehlender Verbindung die zuletzt gespeicherte Fassung nehmen.
    Bei neuen Dateien die Liste DATEIEN ergänzen und VERSION hochzählen. */
-var VERSION = 'meinkamerad-v7';
+var VERSION = 'meinkamerad-v8';
 var DATEIEN = [
   './', 'index.html', 'style.css', 'daten.js', 'manifest.webmanifest',
   'js/01-grundlagen.js', 'js/02-dienstgrade.js', 'js/03-favoriten.js', 'js/04-vergleich.js', 'js/05-duz.js',

@@ -9,7 +9,7 @@ Besoldungsrechner für Soldaten: vom Dienstgrad zum Bruttobetrag, mit Familienzu
 | `daten.js` | **Alle Beträge und Stand-Angaben.** Die Seite übernimmt sie automatisch an jeder Stelle. Nur diese Datei wird bei einer Besoldungsanpassung geändert. |
 | `index.html` | Aufbau der Seite (Überschriften, Felder, Knöpfe). |
 | `style.css` | Gestaltung: Farben, Abstände, Schrift, helles und dunkles Design. |
-| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`. |
+| `js/` | Die Logik, nach Bereichen aufgeteilt und in dieser Reihenfolge geladen: `01-grundlagen`, `02-dienstgrade`, `03-favoriten`, `04-vergleich`, `05-duz`, `06-netto`, `07-rechner`, `08-ereignisse`, `09-urlaubskartei`, `10-profil`, `11-zeitstrahl`, `12-symbole`, `13-koordinaten`, `14-lage`, `15-start`, `16-foto`, dazu `foto-kern` (nur bei Bedarf geladen). |
 | `vendor/` | Fremde Bibliotheken: milsymbol 3.0.4 (MIT) für die taktischen Zeichen, Leaflet 1.9.4 (BSD-2) für die Lagekarte, dazu `app6d-katalog.js` mit allen APP-6D-Einträgen, erzeugt aus stanag-app6 0.2.0 (MIT). Sie werden nur auf diesen Seiten geladen. |
 | `manifest.webmanifest`, `sw.js`, `icons/` | Installation als App und Offline-Nutzung. Kommt eine neue Datei hinzu, in `sw.js` die Liste `DATEIEN` ergänzen und `VERSION` hochzählen. |
 
@@ -72,6 +72,10 @@ Im Profil zeigt „Mein Zeitstrahl“ die nächsten Erfahrungsstufen (Laufzeiten
 ## Taktische Zeichen
 
 Die Seite „Taktische Zeichen“ enthält alle Einzelzeichen aus NATO APP-6D mit originalen Bezeichnungen und Codes: 1.287 Einträge in 13 Symbolsätzen (Landeinheiten, Ausrüstung, Einrichtungen, Luft, See, Unterwasser, Weltraum, Ereignisse und weitere), mit Suche, den Zusatzzeichen der Sektoren 1 und 2, Größe bzw. Beweglichkeit, Zugehörigkeit, Kontext (Übung), Status, Stab, Task Force, Täuschung und den Textfeldern nach APP-6. Häufige Landeinheiten haben eine deutsche Übersetzung, gepflegt in `js/12-symbole.js` unter `MS_ARTEN`. Die Zeichen lassen sich als SVG oder PNG herunterladen.
+
+## Zeichen aus Foto erkennen (Probe)
+
+Auf der Seite „Taktische Zeichen“ lässt sich ein gezeichnetes oder gedrucktes Zeichen fotografieren. Nach dem Eingrenzen mit dem Finger erkennt ein kleines Netz im Browser Rahmen (eigene, Feind, neutral, unbekannt), Größe und 45 häufige Landeinheiten und schlägt drei Zeichen vor. Das Foto verlässt das Gerät nicht. Bildaufbereitung und Netz stehen in `js/foto-kern.js` und `vendor/foto-netz.js`, die Bedienung in `js/16-foto.js`, die Trainingswerkzeuge in `werkzeuge/foto-training/`.
 
 ## Lagekarte
 
