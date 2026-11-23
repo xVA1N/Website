@@ -1,4 +1,4 @@
-/* MeinKamerad – Zeichen aus Foto erkennen (Probe). Alles läuft im Browser, das Foto verlässt das Gerät nicht.
+/* MeinKamerad – Zeichen aus Foto erkennen (Testphase). Alles läuft im Browser, das Foto verlässt das Gerät nicht.
    Teil von index.html, Reihenfolge der Skripte beachten. */
 'use strict';
 if (!window.MK_DATEN) throw new Error('daten.js fehlt');
