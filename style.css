@@ -91,7 +91,7 @@ p { margin: 0; }
 .notice strong { font-weight: 600; }
 .wrap[data-view="start"] .short { display: none; }
 .wrap:not([data-view="start"]) .full { display: none; }
-.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox, .wrap[data-view="assessment"] .tskbox, .wrap[data-view="lexikon"] .tskbox { display: none; }
+.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox, .wrap[data-view="assessment"] .tskbox, .wrap[data-view="lexikon"] .tskbox, .wrap[data-view="sandkasten"] .tskbox { display: none; }
 .tskbox .label { display: block; }
 .tskbox .hint { margin-top: 6px; }
 
@@ -610,7 +610,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .ms-code { margin: 10px 0 0; font-size: .82rem; color: var(--muted); text-align: center; }
 .ms-code span { font-family: var(--font-mono); color: var(--fg); overflow-wrap: anywhere; }
 .p-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; box-sizing: border-box; }
-.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand, .wrap[data-view="assessment"] #rechtsstand, .wrap[data-view="lexikon"] #rechtsstand { display: none; }
+.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand, .wrap[data-view="assessment"] #rechtsstand, .wrap[data-view="lexikon"] #rechtsstand, .wrap[data-view="sandkasten"] #rechtsstand { display: none; }
 
 /* Lagekarte */
 .warn-lage { margin: 0; }
@@ -905,3 +905,14 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .lex-quelle { display: inline-block; margin-top: 10px; color: var(--muted); font-size: .8rem; }
 @media (min-width: 760px) { .lex-liste { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 380px) { .lex-daten { grid-template-columns: 1fr; gap: 0; } .lex-daten dd { margin-bottom: 6px; } }
+
+/* Geländesandkasten */
+.sbx-voll { background: #B9B3A4; }
+.sbx-voll canvas { display: block; touch-action: none; }
+.sbx-mini { aspect-ratio: 240 / 149; object-fit: cover; }
+.sbx-mini-leer { display: block; background: #E9DCC0; }
+.sbx-seg { margin: 0 0 8px; }
+.sbx-seg label span { min-height: 38px; }
+.sbx-zeichen-fach { max-height: 22vh; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
+.sbx-zeichen-fach .sk-v-bild svg { max-width: 52px; }
+#sbx-meldung-ablage:empty { display: none; }
