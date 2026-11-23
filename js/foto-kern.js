@@ -155,7 +155,7 @@ function fotoStaerke(t, b) {
   t.pixel.forEach(function (q) { var x = q % b, y = (q - x) / b; if (Math.abs(x - cx) > w * 0.3 && Math.abs(y - cy) > h * 0.3) ecken++; });
   return spanne(xs) > w * 0.6 && spanne(ys) > h * 0.6 && ecken < t.pixel.length * 0.2 ? '(+)' : '';
 }
-// Art der Größenangabe über dem Rahmen an der Form: Punkte (Gruppe, Halbzug, Zug), Striche (Kompanie, Bataillon, Regiment),
+// Art der Größenangabe über dem Rahmen an der Form: Punkte (Trupp, Gruppe, Zug), Striche (Kompanie, Bataillon, Regiment),
 // Kreuze (Brigade, Division, Korps, Armee). Gibt die möglichen Codes zurück oder null (dann entscheidet das Netz allein).
 // Die Anzahl bestimmt weiter das Netz, das zählt zuverlässiger.
 function fotoGroesseForm(teile, tr, b) {

@@ -59,7 +59,7 @@ var MS_ARTEN = [
   ]]
 ];
 // Größe (Echelon) für Einheiten, Beweglichkeit für Ausrüstung, Schleppantenne für Schiffe (Feld 9–10 des APP-6D-Codes)
-var MS_GROESSEN = [['00', 'ohne Angabe'], ['11', 'Trupp (Team/Crew)'], ['12', 'Gruppe (Squad)'], ['13', 'Halbzug (Section)'], ['14', 'Zug (Platoon/Detachment)'],
+var MS_GROESSEN = [['00', 'ohne Angabe'], ['11', 'Team, Besatzung (Team/Crew)'], ['12', 'Trupp • (Squad)'], ['13', 'Gruppe •• (Section)'], ['14', 'Zug ••• (Platoon/Detachment)'],
   ['15', 'Kompanie (Company/Battery/Troop)'], ['16', 'Bataillon (Battalion/Squadron)'], ['17', 'Regiment (Regiment/Group)'], ['18', 'Brigade'],
   ['21', 'Division'], ['22', 'Korps (Corps)'], ['23', 'Armee (Army)'], ['24', 'Heeresgruppe (Army Group/Front)'], ['25', 'Region (Region/Theatre)'], ['26', 'Kommando (Command)']];
 var MS_BEWEGLICH = [['00', 'ohne Angabe'], ['31', 'Rad, eingeschränkt geländegängig (Wheeled limited cross country)'], ['32', 'Rad, geländegängig (Wheeled cross country)'],
