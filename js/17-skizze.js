@@ -26,7 +26,14 @@ var SK_ART = {};
 SK_WERKZEUGE.forEach(function (g) { g[1].forEach(function (w) { SK_ART[w[0]] = { name: w[1], form: w[2], n: w[3] || 0 }; }); });
 // NATO-Zeichen der Stellungsskizze: Code ohne Zugehörigkeit (die setzt eigene „3“ oder Feind „6“ ein)
 var SK_NATO = { schuetze: '15000011010300', mg: '15000011020200', mgs: '15000011020300', gran: '15000011030100', pzf: '15000011170100', pzabw: '15000011120100', gruppe: '10001312110000', trupp: '10001212110000' };
-function skNatoSidc(e) { return '100' + (e.feind ? '6' : '3') + SK_NATO[e.art] + '00'; }
+// Weitere Zeichen aus „Meine Zeichen“ oder dem Baukasten tragen ihren eigenen Code (art 'nato')
+SK_ART.nato = { name: 'Taktisches Zeichen', form: 'punkt', n: 0 };
+var skNatoWahl = null, skBaukastenFuer = null;
+function skIstNato(e) { return !!(SK_NATO[e.art] || (e.art === 'nato' && e.sidc)); }
+function skNatoSidc(e) {
+  if (e.art === 'nato') { var c = e.sidc; return /[36]/.test(c.charAt(3)) ? c.substr(0, 3) + (e.feind ? '6' : '3') + c.substr(4) : c; }
+  return '100' + (e.feind ? '6' : '3') + SK_NATO[e.art] + '00';
+}
 var SK_ROT = '#B3261E';
 
 /* ===== Speicher ===== */
@@ -216,10 +223,12 @@ function skElementSvg(s, e, mitTreffer) {
     if (a === 'kirche') t = '<circle cx="0" cy="0" r="1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-1.5 V-5 M-1.3,-3.6 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
     else if (a === 'gebaeude') t = '<rect x="-1.6" y="-1.2" width="3.2" height="2.4" fill="' + SK_TINTE + '"/>';
     else if (a === 'bruecke') t = '<path d="M-2.4,-3.2 Q-1,0 -2.4,3.2 M2.4,-3.2 Q1,0 2.4,3.2 M-2.4,-3.2 L-3.4,-4 M-2.4,3.2 L-3.4,4 M2.4,-3.2 L3.4,-4 M2.4,3.2 L3.4,4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linecap="round"/>';
-    else if (SK_NATO[a]) {
+    else if (skIstNato(e)) {
       // NATO-Zeichen über milsymbol, auf etwa 8 mm Rahmenbreite verkleinert
       if (window.ms) {
-        var sym = new window.ms.Symbol(skNatoSidc(e), { size: 30, standard: 'APP6', fill: true, colorMode: 'Light' }), an = sym.getAnchor(), k = 0.27;
+        var mo = { size: 30, standard: 'APP6', fill: true, colorMode: 'Light' };
+        if (e.opt) Object.keys(e.opt).forEach(function (k) { if (k !== 'size') mo[k] = e.opt[k]; });
+        var sym = new window.ms.Symbol(skNatoSidc(e), mo), an = sym.getAnchor(), k = 0.27;
         t = '<g transform="scale(' + k + ') translate(' + skRund(-an.x) + ',' + skRund(-an.y) + ')">' + sym.asSVG() + '</g>';
       } else t = '<circle r="3" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
     } else if (a === 'beob') t = '<path d="M0,-3 L3,2.2 L-3,2.2 Z" fill="none" stroke="' + (e.feind ? SK_ROT : SK_TINTE) + '" stroke-width=".55" stroke-linejoin="round"/><circle cx="0" cy=".5" r=".55" fill="' + (e.feind ? SK_ROT : SK_TINTE) + '"/>';
@@ -231,7 +240,7 @@ function skElementSvg(s, e, mitTreffer) {
     else if (a === 'text') t = '<text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="' + (e.groesse || 3.6) + '" fill="' + SK_BLAU + '" paint-order="stroke" stroke="#F4F0E6" stroke-width=".8">' + esc(e.text || 'Text') + '</text>';
     else if (a === 'nord') t = '<path d="M0,6 V-6 M-1.6,-3.6 L0,-6.4 L1.6,-3.6" fill="none" stroke="' + SK_TINTE + '" stroke-width=".6" stroke-linecap="round" stroke-linejoin="round"/><text x="2.6" y="1.6" font-size="4" font-weight="600" fill="' + SK_TINTE + '">N</text>';
     var gr = a === 'text' ? Math.max(4, String(e.text || 'Text').length * (e.groesse || 3.6) * 0.32) : (a === 'nord' ? 5 : 4.5);
-    if (SK_NATO[a]) dreh = '';
+    if (skIstNato(e)) dreh = '';
     h = '<g transform="translate(' + skRund(x) + ',' + skRund(y) + ')' + dreh + '">' + t + (mitTreffer ? '<rect x="' + (-gr) + '" y="-5" width="' + (2 * gr) + '" height="' + (a === 'nord' ? 12 : 8) + '" fill="rgba(0,0,0,0.001)" pointer-events="all"/>' : '') + '</g>';
   }
   return h;
@@ -316,17 +325,18 @@ function skRendern() {
   skVollLeiste();
 }
 // Kleines Vorschaubild eines Werkzeugs (für die Knöpfe)
-function skIcon(art) {
+function skIcon(art, daten) {
   var f = SK_ART[art] ? SK_ART[art].form : 'punkt', e = { art: art, winkel: 0, text: 'Abc' }, inhalt;
+  if (daten && art === 'nato') { e.sidc = daten.sidc; e.opt = daten.opt; e.feind = daten.feind; }
   if (art === 'marsch') {
     inhalt = '<path d="M3,13 L11,6 L20,9" fill="none" stroke="' + SK_BLAU + '" stroke-width="1.1" stroke-dasharray=".1 1.8" stroke-linecap="round"/>' +
       '<path d="M1.6,11.6 L4.4,14.4 M1.6,14.4 L4.4,11.6" stroke="' + SK_BLAU + '" stroke-width=".8"/><circle cx="11" cy="6" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/><circle cx="20" cy="9" r="1.9" fill="none" stroke="' + SK_BLAU + '" stroke-width=".7"/>';
   } else {
     e.pts = f === 'flaeche' ? [[2, 2.5], [21, 1.5], [22.5, 13.5], [2.5, 14]] : art === 'feuer' ? [[12, 15], [3, 2], [21, 2]] : art === 'hsr' ? [[5, 13], [20, 3]] : art === 'ziel' ? [[4, 13.5], [19, 5]]
-      : f === 'linie' ? [[1.5, 12.5], [8, 5], [15, 10], [22.5, 3.5]] : [[12, art === 'nord' ? 8 : SK_NATO[art] ? 8 : 9]];
+      : f === 'linie' ? [[1.5, 12.5], [8, 5], [15, 10], [22.5, 3.5]] : [[12, art === 'nord' ? 8 : (art === 'gruppe' || art === 'trupp' || art === 'nato') ? 9.6 : SK_NATO[art] ? 8 : 9]];
     if (art === 'nord' || art === 'text') e.groesse = 6;
     inhalt = skElementSvg({ massstab: 0, zaehlung: 'teil' }, e, false);
-    if (f === 'punkt' && art !== 'text') inhalt = '<g transform="translate(12,8) scale(' + (art === 'nord' ? 1.05 : SK_NATO[art] ? 1.5 : 2.1) + ') translate(-12,-' + (art === 'nord' ? 8 : 8.5) + ')">' + inhalt + '</g>';
+    if (f === 'punkt' && art !== 'text') inhalt = '<g transform="translate(12,8) scale(' + (art === 'nord' ? 1.05 : (SK_NATO[art] || art === 'nato') ? 1.3 : 2.1) + ') translate(-12,-' + (art === 'nord' ? 8 : 8.5) + ')">' + inhalt + '</g>';
   }
   return '<svg class="sk-ic" viewBox="0 0 24 16" aria-hidden="true">' + inhalt + '</svg>';
 }
@@ -335,7 +345,7 @@ function skIcon(art) {
 function skDatum(d) { return d ? d.split('-').reverse().join('.') : ''; }
 function skAblageZeigen() {
   $('sk-ablage').hidden = false; $('sk-arten').hidden = true;
-  if (!window.ms && SK.liste.some(function (s) { return s.elemente.some(function (e) { return SK_NATO[e.art]; }); })) ladeMilsymbol().then(skAblageZeigen, function () {});
+  if (!window.ms && SK.liste.some(function (s) { return s.elemente.some(function (e) { return skIstNato(e); }); })) ladeMilsymbol().then(skAblageZeigen, function () {});
   $('sk-anz').textContent = SK.liste.length ? '(' + SK.liste.length + ')' : '';
   $('sk-leer').hidden = SK.liste.length > 0;
   $('sk-liste').innerHTML = SK.liste.map(function (s) {
@@ -347,7 +357,8 @@ function skAblageZeigen() {
       '<div class="sk-eintrag-knoepfe"><button type="button" class="knopf sekundaer" data-sk-name="' + s.id + '">Umbenennen</button><button type="button" class="knopf sekundaer" data-sk-weg="' + s.id + '">Löschen</button></div></div>';
   }).join('');
 }
-function zeigeSkizze() { if (skVoll) skSchliessen(); skAblageZeigen(); }
+// Beim Anzeigen der Seite die Ablage aufbauen; eine offene Skizze bleibt offen (Schließen beim Verlassen übernimmt hashchange)
+function zeigeSkizze() { skAblageZeigen(); }
 function skArtenZeigen() {
   $('sk-ablage').hidden = true; $('sk-arten').hidden = false;
   var bild = { gelaende: skIcon('nadelwald'), stellung: skIcon('feuer'), entfernung: skIcon('marsch'), panorama: skIcon('kuppe') };
@@ -461,6 +472,7 @@ function skSetzen(p) {
   var f = SK_ART[skWerkzeug].form;
   if (f === 'punkt') {
     var e = { id: 'e' + Date.now(), art: skWerkzeug, pts: [p], winkel: 0 };
+    if (skWerkzeug === 'nato' && skNatoWahl) { e.sidc = skNatoWahl.sidc; e.opt = skNatoWahl.opt; e.titel = skNatoWahl.titel; e.feind = skNatoWahl.feind; }
     skMerken();
     skAktiv().elemente.push(e);
     if (skWerkzeug === 'text') {
@@ -599,15 +611,15 @@ function skVollLeiste() {
   skVollKey = key;
   var h = '', fach = '';
   if (e) {
-    var art = SK_ART[e.art] || { name: e.art, form: 'punkt' }, info = e.gesperrt ? 'gesperrt' : 'Ziehen zum Verschieben';
+    var art = e.art === 'nato' ? { name: e.titel || 'Taktisches Zeichen', form: 'punkt' } : SK_ART[e.art] || { name: e.art, form: 'punkt' }, info = e.gesperrt ? 'gesperrt' : 'Ziehen zum Verschieben';
     if (e.art === 'marsch') { var l = 0; for (var i = 1; i < e.pts.length; i++) l += skLaenge(e.pts[i - 1], e.pts[i]); info = skOhneMassstab(skAktiv()) ? 'Entfernungen der Reihe nach eintragen' : 'zusammen ' + skMeter(skAktiv(), l).toLocaleString('de-DE') + ' m'; }
     else if (e.art === 'ziel') info = skOhneMassstab(skAktiv()) ? 'Ohne Maßstab: Entfernung mit in den Namen schreiben' : 'Entfernung ' + skMeter(skAktiv(), skLaenge(e.pts[0], e.pts[1])).toLocaleString('de-DE') + ' m';
-    else if (SK_NATO[e.art] || e.art === 'beob') info = (e.feind ? 'Feind' : 'Eigene Kräfte') + (e.gesperrt ? ' · gesperrt' : ' · Ziehen zum Verschieben');
+    else if (skIstNato(e) || e.art === 'beob') info = (e.feind ? 'Feind' : 'Eigene Kräfte') + (e.gesperrt ? ' · gesperrt' : ' · Ziehen zum Verschieben');
     else if (art.form !== 'punkt' && !e.gesperrt) info = 'Ziehen verschiebt, Griffe verschieben Punkte';
-    h = '<div class="sk-v-kopf">' + skIcon(e.art) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
+    h = '<div class="sk-v-kopf">' + skIcon(e.art, e) + '<div><b>' + esc(art.name) + '</b><small>' + info + '</small></div><button type="button" class="sk-v-x" data-v="auswahlfertig" aria-label="Auswahl schließen">✕</button></div>' +
       (e.gesperrt ? '' : '<input type="text" class="sk-v-name" id="sk-v-name" maxlength="40" autocomplete="off" enterkeyhint="done" placeholder="' + (e.art === 'marsch' && skOhneMassstab(skAktiv()) ? 'Entfernungen in m, z. B. 800, 400, 1600' : e.art === 'text' ? 'Text eingeben' : 'Name, z. B. ' + ({ ort: 'Schlierhof', nadelwald: 'Südwald', laubwald: 'Nordwald', mischwald: 'Kreuzwald', kuppe: 'Kahler Berg', fluss: 'Aue', ziel: skOhneMassstab(skAktiv()) ? 'Spitzbaum 600' : 'Spitzbaum', schuetze: 'Schütze 1', mg: 'MG 1', gruppe: '1./371' }[e.art] || 'Spitzbaum')) + '" value="' + esc((e.art === 'text' ? (e.text === 'Text' ? '' : e.text) : e.art === 'marsch' && skOhneMassstab(skAktiv()) ? e.entf : e.name) || '') + '">') +
-      '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt && !SK_NATO[e.art] && e.art !== 'beob' ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
-      ((SK_NATO[e.art] || e.art === 'beob') && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="feind">' + (e.feind ? 'Eigene' : 'Feind') + '</button>' : '') +
+      '<div class="sk-v-knoepfe">' + (art.form === 'punkt' && !e.gesperrt && !skIstNato(e) && e.art !== 'beob' ? '<button type="button" class="sk-v-knopf" data-v="drehen">↻ Drehen</button>' : '') +
+      ((skIstNato(e) || e.art === 'beob') && !e.gesperrt ? '<button type="button" class="sk-v-knopf" data-v="feind">' + (e.feind ? 'Eigene' : 'Feind') + '</button>' : '') +
       '<button type="button" class="sk-v-knopf" data-v="sperren">' + (e.gesperrt ? 'Entsperren' : 'Sperren') + '</button>' +
       (e.gesperrt ? '' : '<button type="button" class="sk-v-knopf gefahr" data-v="loeschen">Löschen</button>') +
       '<button type="button" class="sk-v-knopf primaer" data-v="auswahlfertig">Fertig</button></div>';
@@ -615,7 +627,7 @@ function skVollLeiste() {
     var f = SK_ART[skWerkzeug].form, hinweis = skWerkzeug === 'text' ? 'Auf das Blatt tippen, dann Text eingeben' : f === 'punkt' ? 'Auf das Blatt tippen, mehrmals möglich'
       : ({ hsr: 'Stellung, dann die Richtung antippen', feuer: 'Stellung, dann linke und rechte Grenze antippen', ziel: 'Stellung, dann das Ziel antippen' }[skWerkzeug] ||
         (skWerkzeug === 'marsch' ? 'Start, dann die Wegpunkte antippen' : f === 'flaeche' ? 'Umriss Punkt für Punkt antippen' : 'Punkte nacheinander antippen')) + (skPunkte.length ? ' · ' + skPunkte.length + ' gesetzt' : '');
-    h = '<div class="sk-v-kopf">' + skIcon(skWerkzeug) + '<div><b>' + esc(SK_ART[skWerkzeug].name) + '</b><small>' + hinweis + '</small></div><button type="button" class="sk-v-x" data-v="abbrechen" aria-label="Werkzeug beenden">✕</button></div>' +
+    h = '<div class="sk-v-kopf">' + skIcon(skWerkzeug, skWerkzeug === 'nato' ? skNatoWahl : null) + '<div><b>' + esc(skWerkzeug === 'nato' && skNatoWahl ? skNatoWahl.titel : SK_ART[skWerkzeug].name) + '</b><small>' + hinweis + '</small></div><button type="button" class="sk-v-x" data-v="abbrechen" aria-label="Werkzeug beenden">✕</button></div>' +
       '<div class="sk-v-knoepfe">' + (f === 'punkt' ? '' : '<button type="button" class="sk-v-knopf" data-v="punktzurueck"' + (skPunkte.length ? '' : ' disabled') + '>↶ Punkt zurück</button>') +
       '<button type="button" class="sk-v-knopf primaer" data-v="fertig">✓ Fertig</button></div>';
   } else {
@@ -627,7 +639,15 @@ function skVollLeiste() {
     if (skFach) {
       var dk = dock.filter(function (d) { return d[0] === skFach; })[0], g = SK_WERKZEUGE.filter(function (x) { return x[0] === skFach; })[0];
       var liste = dk && dk[3] ? dk[3].map(function (k) { return [k, SK_ART[k].name]; }) : g ? g[1] : [];
-      fach = liste.filter(function (w) { return w[0] !== 'marsch'; }).map(function (w) { return '<button type="button" class="sk-v-wahl" data-v-wz="' + w[0] + '">' + skIcon(w[0]) + esc(w[1]) + '</button>'; }).join('');
+      if (skFach === '+Zeichen') {
+        fach = '<button type="button" class="sk-v-wahl" data-v-fach="Stellung"><span class="sk-v-plus-zeichen">‹</span>Zurück</button>' + FAV.zeichen.map(function (z) {
+          var bild = '';
+          try { bild = window.ms ? '<span class="sk-v-bild">' + msSymbolAus(z, 18).asSVG() + '</span>' : ''; } catch (x) { bild = ''; }
+          return '<button type="button" class="sk-v-wahl" data-v-fav="' + esc(z.id) + '">' + bild + esc(msFavName(z)) + '</button>';
+        }).join('') + '<button type="button" class="sk-v-wahl sk-v-plus" data-v="baukasten"><span class="sk-v-plus-zeichen">+</span>Neues Zeichen im Baukasten</button>' +
+          (FAV.zeichen.length ? '' : '<p class="sk-v-fach-hinweis">Unter „Meine Zeichen“ gespeicherte Zeichen erscheinen hier.</p>');
+      } else fach = liste.filter(function (w) { return w[0] !== 'marsch'; }).map(function (w) { return '<button type="button" class="sk-v-wahl" data-v-wz="' + w[0] + '">' + skIcon(w[0]) + esc(w[1]) + '</button>'; }).join('') +
+        (skFach === 'Stellung' ? '<button type="button" class="sk-v-wahl sk-v-plus" data-v-fach="+Zeichen"><span class="sk-v-plus-zeichen">+</span>Weitere Zeichen</button>' : '');
     }
   }
   $('sk-v-leiste').innerHTML = h;
@@ -637,14 +657,22 @@ function skVollLeiste() {
 $('sk-voll').addEventListener('click', function (ev) {
   var b = ev.target.closest('button');
   if (!b) return;
-  if (b.hasAttribute('data-v-fach')) { var f = b.getAttribute('data-v-fach'); skFach = skFach === f ? null : f; skVollLeiste(); return; }
+  if (b.hasAttribute('data-v-fach')) { var f = b.getAttribute('data-v-fach'); skFach = skFach === f && !b.closest('#sk-v-fach') ? null : f; skVollLeiste(); return; }
   if (b.hasAttribute('data-v-wz')) { skWerkzeugWaehlen(b.getAttribute('data-v-wz')); return; }
+  if (b.hasAttribute('data-v-fav')) {
+    var z = msFavHolen(b.getAttribute('data-v-fav'));
+    if (!z) return;
+    skNatoWahl = { sidc: z.sidc, opt: z.opt, titel: msFavName(z), feind: z.sidc.charAt(3) === '6' };
+    skWerkzeug = null; skWerkzeugWaehlen('nato');
+    return;
+  }
   var v = b.getAttribute('data-v');
   if (v === 'abbrechen') skAbbrechen();
   else if (v === 'fertig') skFertig();
   else if (v === 'punktzurueck') skPunktZurueck();
   else if (v === 'drehen') skDrehen();
   else if (v === 'sperren') skSperren();
+  else if (v === 'baukasten') { skBaukastenFuer = SK.aktiv; skSchliessen(); go('symbole'); $('ms-in-skizze').hidden = false; $('ms-vorschau').scrollIntoView({ block: 'center' }); }
   else if (v === 'feind') { var fe = skAuswahl && skElement(skAuswahl); if (fe) { skMerken(); fe.feind = !fe.feind; skSpeichern(); skRendern(); } }
   else if (v === 'loeschen') skLoeschen();
   else if (v === 'auswahlfertig') skAuswahlEnde();
@@ -657,7 +685,7 @@ $('sk-v-zurueck').addEventListener('click', skRueckgaengig);
 $('sk-v-einpassen').addEventListener('click', function () { skEinpassen(); skAnsichtSetzen(); });
 document.addEventListener('keydown', function (e) { if (skVoll && e.key === 'Escape') { if (!$('sk-v-blatt').hidden) skBlattAuf(false); else skSchliessen(); } });
 window.addEventListener('resize', function () { if (skVoll) { skAnsichtBegrenzen(); skAnsichtSetzen(); } });
-window.addEventListener('hashchange', function () { if (skVoll) skSchliessen(); });
+window.addEventListener('hashchange', function () { if (skVoll && location.hash !== '#skizze') skSchliessen(); });
 
 // Zwei Finger: zoomen und verschieben. Ein Finger auf freiem Papier verschiebt ebenfalls (auch mit Werkzeug, ein kurzes Tippen setzt dann den Punkt).
 function skFingerMitte() {
@@ -726,3 +754,16 @@ if (window.claude && typeof window.claude.use === 'function') {
 
 // Wurde die Seite direkt mit #skizze geöffnet, ist sie schon sichtbar, bevor dieses Skript geladen ist
 if (aktuelleAnsicht === 'skizze') zeigeSkizze();
+
+// Aus dem Baukasten: zusammengestelltes Zeichen in die Skizze einfügen, aus der „Neues Zeichen im Baukasten“ gewählt wurde
+$('ms-in-skizze').addEventListener('click', function () {
+  var s = SK.liste.filter(function (x) { return x.id === skBaukastenFuer; })[0];
+  $('ms-in-skizze').hidden = true;
+  if (!s || !msGeladen) { skBaukastenFuer = null; go('skizze'); return; }
+  var a = msAuswahl(), e = { id: 'e' + Date.now(), art: 'nato', sidc: a.sidc, opt: a.opt, titel: a.name, feind: a.sidc.charAt(3) === '6', pts: [[SK_GX + SK_GW / 2, SK_GY + SK_GH / 2]], winkel: 0 };
+  s.elemente.push(e); skSpeichern();
+  skBaukastenFuer = null;
+  go('skizze'); skOeffnen(s.id);
+  skAuswahl = e.id; skRendern();
+  skMeldung('Zeichen in die Mitte gesetzt. Zum Verschieben ziehen.');
+});

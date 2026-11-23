@@ -816,3 +816,10 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .sk-v-blatt-karte .sk-v-x { background: var(--soft); color: var(--fg); }
 .sk-v-blatt-karte input, .sk-v-blatt-karte textarea { font-size: 16px; }
 @media (min-width: 700px) { .sk-v-blatt { align-items: center; } .sk-v-blatt-karte { border-radius: 18px; } }
+
+.sk-v-plus { border: 1.5px dashed #35553A; background: #FFFFFF; }
+.sk-v-plus-zeichen { display: grid; place-items: center; width: 40px; height: 27px; font-size: 1.5rem; font-weight: 600; line-height: 1; color: #35553A; }
+.sk-v-bild { display: grid; place-items: center; height: 27px; }
+.sk-v-bild svg { max-height: 27px; max-width: 60px; }
+.sk-v-fach-hinweis { grid-column: 1 / -1; margin: 2px 4px; font-size: .8rem; color: #58635B; }
+.sk-v-wahl { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
