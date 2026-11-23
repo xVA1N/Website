@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#35553A"/>
+  <g fill="none" stroke="#F1F5EE" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Gesicht -->
+    <path d="M232 184 C232 240 250 268 278 268 C306 268 324 240 324 184"/>
+    <!-- Barett, zur rechten Kopfseite gezogen -->
+    <path d="M196 196 C184 150 222 116 276 114 C318 112 342 132 336 168 L330 184 L222 184 Z" fill="#F1F5EE"/>
+    <!-- Kragen -->
+    <path d="M250 270 L278 312 L306 270"/>
+    <!-- Schultern -->
+    <path d="M146 404 L146 360 C146 318 184 298 232 292 M324 292 C372 298 410 318 410 360 L410 404"/>
+    <!-- Grußarm: Ellbogen seitlich, flache Hand an der Stirn -->
+    <path d="M196 300 L112 254 L190 178"/>
+    <path d="M182 186 L230 196"/>
+    <path d="M278 312 L278 404"/>
+    <path d="M124 404 L432 404"/>
+  </g>
+  <circle cx="306" cy="150" r="11" fill="#35553A"/>
+</svg>
