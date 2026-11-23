@@ -733,3 +733,43 @@ details.erklaerung > summary h2 { font-size: 1rem; }
 .sk-blatt .sk-griff { cursor: move; touch-action: none; }
 .sk-textfeld { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; resize: vertical; }
 .sk-auswahl { position: static; }
+
+/* Skizzen im Vollbild: Blatt füllt den Bildschirm, Werkzeuge als schmale Leiste */
+html.sk-voll, html.sk-voll body { overflow: hidden; }
+.sk-arbeit.vollbild { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; gap: 6px; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--bg); }
+.sk-arbeit.vollbild .sk-zeichnen { margin: 0; padding: 6px 8px; flex: none; }
+.sk-arbeit.vollbild .sk-zeichnen h2, .sk-arbeit.vollbild .sk-gruppe .label { display: none; }
+.sk-arbeit.vollbild .sk-werkzeuge { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.sk-arbeit.vollbild .sk-gruppe, .sk-arbeit.vollbild .sk-knoepfe { display: flex; flex-wrap: nowrap; gap: 6px; }
+.sk-arbeit.vollbild .sk-gruppe + .sk-gruppe { border-left: 1px solid var(--line); padding-left: 6px; }
+.sk-arbeit.vollbild .sk-wz { min-height: 36px; padding: 0 10px; white-space: nowrap; font-size: .9rem; }
+.sk-arbeit.vollbild #sk-text-wrap { margin-top: 6px !important; }
+.sk-arbeit.vollbild #sk-meldung:empty { display: none; }
+.sk-arbeit.vollbild .lage-leiste { position: static; margin: 0; padding: 6px 8px; flex: none; }
+.sk-arbeit.vollbild .sk-werkzeugleiste { margin: 0; flex: none; }
+.sk-arbeit.vollbild .sk-werkzeugleiste .knopf { min-height: 36px; }
+.sk-arbeit.vollbild .sk-buehne { flex: 1 1 auto; min-height: 0; margin: 0; }
+.sk-werkzeugleiste #sk-vollbild { flex: 0 0 auto; }
+
+.sk-quer-hinweis { display: none; }
+.sk-arbeit.vollbild .lage-leiste { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .82rem; }
+.sk-arbeit.vollbild .lage-leiste > span { flex: 1 1 160px; }
+.sk-arbeit.vollbild .lage-leiste-knoepfe { flex: 1 1 auto; flex-wrap: nowrap; }
+.sk-arbeit.vollbild .lage-leiste-knoepfe .knopf { min-height: 34px; padding: 0 8px; font-size: .85rem; flex: 1 1 auto; white-space: nowrap; }
+@media (orientation: portrait) { .sk-arbeit.vollbild .sk-quer-hinweis { display: block; margin: 0; font-size: .8rem; flex: none; } }
+/* Querformat: Werkzeuge und Knöpfe in einer Spalte links, das Blatt bekommt die ganze Höhe */
+@media (orientation: landscape) and (max-height: 600px) {
+  .sk-arbeit.vollbild { display: grid; grid-template-columns: minmax(170px, 230px) 1fr; grid-template-rows: 1fr auto auto auto; column-gap: 8px; }
+  .sk-arbeit.vollbild > * { grid-column: 1; min-width: 0; }
+  .sk-arbeit.vollbild .sk-buehne { grid-column: 2; grid-row: 1 / -1; }
+  .sk-arbeit.vollbild .sk-zeichnen { grid-row: 1; overflow-y: auto; min-height: 0; }
+  .sk-arbeit.vollbild .sk-werkzeuge { flex-direction: column; overflow-x: visible; }
+  .sk-arbeit.vollbild .sk-gruppe, .sk-arbeit.vollbild .sk-knoepfe { flex-wrap: wrap; }
+  .sk-arbeit.vollbild .sk-gruppe + .sk-gruppe { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 6px; }
+  .sk-arbeit.vollbild .sk-wz { min-height: 32px; padding: 0 8px; font-size: .82rem; }
+  .sk-arbeit.vollbild .lage-leiste > span { flex-basis: 100%; }
+  .sk-arbeit.vollbild .lage-leiste-knoepfe { flex-wrap: wrap; }
+  .sk-arbeit.vollbild .sk-werkzeugleiste { flex-wrap: wrap; }
+  .sk-arbeit.vollbild .sk-werkzeugleiste .knopf { min-height: 32px; font-size: .85rem; padding: 0 8px; }
+  .sk-arbeit.vollbild .sk-werkzeugleiste .sk-lupe { width: 36px; }
+}

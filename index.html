@@ -816,7 +816,7 @@
         <h3>Meldeblatt</h3>
         <p>Gezeichnet wird wie auf dem Meldeblock: ein Raster von 16 × 12 Kästchen zu je 1 cm, oben die Maßstäbe 1:10.000, 1:25.000 und 1:50.000, rechts die Erläuterungen, das Datum und die Unterschrift. Der gewählte Maßstab bleibt stehen, die anderen werden durchgestrichen. Ein Kästchen entspricht bei 1:10.000 100 m, bei 1:25.000 250 m und bei 1:50.000 500 m.</p>
         <h3>Zeichnen</h3>
-        <p>Ein Werkzeug wählen und auf das Raster tippen. Bei <strong>Linien</strong> (Straße, Weg, Bahnlinie, Fluss) und <strong>Flächen</strong> (Ortschaft, Nadelwald, Laubwald, Mischwald) die Punkte nacheinander antippen, dann „Fertig“. <strong>Zeichen</strong> wie Kirche, Brücke oder Einzelbaum werden mit jedem Tippen gesetzt. Zum Vergrößern die Lupe nutzen.</p>
+        <p>Ein Werkzeug wählen und auf das Raster tippen. Bei <strong>Linien</strong> (Straße, Weg, Bahnlinie, Fluss) und <strong>Flächen</strong> (Ortschaft, Nadelwald, Laubwald, Mischwald) die Punkte nacheinander antippen, dann „Fertig“. <strong>Zeichen</strong> wie Kirche, Brücke, Einzelbaum, Nadel- oder Laubbaum werden mit jedem Tippen gesetzt. Zum Vergrößern die Lupe nutzen. Auf dem Handy hilft „Vollbild“: Das Blatt füllt dann den ganzen Bildschirm, am besten quer gehalten, die Werkzeuge stehen als Leiste darüber.</p>
         <h3>Marschweg</h3>
         <p>Den Startpunkt (Kreuz) und dann die Wegpunkte antippen. Jeder Wegpunkt bekommt einen Kreis und die Entfernung in Metern, berechnet über den Maßstab und auf 10 m (ab 1.000 m auf 50 m) gerundet. Wahlweise steht dort die Länge der Teilstrecke oder die Gesamtentfernung ab dem Start. Pfeile zeigen die Marschrichtung.</p>
         <h3>Ändern</h3>
@@ -848,7 +848,8 @@
       </div>
       <div class="p-felder" style="margin-top:12px"><label class="label" for="sk-erlaeuterung" style="display:block">Erläuterungen</label><textarea id="sk-erlaeuterung" class="sk-textfeld" rows="2" maxlength="150"></textarea></div>
     </section>
-    <section class="panel">
+    <div class="sk-arbeit" id="sk-arbeit">
+    <section class="panel sk-zeichnen">
       <h2>Zeichnen</h2>
       <div id="sk-werkzeuge" class="sk-werkzeuge"></div>
       <div class="p-felder" id="sk-text-wrap" hidden style="margin-top:10px"><label class="label" for="sk-text" style="display:block">Text (z. B. Ortsname)</label><input type="text" id="sk-text" maxlength="40" autocomplete="off" placeholder="z. B. Nordwald"></div>
@@ -866,7 +867,9 @@
       <button type="button" class="knopf sekundaer" id="sk-zurueck" disabled>Rückgängig</button>
       <button type="button" class="knopf sekundaer sk-lupe" id="sk-zoom-minus" aria-label="Verkleinern">−</button>
       <button type="button" class="knopf sekundaer sk-lupe" id="sk-zoom-plus" aria-label="Vergrößern">+</button>
+      <button type="button" class="knopf primaer" id="sk-vollbild">Vollbild</button>
     </div>
+    <p class="hint sk-quer-hinweis">Tipp: Handy quer halten, dann wird das Blatt größer.</p>
     <div class="sk-buehne"><svg id="sk-blatt" class="sk-blatt" viewBox="0 0 222 160" font-family="IBM Plex Sans, Arial, sans-serif" role="img" aria-label="Skizze auf dem Meldeblatt"></svg></div>
     <div class="lage-leiste sk-auswahl" id="sk-auswahl" hidden>
       <span id="sk-auswahl-text"></span>
@@ -877,6 +880,7 @@
         <button type="button" class="knopf sekundaer" id="sk-auswahl-weg">Löschen</button>
         <button type="button" class="knopf primaer" id="sk-auswahl-fertig">Fertig</button>
       </div>
+    </div>
     </div>
     <section class="panel">
       <div class="dg-aktionen"><button type="button" class="knopf primaer" id="sk-png">Als Bild speichern</button></div>

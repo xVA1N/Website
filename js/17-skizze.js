@@ -14,7 +14,7 @@ var SK_MASSSTAEBE = [
 var SK_WERKZEUGE = [
   ['Linien', [['strasse', 'Straße', 'linie'], ['weg', 'Weg', 'linie'], ['bahn', 'Bahnlinie', 'linie'], ['fluss', 'Fluss, Bach', 'linie'], ['marsch', 'Marschweg', 'linie']]],
   ['Flächen', [['ort', 'Ortschaft', 'flaeche'], ['nadelwald', 'Nadelwald', 'flaeche'], ['laubwald', 'Laubwald', 'flaeche'], ['mischwald', 'Mischwald', 'flaeche']]],
-  ['Zeichen', [['kirche', 'Kirche', 'punkt'], ['gebaeude', 'Einzelgebäude', 'punkt'], ['bruecke', 'Brücke', 'punkt'], ['baum', 'Einzelbaum', 'punkt'],
+  ['Zeichen', [['kirche', 'Kirche', 'punkt'], ['gebaeude', 'Einzelgebäude', 'punkt'], ['bruecke', 'Brücke', 'punkt'], ['baum', 'Einzelbaum', 'punkt'], ['nadelbaum', 'Nadelbaum', 'punkt'], ['laubbaum', 'Laubbaum', 'punkt'],
     ['kuppe', 'Kuppe', 'punkt'], ['tp', 'Trig. Punkt', 'punkt'], ['text', 'Text', 'punkt'], ['nord', 'Nordpfeil', 'punkt']]]
 ];
 var SK_ART = {};
@@ -39,7 +39,7 @@ function skSpeichern() { try { localStorage.setItem(SK_KEY, JSON.stringify(SK));
 function skAktiv() { return SK.liste.filter(function (s) { return s.id === SK.aktiv; })[0]; }
 
 /* ===== Zustand der Bedienung ===== */
-var skWerkzeug = null, skPunkte = [], skAuswahl = null, skVerlauf = [], skZoom = 1;
+var skVoll = false, skWerkzeug = null, skPunkte = [], skAuswahl = null, skVerlauf = [], skZoom = 1;
 function skMerken() { skVerlauf.push(JSON.stringify(skAktiv())); if (skVerlauf.length > 40) skVerlauf.shift(); $('sk-zurueck').disabled = false; }
 function skElement(id) { return skAktiv().elemente.filter(function (e) { return e.id === id; })[0]; }
 
@@ -164,6 +164,8 @@ function skElementSvg(s, e, mitTreffer) {
     if (a === 'kirche') t = '<circle cx="0" cy="0" r="1.5" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-1.5 V-5 M-1.3,-3.6 H1.3" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
     else if (a === 'gebaeude') t = '<rect x="-1.6" y="-1.2" width="3.2" height="2.4" fill="' + SK_TINTE + '"/>';
     else if (a === 'bruecke') t = '<path d="M-2.4,-3.2 Q-1,0 -2.4,3.2 M2.4,-3.2 Q1,0 2.4,3.2 M-2.4,-3.2 L-3.4,-4 M-2.4,3.2 L-3.4,4 M2.4,-3.2 L3.4,-4 M2.4,3.2 L3.4,4" fill="none" stroke="' + SK_TINTE + '" stroke-width=".55" stroke-linecap="round"/>';
+    else if (a === 'nadelbaum') t = skNadel(0, 0);
+    else if (a === 'laubbaum') t = skLaub(0, 0);
     else if (a === 'baum') t = '<circle cx="0" cy="-2.4" r="1.7" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M0,-0.7 V1.6" stroke="' + SK_TINTE + '" stroke-width=".5"/>';
     else if (a === 'kuppe') t = '<path d="M-4.5,0.6 C-4.6,-2.2 -1.4,-3.3 1.2,-2.8 C3.8,-2.3 5,-0.6 4.4,1 C3.8,2.6 0.8,3 -1.6,2.7 C-3.6,2.4 -4.4,1.8 -4.5,0.6 Z" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><path d="M-2.4,0.4 C-2.4,-1 -0.6,-1.4 0.8,-1.1 C2.2,-0.8 2.6,0.2 2,0.8 C1.2,1.5 -2.3,1.6 -2.4,0.4 Z" fill="none" stroke="' + SK_TINTE + '" stroke-width=".4"/>';
     else if (a === 'tp') t = '<path d="M0,-2.4 L2.2,1.4 L-2.2,1.4 Z" fill="none" stroke="' + SK_TINTE + '" stroke-width=".5"/><circle cx="0" cy="0.2" r=".45" fill="' + SK_TINTE + '"/>';
@@ -201,7 +203,11 @@ function skSvg(s, bearbeiten) {
 function skRendern() {
   var s = skAktiv();
   $('sk-blatt').innerHTML = skSvg(s, true);
-  $('sk-blatt').style.width = (skZoom * 100) + '%';
+  if (skVoll) {
+    // Im Vollbild das ganze Blatt in die Bühne einpassen, die Lupe vergrößert von dort aus
+    var b = document.querySelector('#sk-arbeit .sk-buehne'), fit = Math.max(200, Math.min(b.clientWidth, b.clientHeight * SK_B / SK_H) - 2);
+    $('sk-blatt').style.width = Math.round(fit * skZoom) + 'px';
+  } else $('sk-blatt').style.width = (skZoom * 100) + '%';
   skAuswahlZeigen();
 }
 
@@ -344,7 +350,7 @@ $('sk-werkzeuge').addEventListener('click', function (ev) {
   skAuswahl = null; skMeldung('');
   skWerkzeugeZeigen(); skLeisteZeigen(); skRendern();
   if (skWerkzeug === 'text') $('sk-text').focus();
-  else if (skWerkzeug) $('sk-blatt').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  else if (skWerkzeug && !skVoll) $('sk-blatt').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 });
 $('sk-leiste-fertig').addEventListener('click', skFertig);
 $('sk-leiste-zurueck').addEventListener('click', function () { skPunkte.pop(); skLeisteZeigen(); skRendern(); });
@@ -407,6 +413,21 @@ document.querySelectorAll('input[name="sk-zaehlung"]').forEach(function (r) { r.
 [['sk-datum', 'datum'], ['sk-unterschrift', 'unterschrift'], ['sk-erlaeuterung', 'erlaeuterung']].forEach(function (f) {
   $(f[0]).addEventListener('input', function () { skAktiv()[f[1]] = this.value; skSpeichern(); skRendern(); });
 });
+
+/* ===== Vollbild ===== */
+function skVollbild(an) {
+  skVoll = an;
+  $('sk-arbeit').classList.toggle('vollbild', an);
+  document.documentElement.classList.toggle('sk-voll', an);
+  $('sk-vollbild').textContent = an ? 'Schließen' : 'Vollbild';
+  skZoom = 1;
+  skRendern();
+  if (!an) $('sk-arbeit').scrollIntoView({ block: 'start' });
+}
+$('sk-vollbild').addEventListener('click', function () { skVollbild(!skVoll); });
+document.addEventListener('keydown', function (e) { if (skVoll && e.key === 'Escape') skVollbild(false); });
+window.addEventListener('resize', function () { if (skVoll) skRendern(); });
+window.addEventListener('hashchange', function () { if (skVoll) skVollbild(false); });
 
 /* ===== Export als Bild ===== */
 $('sk-png').addEventListener('click', function () {
