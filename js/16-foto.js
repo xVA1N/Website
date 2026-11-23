@@ -145,6 +145,9 @@ function fotoAuswerten() {
   rahmen = rahmen.map(function (x) { return x / summe; });
   var kl = fotoNetz.klassen, beste = function (arr) { var i = 0; for (var j = 1; j < arr.length; j++) if (arr[j] > arr[i]) i = j; return i; };
   var ri = beste(rahmen), gi = beste(e.groesse);
+  // Die Form über dem Rahmen (Punkte, Striche oder Kreuze) legt die Art fest, das Netz die Anzahl
+  var gForm = auf.groesse && auf.groesse.indexOf(kl.groesse[gi]) < 0;
+  if (gForm) auf.groesse.forEach(function (c) { var i = kl.groesse.indexOf(c); if (i >= 0 && (auf.groesse.indexOf(kl.groesse[gi]) < 0 || e.groesse[i] > e.groesse[gi])) gi = i; });
   var symbole = Array.prototype.map.call(e.symbol, function (p, i) { return [p, i]; }).sort(function (x, y) { return y[0] - x[0]; }).slice(0, 3);
   var pz = function (p) { return Math.round(p * 100) + ' %'; };
   var mitText = auf.links.length || auf.rechts.length || auf.staerke;
@@ -154,7 +157,7 @@ function fotoAuswerten() {
   var staerkeText = { '(+)': 'verstärkt (+)', '(-)': 'vermindert (−)' }[auf.staerke] || '';
   var gName = function (code) { var g = MS_GROESSEN.filter(function (x) { return x[0] === code; })[0]; return g ? g[1].replace(/\s*\(.*\)$/, '') : code; };
   $('foto-ergebnis').innerHTML =
-    textFelder + '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + pz(e.groesse[gi]) + ')' + (staerkeText ? ', Stärke: <b>' + staerkeText + '</b>' : '') + '.</span></div>' +
+    textFelder + '<div class="foto-sicht"><canvas id="foto-sicht" width="64" height="64"></canvas><span>So sieht die Erkennung das Zeichen. Rahmen: <b>' + FOTO_RAHMEN_NAME[kl.rahmen[ri]] + '</b> (' + pz(rahmen[ri]) + '), Größe: <b>' + gName(kl.groesse[gi]) + '</b> (' + (gForm ? 'an der Form erkannt' : pz(e.groesse[gi])) + ')' + (staerkeText ? ', Stärke: <b>' + staerkeText + '</b>' : '') + '.</span></div>' +
     symbole.map(function (sp, n) {
       var code = kl.symbol[sp[1]], sidc = '100' + kl.rahmen[ri] + '1000' + kl.groesse[gi] + code + '0000';
       var name = code === '000000' ? 'Nur Rahmen, ohne Symbol' : msNameKurz('10', code);

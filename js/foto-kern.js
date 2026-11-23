@@ -155,6 +155,37 @@ function fotoStaerke(t, b) {
   t.pixel.forEach(function (q) { var x = q % b, y = (q - x) / b; if (Math.abs(x - cx) > w * 0.3 && Math.abs(y - cy) > h * 0.3) ecken++; });
   return spanne(xs) > w * 0.6 && spanne(ys) > h * 0.6 && ecken < t.pixel.length * 0.2 ? '(+)' : '';
 }
+// Art der Größenangabe über dem Rahmen an der Form: Punkte (Gruppe, Halbzug, Zug), Striche (Kompanie, Bataillon, Regiment),
+// Kreuze (Brigade, Division, Korps, Armee). Gibt die möglichen Codes zurück oder null (dann entscheidet das Netz allein).
+// Die Anzahl bestimmt weiter das Netz, das zählt zuverlässiger.
+function fotoGroesseForm(teile, tr, b) {
+  var k = tr.zeichen;
+  if (!k) return null;
+  var zb = k.x1 - k.x0, zh = k.y1 - k.y0, arten = [];
+  var oben = teile.filter(function (t) {
+    var cx = (t.x0 + t.x1) / 2, cy = (t.y0 + t.y1) / 2;
+    return t !== tr.staerke && tr.links.indexOf(t) < 0 && tr.rechts.indexOf(t) < 0 && t.y1 < k.y0 + zh * 0.05 && cy > k.y0 - zh * 0.9 &&
+      cx > k.x0 - zb * 0.1 && cx < k.x1 + zb * 0.1 && Math.max(t.x1 - t.x0, t.y1 - t.y0) + 1 >= zh * 0.05 && Math.max(t.x1 - t.x0, t.y1 - t.y0) < zh * 0.8;
+  });
+  if (!oben.length || oben.length > 4) return null;
+  oben.forEach(function (t) {
+    var w = t.x1 - t.x0 + 1, h = t.y1 - t.y0 + 1;
+    if (h >= w * 1.5) { arten.push('I'); return; }
+    // Tinte in den Ecken (Kreuz) oder an den Seitenmitten und in der Mitte (Punkt)
+    var ecke = 0, seite = 0;
+    t.pixel.forEach(function (q) {
+      var x = ((q % b) - t.x0) / w, y = ((q - q % b) / b - t.y0) / h, ax = Math.abs(x - 0.5), ay = Math.abs(y - 0.5);
+      if (ax > 0.25 && ay > 0.25) ecke++; else if ((ax > 0.25) !== (ay > 0.25)) seite++;
+    });
+    // Kreuz: offene Striche bis in die Ecken. Punkt: gefüllt, Ecken weitgehend leer (auch ein krakeliger Punkt ist gefüllt)
+    var fuellung = t.pixel.length / (w * h);
+    if (ecke > seite * 0.5 && fuellung < 0.5) arten.push('X');
+    else if (w < h * 1.6 && fuellung >= 0.5) arten.push('P');
+    else arten.push('?');
+  });
+  if (arten.some(function (a) { return a !== arten[0]; }) || arten[0] === '?') return null;
+  return { P: ['12', '13', '14'], I: ['15', '16', '17'], X: ['18', '21', '22', '23'] }[arten[0]];
+}
 function fotoUmriss(teile) {
   if (!teile.length) return null;
   var r = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
@@ -203,6 +234,8 @@ function fotoGlyphe(teile, b) {
 function fotoAufbereiten(ctx, x, y, b, h) {
   var g = fotoGrau(ctx, x, y, b, h), m = fotoTinte(g, b, h), teile = fotoTeile(m, b, h), tr = fotoTexteTrennen(teile, b);
   var staerke = tr.staerke ? fotoStaerke(tr.staerke, b) : '';
+  if (!staerke) tr.staerke = null;
+  var groesse = fotoGroesseForm(teile, tr, b);
   tr.links.concat(tr.rechts, staerke ? [tr.staerke] : []).forEach(function (t) { t.pixel.forEach(function (q) { m[q] = 0; }); });
   // Flecken abseits des Zeichens (Maserung, Schmutz, nicht gelesener Text) zählen nicht zum Zeichen
   var k = tr.zeichen;
@@ -214,7 +247,7 @@ function fotoAufbereiten(ctx, x, y, b, h) {
   }
   var box = fotoBox(m, b, h);
   if (!box || box.x1 - box.x0 < 8 || box.y1 - box.y0 < 8) return null;
-  return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, staerke: staerke, breite: b, ctx: ctx, ox: x, oy: y };
+  return { daten: fotoRaster(m, b, h, box), box: box, links: tr.links, rechts: tr.rechts, staerke: staerke, groesse: groesse, breite: b, ctx: ctx, ox: x, oy: y };
 }
 // Farbe des Zeichens (für die Zugehörigkeit): Anteil kräftig gefärbter Pixel in Blau, Rot, Grün, Gelb
 function fotoFarbe(ctx, x, y, b, h) {
