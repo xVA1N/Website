@@ -40,6 +40,7 @@
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8-4.3-4.1 5.9-.8z"/></symbol>
   <symbol id="i-vgl" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M5.5 9h2M5.5 13h2M16.5 9h2M16.5 13h2"/></symbol>
   <symbol id="i-flag" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="1"/><path d="M3.5 6l17 12M20.5 6l-17 12"/></symbol>
+  <symbol id="i-assessment" viewBox="0 0 24 24"><path d="M9 4.5h6M10 4.5V3h4v1.5"/><rect x="5" y="4.5" width="14" height="16.5" rx="1.5"/><path d="M8.5 10l1.5 1.5 3-3M8.5 16l1.5 1.5 3-3M15 10.5h1M15 16.5h1"/></symbol>
   <symbol id="i-skizze" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M6 16.5l4-5 3 3 2-2.5 3 4.5"/><path d="M8.5 8.5h.01"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-4 3.8-6.2 7.5-6.2s6.7 2.2 7.5 6.2"/></symbol>
@@ -116,6 +117,13 @@
       <a class="tile" href="#skizze">
         <span class="box"><svg class="ic"><use href="#i-skizze"/></svg></span>
         <span><span class="tt">Skizzen</span><span class="td">Skizzen auf dem Meldeblatt: Gelände-, Wege-, Stellungs- und Panoramaskizzen</span></span>
+      </a>
+    </nav>
+    <h2 class="start-abschnitt">Bewerbung und Karriere</h2>
+    <nav class="tiles" aria-label="Bewerbung und Karriere">
+      <a class="tile" href="#assessment">
+        <span class="box"><svg class="ic"><use href="#i-assessment"/></svg></span>
+        <span><span class="tt">Assessment Trainer</span><span class="td">Übungsaufgaben für Einstellungstest und Auswahlverfahren: Mathe, Logik, Konzentration</span></span>
       </a>
     </nav>
   </section>
@@ -892,6 +900,73 @@
     </div>
   </section>
 
+  <!-- ASSESSMENT TRAINER -->
+  <section class="view" id="view-assessment" aria-label="Assessment Trainer" hidden>
+    <details class="panel erklaerung">
+      <summary><h2>Erklärung: So funktioniert der Assessment Trainer</h2></summary>
+      <div class="erkl-text">
+        <p>Der Trainer bereitet auf die Tests im Auswahlverfahren vor, etwa im Karrierecenter oder in der Offizierbewerberprüfzentrale. Die Aufgaben sind <strong>im Stil</strong> der bekannten Testarten gebaut und werden jedes Mal neu erzeugt. Es sind keine Originalaufgaben der Bundeswehr; die echten Tests sind nicht öffentlich.</p>
+        <h3>Üben</h3>
+        <p>Bereich und Stufe wählen, dann 10 Aufgaben ohne Zeitdruck. Nach jeder Antwort siehst du, was richtig ist, mit einer kurzen Erklärung des Rechenwegs oder der Regel.</p>
+        <h3>Testsimulation</h3>
+        <p>20 gemischte Aufgaben in 15 Minuten, Stufe mittel. Die Lösungen kommen erst am Ende, mit Auswertung je Bereich und allen Fehlern zum Nacharbeiten. Wie im echten Test lohnt es sich, bei einer schweren Aufgabe nicht zu lange zu hängen.</p>
+        <h3>Dein Stand</h3>
+        <p>Je Bereich zählt der Anteil richtiger Antworten unter den letzten 30 Aufgaben. Die Empfehlung schlägt den schwächsten oder einen noch nicht geübten Bereich vor. Alles bleibt in diesem Browser.</p>
+        <h3>Bereiche</h3>
+        <ul>
+          <li><strong>Mathe:</strong> Grundrechnen ohne Taschenrechner, Prozent, Dreisatz, Bruchrechnen, Einheiten, Textaufgaben zu Strecke und Zeit.</li>
+          <li><strong>Logik:</strong> Zahlenreihen, Buchstabenreihen, Zahlenanalogien.</li>
+          <li><strong>Konzentration:</strong> Durchstreichtest („d“ mit zwei Strichen), Zahlenpaare vergleichen, Rechenketten im Kopf.</li>
+        </ul>
+        <p>Räumliches Denken, Merkfähigkeit, Sprache, Wissen, Sport sowie Gespräch und Gruppe folgen.</p>
+      </div>
+    </details>
+    <p class="notice warn-lage" role="note"><strong>Übungsaufgaben im Stil der bekannten Testarten,</strong> keine Originalaufgaben der Bundeswehr. Ergebnisse bleiben in diesem Browser.</p>
+    <div id="at-start">
+      <section class="panel">
+        <h2>Dein Stand</h2>
+        <div class="at-staende" id="at-stand"></div>
+        <p class="hint" id="at-empfehlung" style="margin-bottom:0"></p>
+      </section>
+      <section class="panel">
+        <h2>Üben</h2>
+        <p class="hint">10 Aufgaben ohne Zeitdruck, nach jeder Antwort die Lösung mit Erklärung.</p>
+        <fieldset><legend>Bereich</legend><div class="seg">
+          <label><input type="radio" name="at-bereich" value="mathe" checked><span>Mathe</span></label>
+          <label><input type="radio" name="at-bereich" value="logik"><span>Logik</span></label>
+          <label><input type="radio" name="at-bereich" value="konzentration"><span>Konzentration</span></label>
+          <label><input type="radio" name="at-bereich" value="gemischt"><span>Gemischt</span></label>
+        </div></fieldset>
+        <fieldset style="margin-top:12px"><legend>Stufe</legend><div class="seg">
+          <label><input type="radio" name="at-stufe" value="0"><span>leicht</span></label>
+          <label><input type="radio" name="at-stufe" value="1" checked><span>mittel</span></label>
+          <label><input type="radio" name="at-stufe" value="2"><span>schwer</span></label>
+        </div></fieldset>
+        <div class="dg-aktionen" style="margin-top:12px"><button type="button" class="knopf primaer" id="at-ueben">Üben starten</button></div>
+      </section>
+      <section class="panel">
+        <h2>Testsimulation</h2>
+        <p class="hint">20 gemischte Aufgaben in 15 Minuten, Auswertung am Ende – wie im Test.</p>
+        <div class="dg-aktionen"><button type="button" class="knopf primaer" id="at-test">Simulation starten</button></div>
+      </section>
+      <section class="panel" id="at-verlauf-wrap" hidden>
+        <h2>Letzte Durchgänge</h2>
+        <div class="at-verlauf" id="at-verlauf"></div>
+        <div class="dg-aktionen" style="margin-top:10px"><button type="button" class="knopf sekundaer" id="at-verlauf-weg">Verlauf und Stand löschen</button></div>
+      </section>
+    </div>
+    <section class="panel at-quiz" id="at-quiz" hidden>
+      <div class="at-kopf"><span id="at-fortschritt"></span><span class="at-uhr" id="at-uhr"></span><button type="button" class="knopf sekundaer" id="at-abbrechen">Beenden</button></div>
+      <div class="at-balken"><div id="at-balken-fill"></div></div>
+      <p class="at-bereich" id="at-bereich"></p>
+      <div class="at-frage" id="at-frage"></div>
+      <div class="at-optionen" id="at-optionen"></div>
+      <div class="at-feedback" id="at-feedback" hidden></div>
+      <div class="dg-aktionen"><button type="button" class="knopf primaer" id="at-weiter" hidden>Weiter</button></div>
+    </section>
+    <section class="panel" id="at-ergebnis" hidden></section>
+  </section>
+
   <!-- PROFIL -->
   <section class="view" id="view-profil" aria-label="Mein Profil" hidden>
     <p class="lede">Einmal eintragen, Rechner, DuZ-Rechner und Urlaubskartei übernehmen es. Gespeichert wird nur in diesem Browser, nicht auf einem Server.</p>
@@ -1036,5 +1111,6 @@
 <script src="js/15-start.js"></script>
 <script src="js/16-foto.js"></script>
 <script src="js/17-skizze.js"></script>
+<script src="js/18-assessment.js"></script>
 </body>
 </html>
