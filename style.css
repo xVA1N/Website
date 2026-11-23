@@ -91,7 +91,7 @@ p { margin: 0; }
 .notice strong { font-weight: 600; }
 .wrap[data-view="start"] .short { display: none; }
 .wrap:not([data-view="start"]) .full { display: none; }
-.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox, .wrap[data-view="assessment"] .tskbox { display: none; }
+.wrap[data-view="start"] .tskbox, .wrap[data-view="mehr"] .tskbox, .wrap[data-view="gruppe"] .tskbox, .wrap[data-view="zulagen"] .tskbox, .wrap[data-view="favoriten"] .tskbox, .wrap[data-view="urlaub"] .tskbox, .wrap[data-view="duz"] .tskbox, .wrap[data-view="profil"] .tskbox, .wrap[data-view="symbole"] .tskbox, .wrap[data-view="lage"] .tskbox, .wrap[data-view="skizze"] .tskbox, .wrap[data-view="assessment"] .tskbox, .wrap[data-view="lexikon"] .tskbox { display: none; }
 .tskbox .label { display: block; }
 .tskbox .hint { margin-top: 6px; }
 
@@ -610,7 +610,7 @@ details.panel > summary:focus-visible { outline: 2px solid var(--accent); outlin
 .ms-code { margin: 10px 0 0; font-size: .82rem; color: var(--muted); text-align: center; }
 .ms-code span { font-family: var(--font-mono); color: var(--fg); overflow-wrap: anywhere; }
 .p-felder input[type="text"] { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; box-sizing: border-box; }
-.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand, .wrap[data-view="assessment"] #rechtsstand { display: none; }
+.wrap[data-view="symbole"] #rechtsstand, .wrap[data-view="profil"] #rechtsstand, .wrap[data-view="lage"] #rechtsstand, .wrap[data-view="skizze"] #rechtsstand, .wrap[data-view="assessment"] #rechtsstand, .wrap[data-view="lexikon"] #rechtsstand { display: none; }
 
 /* Lagekarte */
 .warn-lage { margin: 0; }
@@ -885,3 +885,23 @@ html.sk-voll, html.sk-voll body { overflow: hidden; overscroll-behavior: none; }
 .at-buchstaben { letter-spacing: .12em; word-spacing: .4em; }
 .at-paar-text { font-family: var(--font-text); font-size: .98rem; flex-direction: column; gap: 0; padding: 6px 0; border-bottom: 1px solid var(--line); }
 @media (min-width: 520px) { .at-paar-text { flex-direction: row; gap: 18px; } .at-paar-text span { flex: 1; } }
+
+/* Lexikon */
+.lex-kopf { display: grid; gap: 12px; }
+#lex-suche { width: 100%; min-height: 44px; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; }
+.lex-liste { display: grid; gap: 14px; }
+.lex-karte { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.lex-bild { margin: 0; background: #fff; border-bottom: 1px solid var(--line); }
+.lex-bild img { display: block; width: 100%; height: auto; }
+.lex-bild figcaption { padding: 4px 10px 6px; color: #5f6368; font-size: .72rem; line-height: 1.35; }
+.lex-bild figcaption a { color: inherit; }
+.lex-ohne { display: grid; place-items: center; height: 72px; color: var(--muted); font-size: .85rem; background: var(--soft); }
+.lex-text { padding: 12px 14px 14px; }
+.lex-text h3 { margin: 0; font-size: 1.15rem; }
+.lex-art { margin: 2px 0 10px; color: var(--muted); font-size: .9rem; }
+.lex-daten { display: grid; grid-template-columns: max-content 1fr; gap: 5px 14px; margin: 0; font-size: .93rem; }
+.lex-daten dt { color: var(--muted); }
+.lex-daten dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.lex-quelle { display: inline-block; margin-top: 10px; color: var(--muted); font-size: .8rem; }
+@media (min-width: 760px) { .lex-liste { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 380px) { .lex-daten { grid-template-columns: 1fr; gap: 0; } .lex-daten dd { margin-bottom: 6px; } }

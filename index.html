@@ -44,6 +44,7 @@
   <symbol id="i-skizze" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M6 16.5l4-5 3 3 2-2.5 3 4.5"/><path d="M8.5 8.5h.01"/></symbol>
   <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5l5.5-2 6 2 5.5-2v13l-5.5 2-6-2-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-4 3.8-6.2 7.5-6.2s6.7 2.2 7.5 6.2"/></symbol>
+  <symbol id="i-lexikon" viewBox="0 0 24 24"><path d="M4 5.5C6.5 4.3 9.5 4.3 12 6c2.5-1.7 5.5-1.7 8-.5V19c-2.5-1.2-5.5-1.2-8 .5-2.5-1.7-5.5-1.7-8-.5z"/><path d="M12 6v13.5"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
 </svg>
 
@@ -117,6 +118,10 @@
       <a class="tile" href="#skizze">
         <span class="box"><svg class="ic"><use href="#i-skizze"/></svg></span>
         <span><span class="tt">Skizzen</span><span class="td">Skizzen auf dem Meldeblatt: Gelände-, Wege-, Stellungs- und Panoramaskizzen</span></span>
+      </a>
+      <a class="tile" href="#lexikon">
+        <span class="box"><svg class="ic"><use href="#i-lexikon"/></svg></span>
+        <span><span class="tt">Lexikon</span><span class="td">Fahrzeuge und Waffen mit den wichtigsten technischen Daten</span></span>
       </a>
     </nav>
     <h2 class="start-abschnitt">Bewerbung und Karriere</h2>
@@ -1031,6 +1036,15 @@
     </section>
   </section>
 
+  <!-- LEXIKON -->
+  <section class="view" id="view-lexikon" aria-label="Lexikon" hidden>
+    <section class="panel lex-kopf">
+      <input type="search" id="lex-suche" placeholder="Suchen, z. B. Leopard oder Gewehr" autocomplete="off" aria-label="Lexikon durchsuchen">
+      <div class="seg" id="lex-filter" role="radiogroup" aria-label="Kategorie"></div>
+    </section>
+    <div class="lex-liste" id="lex-liste"></div>
+  </section>
+
   <section class="view" id="view-mehr" aria-label="Mehr" hidden>
     <section class="panel" aria-labelledby="ueber-titel">
       <h2 id="ueber-titel">Über „MeinKamerad“</h2>
@@ -1114,5 +1128,6 @@
 <script src="js/16-foto.js"></script>
 <script src="js/17-skizze.js"></script>
 <script src="js/18-assessment.js"></script>
+<script src="js/19-lexikon.js"></script>
 </body>
 </html>
